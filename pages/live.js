@@ -1,5 +1,6 @@
 // pages/live.js
 import { useState, useEffect } from 'react';
+import Footer from '../components/Footer';
 
 export default function Live() {
   const [tipAmount, setTipAmount] = useState('');
@@ -14,7 +15,7 @@ export default function Live() {
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #023e8a 0%, #0077b6 25%, #0096c7 50%, #00b4d8 75%, #48cae4 100%)',
     }}>
-      {/* Navigation Bar - Darker glass */}
+      {/* Navigation Bar */}
       <nav style={{
         background: 'rgba(2, 62, 138, 0.2)',
         backdropFilter: 'blur(20px)',
@@ -60,24 +61,22 @@ export default function Live() {
           </a>
         </div>
 
-        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-          <button
-            onClick={() => window.location.href = '/pilot-setup'}
-            style={{
-              background: 'linear-gradient(135deg, #ffdf00, #ffb703)',
-              color: '#023e8a',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '10px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              transition: 'transform 0.3s'
-            }}
-            onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
-            onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+          <a href="/pilot-setup" style={{
+            background: 'linear-gradient(135deg, #ffdf00, #ffb703)',
+            color: '#023e8a',
+            textDecoration: 'none',
+            padding: '10px 20px',
+            borderRadius: '10px',
+            fontWeight: 'bold',
+            transition: 'all 0.3s',
+            boxShadow: '0 5px 15px rgba(255, 223, 0, 0.4)',
+          }}
+          onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+          onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
           >
-            Start Streaming
-          </button>
+            🚁 Start Streaming
+          </a>
         </div>
       </nav>
 
@@ -103,7 +102,7 @@ export default function Live() {
             gap: '15px'
           }}>
             <div>
-              <h2 style={{ color: '#caf0f8', margin: 0 }}>DroneKing's Stream</h2>
+              <h2 style={{ color: '#e5c4f3ff', margin: 0 }}>Romulus Stream</h2>
               <p style={{ color: '#90e0ef', margin: '5px 0' }}>
                 🔴 LIVE • 1,247 viewers • Flying over Miami Beach
               </p>
@@ -157,7 +156,6 @@ export default function Live() {
                     minWidth: '200px',
                     zIndex: 10
                   }}>
-                    
                     <a
                       href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
                       target="_blank"
@@ -302,25 +300,219 @@ export default function Live() {
           </div>
         </div>
       </div>
+{/* Tip Modal - WITH BOTH PAYMENT OPTIONS */}
+{showTipModal && (
+  <div style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0, 0, 0, 0.8)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000
+  }}>
+    <div style={{
+      background: 'white',
+      borderRadius: '20px',
+      padding: '30px',
+      maxWidth: '450px',
+      width: '90%',
+      position: 'relative'
+    }}>
+      {/* Close Button */}
+      <button
+        onClick={() => setShowTipModal(false)}
+        style={{
+          position: 'absolute',
+          top: '15px',
+          right: '15px',
+          background: 'none',
+          border: 'none',
+          fontSize: '1.5rem',
+          cursor: 'pointer',
+          color: '#666'
+        }}
+      >
+        ✕
+      </button>
+      
+     <h2 style={{ color: '#03045e', marginBottom: '20px' }}>
+  💰 Send a Tip to Romulus
+     </h2>
+      
+      {/* Quick tip amounts */}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        {[5, 10, 20, 50].map(amount => (
+          <button
+            key={amount}
+            onClick={() => setTipAmount(amount.toString())}
+            style={{
+              flex: 1,
+              padding: '10px',
+              border: tipAmount === amount.toString() ? '2px solid #0077b6' : '1px solid #ddd',
+              borderRadius: '10px',
+              background: tipAmount === amount.toString() ? '#e6f4ff' : 'white',
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+          >
+            ${amount}
+          </button>
+        ))}
+      </div>
+      
+      {/* Custom amount input */}
+      <input
+        type="number"
+        placeholder="Custom amount"
+        value={tipAmount}
+        onChange={(e) => setTipAmount(e.target.value)}
+        style={{
+          width: '100%',
+          padding: '15px',
+          borderRadius: '10px',
+          border: '1px solid #ddd',
+          marginBottom: '20px',
+          fontSize: '1.1rem'
+        }}
+      />
+      
+      {/* BOTH PAYMENT BUTTONS */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        
+        {/* Stripe Button */}
+        <button
+          onClick={async () => {
+            if (!tipAmount || tipAmount === '0') {
+              alert('Please enter a tip amount');
+              return;
+            }
+            
+            // Stripe Checkout
+            const response = await fetch('/api/create-checkout', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                amount: tipAmount,
+                pilotName: 'DroneKing'
+              })
+            });
+            
+            const { url } = await response.json();
+            window.location.href = url; // Redirect to Stripe
+          }}
+          style={{
+            width: '100%',
+            padding: '15px',
+            background: 'linear-gradient(135deg, #635bff, #7c73ff)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '10px',
+            fontWeight: 'bold',
+            fontSize: '1.1rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            transition: 'transform 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        >
+          <span>💳</span> Pay ${tipAmount || '0'} with Card
+        </button>
+        
+        {/* PayPal Button */}
+        <form 
+          action="https://www.paypal.com/cgi-bin/webscr" 
+          method="post" 
+          target="_blank"
+          style={{ width: '100%' }}
+        >
+          <input type="hidden" name="cmd" value="_xclick" />
+          <input type="hidden" name="business" value="garlanrobinson@icloud.com" />
+          <input type="hidden" name="item_name" value="Tip to Romulus- BlueTubeTV" />
+          <input type="hidden" name="amount" value={tipAmount || '0'} />
+          <input type="hidden" name="currency_code" value="USD" />
+          <input type="hidden" name="return" value="https://bluetubetv.live/success" />
+          
+          <button 
+            type="submit"
+            disabled={!tipAmount || tipAmount === '0'}
+            style={{
+              width: '100%',
+              padding: '15px',
+              background: 'linear-gradient(135deg, #FFC439, #FFB700)',
+              color: '#003087',
+              border: 'none',
+              borderRadius: '10px',
+              fontWeight: 'bold',
+              fontSize: '1.1rem',
+              cursor: tipAmount ? 'pointer' : 'not-allowed',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              transition: 'transform 0.2s',
+              opacity: tipAmount ? 1 : 0.6
+            }}
+            onMouseEnter={(e) => tipAmount && (e.currentTarget.style.transform = 'scale(1.02)')}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <span>🅿️</span> Pay ${tipAmount || '0'} with PayPal
+          </button>
+        </form>
+      </div>
+      
+      {/* Payment security note */}
+      <p style={{
+        textAlign: 'center',
+        marginTop: '20px',
+        color: '#666',
+        fontSize: '0.9rem'
+      }}>
+        🔒 Secure payment • Pilot gets 80% • Platform fee 20%
+      </p>
+      
+      {/* Alternative: Buy Me a Coffee */}
+      <div style={{
+        borderTop: '1px solid #eee',
+        marginTop: '20px',
+        paddingTop: '20px',
+        textAlign: 'center'
+      }}>
+        <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '10px' }}>
+          Or support us on:
+        </p>
+        <a 
+          href="https://buymeacoffee.com/bluetubetv" 
+          target="_blank"
+          style={{
+            display: 'inline-block',
+            padding: '10px 20px',
+            background: '#FFDD00',
+            color: '#000',
+            borderRadius: '10px',
+            textDecoration: 'none',
+            fontWeight: 'bold',
+            transition: 'transform 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        >
+          ☕ Buy Me a Coffee
+        </a>
+      </div>
+    </div>
+  </div>
+)}
 
-      {/* Keep existing Tip Modal code... */}
-      {showTipModal && (
-        // ... existing tip modal code
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.8)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          {/* ... rest of modal */}
-        </div>
-      )}
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

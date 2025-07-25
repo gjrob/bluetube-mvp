@@ -113,7 +113,64 @@ export default function Dashboard() {
             <p style={{ color: '#90e0ef', marginTop: '5px' }}>Tips & sponsorships</p>
           </div>
         </div>
-
+          <div style={{
+  background: 'linear-gradient(135deg, rgba(255, 223, 0, 0.2), rgba(255, 183, 3, 0.2))',
+  backdropFilter: 'blur(10px)',
+  border: '2px solid rgba(255, 223, 0, 0.4)',
+  borderRadius: '20px',
+  padding: '25px',
+  marginBottom: '30px',
+  boxShadow: '0 5px 20px rgba(255, 223, 0, 0.2)'
+}}>
+  <h3 style={{ 
+    color: '#caf0f8', 
+    marginBottom: '15px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  }}>
+    💰 Pilot Payout Information
+  </h3>
+  <div style={{ color: '#90e0ef' }}>
+    <p style={{ marginBottom: '15px' }}>
+      <strong>Beta Launch Payout Schedule:</strong>
+    </p>
+    <ul style={{ 
+      listStyle: 'none', 
+      padding: 0,
+      margin: 0
+    }}>
+      <li style={{ marginBottom: '8px' }}>
+        ✅ Tips collected by BlueTubeTV platform
+      </li>
+      <li style={{ marginBottom: '8px' }}>
+        ✅ Payouts every Friday via PayPal/Venmo
+      </li>
+      <li style={{ marginBottom: '8px' }}>
+        ✅ You keep 80% of all tips received
+      </li>
+      <li style={{ marginBottom: '8px' }}>
+        ✅ Minimum payout: $25
+      </li>
+      <li style={{ marginBottom: '8px' }}>
+        ⏳ Instant payouts coming soon!
+      </li>
+    </ul>
+    <p style={{ 
+      marginTop: '20px', 
+      fontSize: '0.9rem',
+      color: '#48cae4'
+    }}>
+      <strong>Questions?</strong> Email us at{' '}
+      <a 
+        href="mailto:pilot@bluetubetv.live" 
+        style={{ color: '#90e0ef', textDecoration: 'underline' }}
+      >
+        pilot@bluetubetv.live
+      </a>
+    </p>
+  </div>
+</div>
         {/* Quick Actions */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.1)',
@@ -173,6 +230,23 @@ export default function Dashboard() {
             >
               ⚙️ Settings
             </button>
+            <div style={{
+  background: 'rgba(255, 223, 0, 0.1)',
+  border: '1px solid rgba(255, 223, 0, 0.3)',
+  borderRadius: '10px',
+  padding: '20px',
+  marginBottom: '20px'
+}}>
+  <h3>💰 Pilot Payouts</h3>
+  <p>During our beta launch:</p>
+  <ul>
+    <li>Tips are collected by BlueTubeTV</li>
+    <li>Payouts every Friday via PayPal/Venmo</li>
+    <li>You keep 80% of all tips</li>
+    <li>Instant payouts coming soon!</li>
+  </ul>
+  <p><strong>Questions?</strong> Email: pilot@bluetubetv.live</p>
+</div>
           </div>
         </div>
       </div>
