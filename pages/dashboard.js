@@ -137,10 +137,10 @@ export default function Dashboard() {
               onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
               onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
             >
-              🚁 Start Streaming
+              🚀 Go Live
             </button>
-            
             <button
+              onClick={() => alert('Analytics coming soon!')}
               style={{
                 background: 'rgba(255, 255, 255, 0.2)',
                 color: '#caf0f8',
@@ -149,14 +149,13 @@ export default function Dashboard() {
                 borderRadius: '10px',
                 fontSize: '1.1rem',
                 fontWeight: 'bold',
-                cursor: 'pointer',
-                transition: 'all 0.3s'
+                cursor: 'pointer'
               }}
             >
               📊 View Analytics
             </button>
-            
             <button
+              onClick={() => alert('Settings coming soon!')}
               style={{
                 background: 'transparent',
                 color: '#90e0ef',
@@ -165,16 +164,7 @@ export default function Dashboard() {
                 borderRadius: '10px',
                 fontSize: '1.1rem',
                 fontWeight: 'bold',
-                cursor: 'pointer',
-                transition: 'all 0.3s'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = '#48cae4';
-                e.target.style.color = '#03045e';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = 'transparent';
-                e.target.style.color = '#90e0ef';
+                cursor: 'pointer'
               }}
             >
               ⚙️ Settings
