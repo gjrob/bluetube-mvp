@@ -1,3 +1,4 @@
+
 export default function LiveNow() {
   return (
     <div style={{ minHeight: '100vh', background: '#1a1a2e', color: 'white', padding: '20px' }}>
