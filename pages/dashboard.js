@@ -1,4 +1,6 @@
+// pages/dashboard.js
 import { useState, useEffect } from 'react';
+import Footer from '../components/Footer';  // ← ADD THIS IMPORT
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -13,11 +15,13 @@ export default function Dashboard() {
   return (
     <div style={{
       minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
       background: 'linear-gradient(135deg, #03045e 0%, #023e8a 20%, #0077b6 40%, #0096c7 60%, #00b4d8 80%, #48cae4 100%)',
       position: 'relative'
     }}>
       {/* Main Content */}
-      <div style={{ position: 'relative', zIndex: 1, padding: '40px 20px' }}>
+      <div style={{ position: 'relative', zIndex: 1, padding: '40px 20px', flex: 1 }}>
         {/* Header */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.1)',
@@ -89,7 +93,7 @@ export default function Dashboard() {
             <p style={{ color: '#48cae4', marginTop: '5px' }}>Ready for takeoff!</p>
           </div>
 
-          {/* Earnings Card - Ocean blue instead of yellow */}
+          {/* Earnings Card */}
           <div style={{
             background: 'linear-gradient(135deg, rgba(72, 202, 228, 0.3), rgba(144, 224, 239, 0.3))',
             backdropFilter: 'blur(10px)',
@@ -172,6 +176,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
