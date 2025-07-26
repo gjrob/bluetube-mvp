@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { AlertTriangle, Activity, Navigation, Battery } from 'lucide-react';
+import FlightComplianceAIPanel from './FlightComplianceAI';
 
 export default function FlightCompliance({ streamKey }) {
   const effectiveStreamKey = streamKey || 'demo-stream';
@@ -204,6 +205,12 @@ useEffect(() => {
             {droneStatus.telemetry.altitude > 400 && (
               <div className="text-xs text-red-400 mt-1">⚠️ FAA Limit: 400ft</div>
             )}
+            {isConnected && droneStatus?.telemetry && (
+            <FlightComplianceAIPanel 
+             streamKey={effectiveStreamKey}
+             currentTelemetry={droneStatus.telemetry}
+             />
+      )}
           </div>
 
           <div className="bg-zinc-800 rounded-lg p-4">
