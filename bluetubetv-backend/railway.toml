@@ -1,0 +1,20 @@
+# railway.toml - Configuration for BlueTubeTV Backend
+
+[build]
+builder = "DOCKERFILE"
+
+[deploy]
+startCommand = "npm start"
+healthcheckPath = "/health"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+# TCP Proxy for RTMP (Port 1935)
+[[deploy.tcpProxies]]
+applicationPort = 1935
+externalPort = 1935
+
+# HTTP for HLS (Port 8000) 
+[[deploy.tcpProxies]]
+applicationPort = 8000
+externalPort = 8000

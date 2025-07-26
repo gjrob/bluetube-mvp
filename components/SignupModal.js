@@ -31,10 +31,25 @@ const SignupModal = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
+const handleSubmit = async () => {
+  if (!validateForm()) return;
+  setLoading(true);
+  
+  try {
+    // For now, just save to localStorage
+    localStorage.setItem('user', JSON.stringify({
+      username: formData.username,
+      email: formData.email
+    }));
     
-    setLoading(true);
+    // Redirect to dashboard
+    window.location.href = '/dashboard';
+  } catch (error) {
+    console.error('Signup failed:', error);
+  }
+  
+  setLoading(false);
+};
     
     // Simulate API call - Replace with your actual API
     setTimeout(() => {
@@ -422,6 +437,5 @@ const SignupModal = () => {
       `}} />
     </>
   );
-};
 
 export default SignupModal;

@@ -1,551 +1,226 @@
-import React, { useState } from 'react';
-import { X, Eye, EyeOff, Loader2, Zap, DollarSign, Users } from 'lucide-react';
-
-const SignupModal = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [mode, setMode] = useState('signup');
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: ''
-  });
-  const [errors, setErrors] = useState({});
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (mode === 'signup') {
-      if (!formData.username) newErrors.username = 'Username required';
-      else if (formData.username.length < 3) newErrors.username = 'Username must be 3+ characters';
-      
-      if (!formData.email) newErrors.email = 'Email required';
-      else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Invalid email';
-    }
-    
-    if (!formData.password) newErrors.password = 'Password required';
-    else if (formData.password.length < 6) newErrors.password = 'Password must be 6+ characters';
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-    
-    setLoading(true);
-    
-    setTimeout(() => {
-      console.log(`${mode} data:`, formData);
-      setLoading(false);
-      window.location.href = '/dashboard';
-    }, 1500);
-  };
-
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' });
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSubmit();
-    }
-  };
-
-  return (
-    <>
-      <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-        <h2 style={{ 
-          fontSize: '2.5rem', 
-          marginBottom: '10px',
-          background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          fontWeight: 'bold'
-        }}>
-          Ready to start earning?
-        </h2>
-        
-        <p style={{ color: '#94a3b8', marginBottom: '30px', fontSize: '1.1rem' }}>
-          Join thousands of drone pilots streaming and earning
-        </p>
-
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          gap: '30px', 
-          marginBottom: '30px',
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <DollarSign size={20} style={{ color: '#10b981' }} />
-            <span>80% Revenue Share</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Zap size={20} style={{ color: '#f59e0b' }} />
-            <span>Instant Payouts</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Users size={20} style={{ color: '#8b5cf6' }} />
-            <span>Growing Community</span>
-          </div>
-        </div>
-
-        <button
-          onClick={() => setIsOpen(true)}
-          style={{
-            background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
-            color: 'white',
-            padding: '15px 40px',
-            borderRadius: '50px',
-            border: 'none',
-            fontSize: '1.2rem',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            transition: 'transform 0.2s',
-            boxShadow: '0 4px 15px rgba(139, 92, 246, 0.3)'
-          }}
-          onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
-          onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
-        >
-          Start Streaming Now →
-        </button>
-        
-        <p style={{ marginTop: '20px', color: '#64748b' }}>
-          Questions? Email pilot@bluetubetv.live
-        </p>
-      </div>
-
-      {isOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '20px'
-        }}>
-          <div style={{
-            backgroundColor: '#1e293b',
-            borderRadius: '20px',
-            padding: '40px',
-            maxWidth: '450px',
-            width: '100%',
-            position: 'relative',
-            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
-          }}>
-            <button
-              onClick={() => setIsOpen(false)}
-              style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                background: 'none',
-                border: 'none',
-                color: '#94a3b8',
-                cursor: 'pointer',
-                padding: '5px'
-              }}
-            >
-              <X size={24} />
-            </button>
-
-            <h2 style={{
-              fontSize: '2rem',
-              marginBottom: '10px',
-              textAlign: 'center',
-              background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>
-              {mode === 'signup' ? 'Create Your Account' : 'Welcome Back'}
-            </h2>
-            
-            <p style={{ 
-              textAlign: 'center', 
-              color: '#94a3b8', 
-              marginBottom: '30px' 
-            }}>
-              {mode === 'signup' 
-                ? 'Start streaming in under 2 minutes' 
-                : 'Log in to your BlueTubeTV account'}
-            </p>
-
-            <div>
-              {mode === 'signup' && (
-                <div style={{ marginBottom: '20px' }}>
-                  <input
-                    type="text"
-                    name="username"
-                    placeholder="Choose a username"
-                    value={formData.username}
-                    onChange={handleInputChange}
-                    onKeyPress={handleKeyPress}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      borderRadius: '10px',
-                      border: errors.username ? '1px solid #ef4444' : '1px solid #334155',
-                      backgroundColor: '#0f172a',
-                      color: 'white',
-                      fontSize: '16px',
-                      outline: 'none'
-                    }}
-                  />
-                  {errors.username && (
-                    <p style={{ color: '#ef4444', fontSize: '14px', marginTop: '5px' }}>
-                      {errors.username}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <div style={{ marginBottom: '20px' }}>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email address"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  onKeyPress={handleKeyPress}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    borderRadius: '10px',
-                    border: errors.email ? '1px solid #ef4444' : '1px solid #334155',
-                    backgroundColor: '#0f172a',
-                    color: 'white',
-                    fontSize: '16px',
-                    outline: 'none'
-                  }}
-                />
-                {errors.email && (
-                  <p style={{ color: '#ef4444', fontSize: '14px', marginTop: '5px' }}>
-                    {errors.email}
-                  </p>
-                )}
-              </div>
-
-              <div style={{ marginBottom: '30px', position: 'relative' }}>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  placeholder="Password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  onKeyPress={handleKeyPress}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    paddingRight: '45px',
-                    borderRadius: '10px',
-                    border: errors.password ? '1px solid #ef4444' : '1px solid #334155',
-                    backgroundColor: '#0f172a',
-                    color: 'white',
-                    fontSize: '16px',
-                    outline: 'none'
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    color: '#94a3b8',
-                    cursor: 'pointer',
-                    padding: '5px'
-                  }}
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-                {errors.password && (
-                  <p style={{ color: '#ef4444', fontSize: '14px', marginTop: '5px' }}>
-                    {errors.password}
-                  </p>
-                )}
-              </div>
-
-              <button
-                onClick={handleSubmit}
-                disabled={loading}
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  background: loading 
-                    ? '#334155' 
-                    : 'linear-gradient(to right, #3b82f6, #8b5cf6)',
-                  color: 'white',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  transition: 'transform 0.2s'
-                }}
-                onMouseOver={(e) => !loading && (e.target.style.transform = 'scale(1.02)')}
-                onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
-              >
-                {loading && <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} />}
-                {loading ? 'Creating...' : (mode === 'signup' ? 'Create Account' : 'Log In')}
-              </button>
-            </div>
-
-            <p style={{ 
-              textAlign: 'center', 
-              marginTop: '20px', 
-              color: '#94a3b8' 
-            }}>
-              {mode === 'signup' ? 'Already have an account? ' : "Don't have an account? "}
-              <button
-                onClick={() => {
-                  setMode(mode === 'signup' ? 'login' : 'signup');
-                  setErrors({});
-                  setFormData({ username: '', email: '', password: '' });
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#3b82f6',
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  fontSize: '14px'
-                }}
-              >
-                {mode === 'signup' ? 'Log in' : 'Sign up'}
-              </button>
-            </p>
-          </div>
-        </div>
-      )}
-
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}} />
-    </>
-  );
-};
+// pages/pilot-setup.js - Independent Setup (No External Dependencies)
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 export default function PilotSetup() {
+  const [streamKey, setStreamKey] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const generateStreamKey = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/generate-stream-key', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const data = await response.json();
+      setStreamKey(data);
+    } catch (error) {
+      alert('Failed to generate stream key');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    alert('Copied to clipboard!');
+  };
+
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      background: 'linear-gradient(to bottom, #1a1a2e, #0f0f1e)',
-      color: 'white',
-      padding: '40px 20px',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
-    }}>
-      <a href="/" style={{
-        position: 'absolute',
-        top: '20px',
-        left: '20px',
-        color: 'white',
-        textDecoration: 'none',
-        fontSize: '1.2rem'
-      }}>
-        ← Back to Stream
-      </a>
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <h1 style={{ 
-          fontSize: '3rem', 
-          textAlign: 'center',
-          marginBottom: '40px',
-          background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
-        }}>
-          🚁 Start Streaming in 2 Minutes
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-blue-800 text-white">
+      {/* Header */}
+      <div className="container mx-auto px-6 py-8">
+        <button 
+          onClick={() => router.back()}
+          className="flex items-center gap-2 mb-8 text-blue-300 hover:text-white transition-colors"
+        >
+          ← Back to Stream
+        </button>
 
-        {/* Quick Start */}
-        <div style={{ 
-          background: 'rgba(34, 197, 94, 0.2)', 
-          border: '2px solid #22c55e',
-          borderRadius: '15px',
-          padding: '30px',
-          marginBottom: '30px'
-        }}>
-          <h2 style={{ marginBottom: '20px' }}>⚡ Quick Start for DJI Pilots</h2>
+        {/* Drone Selection */}
+        <div className="mb-12">
+          <h1 className="text-4xl font-bold mb-8 text-center">
+            🚁 Start Streaming in 2 Minutes
+          </h1>
           
-          <ol style={{ lineHeight: '2', fontSize: '1.1rem' }}>
-            <li>Get your stream key from <a href="https://dash.cloudflare.com" style={{ color: '#3b82f6' }}>Cloudflare Stream</a></li>
-            <li>Open DJI Fly app → Settings → Live Streaming → RTMP Custom</li>
-            <li>Enter URL: <code style={{ 
-              background: '#000', 
-              padding: '5px 10px', 
-              borderRadius: '5px' 
-            }}>rtmp://live.cloudflare.com/live/</code></li>
-            <li>Paste your stream key and tap "Start Live"</li>
-            <li>You're LIVE! Share your link and get tipped! 💰</li>
-          </ol>
-        </div>
-
-        {/* Supported Drones */}
-        <div style={{ 
-          background: 'rgba(255,255,255,0.05)', 
-          borderRadius: '15px',
-          padding: '30px',
-          marginBottom: '30px'
-        }}>
-          <h2 style={{ marginBottom: '20px' }}>✅ Supported Drones</h2>
-          
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: '10px'
-          }}>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
             {['Mavic 3', 'Air 2S', 'Mini 3 Pro', 'DJI FPV', 'Phantom 4', 'Inspire 2'].map(drone => (
-              <div key={drone} style={{
-                background: 'rgba(34, 197, 94, 0.1)',
-                border: '1px solid #22c55e',
-                padding: '10px',
-                borderRadius: '8px',
-                textAlign: 'center'
-              }}>
-                ✓ {drone}
+              <div key={drone} className="border-2 border-green-500 rounded-lg p-4 text-center bg-green-500/10">
+                <span className="text-green-400">✓</span> {drone}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Detailed Steps */}
-        <div style={{ 
-          background: 'rgba(255,255,255,0.05)', 
-          borderRadius: '15px',
-          padding: '30px',
-          marginBottom: '30px'
-        }}>
-          <h2 style={{ marginBottom: '20px' }}>📱 Detailed Setup</h2>
-          
-          <h3 style={{ color: '#3b82f6', marginTop: '20px' }}>Step 1: Get Cloudflare Stream Key</h3>
-          <ul style={{ lineHeight: '1.8' }}>
-            <li>Sign up at <a href="https://dash.cloudflare.com" style={{ color: '#3b82f6' }}>dash.cloudflare.com</a> (free)</li>
-            <li>Go to Stream → Live Inputs → Create Live Input</li>
-            <li>Copy your Stream Key (keep it private!)</li>
-          </ul>
+        {/* Independent Setup */}
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-8 border border-white/20">
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+              📱 Your Independent Streaming Setup
+            </h2>
 
-          <h3 style={{ color: '#3b82f6', marginTop: '20px' }}>Step 2: Configure DJI App</h3>
-          <div style={{ 
-            background: '#000', 
-            padding: '20px', 
-            borderRadius: '10px',
-            fontFamily: 'monospace',
-            marginTop: '10px'
-          }}>
-            <div>RTMP URL: rtmp://live.cloudflare.com/live/</div>
-            <div>Stream Key: [Your key from step 1]</div>
-            <div>Resolution: 720p (recommended)</div>
-            <div>Bitrate: 2500-4000 kbps</div>
+            {!streamKey ? (
+              <div className="text-center py-12">
+                <p className="text-xl mb-6">Generate your personal stream key</p>
+                <button
+                  onClick={generateStreamKey}
+                  disabled={loading}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 disabled:opacity-50"
+                >
+                  {loading ? 'Generating...' : 'Generate Stream Key'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Stream Key */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">🔑 Your Stream Key:</h3>
+                  <div className="bg-black/50 p-4 rounded-lg font-mono text-green-400 flex items-center justify-between">
+                    <span>{streamKey.streamKey}</span>
+                    <button 
+                      onClick={() => copyToClipboard(streamKey.streamKey)}
+                      className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+
+                {/* OBS Setup */}
+                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold mb-3 text-yellow-400">🎬 OBS Studio Setup:</h3>
+                  <div className="space-y-2 font-mono text-sm">
+                    <div className="flex items-center justify-between">
+                      <span>Server:</span>
+                      <div className="flex items-center gap-2">
+                        <code className="bg-black/50 px-2 py-1 rounded">{streamKey.instructions.obs.server}</code>
+                        <button 
+                          onClick={() => copyToClipboard(streamKey.instructions.obs.server)}
+                          className="bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded text-xs"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Stream Key:</span>
+                      <div className="flex items-center gap-2">
+                        <code className="bg-black/50 px-2 py-1 rounded">{streamKey.streamKey}</code>
+                        <button 
+                          onClick={() => copyToClipboard(streamKey.streamKey)}
+                          className="bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded text-xs"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* DJI Fly App Setup */}
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold mb-3 text-blue-400">🎮 DJI Fly App Setup:</h3>
+                  <ol className="space-y-2 text-sm">
+                    <li>1. Open DJI Fly → Settings → Live Streaming</li>
+                    <li>2. Select "RTMP Custom"</li>
+                    <li>3. Enter URL: 
+                      <code className="bg-black/50 px-2 py-1 rounded ml-2">{streamKey.instructions.obs.server}</code>
+                      <button 
+                        onClick={() => copyToClipboard(streamKey.instructions.obs.server)}
+                        className="bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded text-xs ml-2"
+                      >
+                        Copy
+                      </button>
+                    </li>
+                    <li>4. Paste your stream key and tap "Start Live"</li>
+                    <li>5. You're LIVE! 🎉</li>
+                  </ol>
+                </div>
+
+                {/* Mobile Apps */}
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold mb-3 text-green-400">📱 Mobile Streaming Apps:</h3>
+                  <div className="grid md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <h4 className="font-semibold">iOS:</h4>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Larix Broadcaster (Free)</li>
+                        <li>Broadcast Me</li>
+                        <li>Live Stream Studio</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">Android:</h4>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Larix Broadcaster (Free)</li>
+                        <li>CameraFi Live</li>
+                        <li>Streamlabs Mobile</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-xs text-gray-300">
+                    Use RTMP URL: <code className="bg-black/50 px-1 rounded">{streamKey.rtmpUrl}</code>
+                  </p>
+                </div>
+
+                {/* Share Link */}
+                <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold mb-3 text-purple-400">🔗 Share Your Stream:</h3>
+                  <div className="bg-black/50 p-3 rounded-lg font-mono text-purple-300 flex items-center justify-between">
+                    <span>https://bluetubetv.live/watch/{streamKey.streamKey}</span>
+                    <button 
+                      onClick={() => copyToClipboard(`https://bluetubetv.live/watch/${streamKey.streamKey}`)}
+                      className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm"
+                    >
+                      Copy Link
+                    </button>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-4 pt-6">
+                  <button
+                    onClick={() => router.push(`/watch/${streamKey.streamKey}`)}
+                    className="flex-1 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 py-3 rounded-xl font-bold transition-all transform hover:scale-105"
+                  >
+                    View My Stream Page
+                  </button>
+                  <button
+                    onClick={generateStreamKey}
+                    className="px-6 py-3 border border-white/30 rounded-xl hover:bg-white/10 transition-all"
+                  >
+                    Generate New Key
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          <h3 style={{ color: '#3b82f6', marginTop: '20px' }}>Step 3: Share Your Stream</h3>
-          <p>Your viewers can watch and tip at:</p>
-          <code style={{ 
-            background: '#000', 
-            padding: '10px', 
-            borderRadius: '5px',
-            display: 'block',
-            marginTop: '10px'
-          }}>
-            https://bluetubetv.live/watch/[your-stream-id]
-          </code>
-        </div>
-
-        {/* Tips */}
-        <div style={{ 
-          background: 'rgba(251, 191, 36, 0.1)', 
-          border: '1px solid #fbbf24',
-          borderRadius: '15px',
-          padding: '30px',
-          marginBottom: '30px'
-        }}>
-          <h2 style={{ marginBottom: '20px' }}>💡 Pro Tips</h2>
-          <ul style={{ lineHeight: '2' }}>
-            <li>📡 Use 5GHz WiFi or 4G/5G for best quality</li>
-            <li>🔋 Streaming drains battery ~20% faster</li>
-            <li>🌅 Golden hour streams get the most tips</li>
-            <li>🎤 Narrate your flight for more engagement</li>
-            <li>📍 Add location to your stream title</li>
-          </ul>
-        </div>
-
-        {/* Earnings */}
-        <div style={{ 
-          background: 'linear-gradient(to right, rgba(59,130,246,0.2), rgba(139,92,246,0.2))',
-          borderRadius: '15px',
-          padding: '30px',
-          textAlign: 'center',
-          marginBottom: '30px'
-        }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: '20px' }}>💰 You Keep 80% of All Tips!</h2>
-          <p style={{ fontSize: '1.2rem', marginBottom: '20px' }}>
-            Average pilot makes $50-200 per stream
-          </p>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            gap: '20px',
-            flexWrap: 'wrap' 
-          }}>
-            <div style={{ 
-              background: 'rgba(0,0,0,0.3)', 
-              padding: '20px', 
-              borderRadius: '10px' 
-            }}>
-              <div style={{ fontSize: '2rem', color: '#22c55e' }}>$25</div>
-              <div>Average tip</div>
+          {/* Benefits */}
+          <div className="mt-12 grid md:grid-cols-3 gap-6">
+            <div className="text-center p-6">
+              <div className="text-4xl mb-3">🎯</div>
+              <h3 className="text-lg font-semibold mb-2">Direct Streaming</h3>
+              <p className="text-sm text-gray-300">Stream directly to BlueTubeTV - no external services required!</p>
             </div>
-            <div style={{ 
-              background: 'rgba(0,0,0,0.3)', 
-              padding: '20px', 
-              borderRadius: '10px' 
-            }}>
-              <div style={{ fontSize: '2rem', color: '#22c55e' }}>$20</div>
-              <div>You keep</div>
+            <div className="text-center p-6">
+              <div className="text-4xl mb-3">💰</div>
+              <h3 className="text-lg font-semibold mb-2">Instant Tips</h3>
+              <p className="text-sm text-gray-300">Receive tips directly from viewers while streaming</p>
+            </div>
+            <div className="text-center p-6">
+              <div className="text-4xl mb-3">💬</div>
+              <h3 className="text-lg font-semibold mb-2">Live Chat</h3>
+              <p className="text-sm text-gray-300">Real-time chat with your audience</p>
             </div>
           </div>
         </div>
-
-        {/* Include the SignupModal component */}
-        <SignupModal />
       </div>
-
-      {/* Footer */}
-      <footer style={{ 
-        textAlign: 'center', 
-        padding: '40px 20px',
-        borderTop: '1px solid rgba(255,255,255,0.1)',
-        color: '#666',
-        marginTop: '40px'
-      }}>
-        <div style={{ marginBottom: '20px' }}>
-          <a href="/terms" style={{ color: '#888', textDecoration: 'none', margin: '0 15px' }}>Terms of Service</a>
-          <a href="/privacy" style={{ color: '#888', textDecoration: 'none', margin: '0 15px' }}>Privacy Policy</a>
-          <a href="/legal" style={{ color: '#888', textDecoration: 'none', margin: '0 15px' }}>Legal</a>
-        </div>
-        <p>© 2025 Blue Ring Holdings LLC • FAA Part 107 Compliant</p>
-        <p style={{ fontSize: '2rem', margin: '10px 0' }}>🐙</p>
-        <p>Built with a dream 🚚→🏕️</p>
-      </footer>
     </div>
   );
 }

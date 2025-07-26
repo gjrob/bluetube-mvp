@@ -106,43 +106,102 @@ export default function Live() {
             
             <div style={{ display: 'flex', gap: '15px' }}>
               {/* Share Button - Ocean Blue */}
-              <button
-                onClick={() => setShowShareMenu(!showShareMenu)}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  backdropFilter: 'blur(10px)',
-                  color: '#caf0f8',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  padding: '12px 25px',
-                  borderRadius: '10px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s',
-                  position: 'relative'
-                }}
-              >
-                📤 Share
-              </button>
+   <button
+            onClick={() => setShowShareMenu(!showShareMenu)}
+            style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              backdropFilter: 'blur(10px)',
+              color: '#caf0f8',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              padding: '15px 30px',
+              borderRadius: '15px',
+              fontWeight: 'bold',
+              fontSize: '1.1rem',
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+          >
+            📤 Share BlueTubeTV
+          </button>
+          
+          {/* Share Dropdown */}
+          {showShareMenu && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              marginTop: '10px',
+              background: 'rgba(2, 62, 138, 0.95)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: '15px',
+              padding: '10px',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              minWidth: '200px',
+              zIndex: 10
+            }}>
               
-              {/* Tip Button - OCEAN BLUE NOT YELLOW */}
-              <button
-                onClick={() => setShowTipModal(true)}
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent('Check out BlueTubeTV - Live drone streaming platform! 🚁')}&url=${encodeURIComponent('https://bluetubetv.live')}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{
-                  background: 'linear-gradient(135deg, #48cae4, #90e0ef)',
-                  color: '#03045e',
-                  border: 'none',
-                  padding: '12px 30px',
-                  borderRadius: '10px',
-                  fontWeight: 'bold',
-                  fontSize: '1.1rem',
-                  cursor: 'pointer',
-                  boxShadow: '0 5px 15px rgba(72, 202, 228, 0.4)',
-                  transition: 'all 0.3s'
+                  display: 'block',
+                  padding: '10px 15px',
+                  color: '#caf0f8',
+                  textDecoration: 'none',
+                  borderRadius: '8px',
+                  transition: 'background 0.3s'
                 }}
+                onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.target.style.background = 'transparent'}
               >
-                💰 Send Tip
+                🐦 Twitter
+              </a>
+              
+              
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://bluetubetv.live')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'block',
+                  padding: '10px 15px',
+                  color: '#caf0f8',
+                  textDecoration: 'none',
+                  borderRadius: '8px',
+                  transition: 'background 0.3s'
+                }}
+                onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.target.style.background = 'transparent'}
+              >
+                📘 Facebook
+              </a>
+              
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText('https://bluetubetv.live');
+                  alert('Link copied to clipboard!');
+                  setShowShareMenu(false);
+                }}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '10px 15px',
+                  color: '#caf0f8',
+                  background: 'transparent',
+                  border: 'none',
+                  borderRadius: '8px',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  transition: 'background 0.3s'
+                }}
+                onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.target.style.background = 'transparent'}
+              >
+                🔗 Copy Link
               </button>
             </div>
+          )}
           </div>
 
           {/* Stream Player */}
