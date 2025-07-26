@@ -1,5 +1,5 @@
-// pages/pilot-setup.js - Independent Setup (No External Dependencies)
-import { useState, useEffect } from 'react';
+// pages/pilot-setup.js - Independent Setup with Inline Styles
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 
 export default function PilotSetup() {
@@ -32,59 +32,141 @@ export default function PilotSetup() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-blue-800 text-white">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #03045e 0%, #023e8a 20%, #0077b6 40%, #0096c7 60%, #00b4d8 80%, #48cae4 100%)',
+      color: 'white',
+      fontFamily: 'Arial, sans-serif'
+    }}>
       {/* Header */}
-      <div className="container mx-auto px-6 py-8">
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 24px' }}>
         <button 
           onClick={() => router.back()}
-          className="flex items-center gap-2 mb-8 text-blue-300 hover:text-white transition-colors"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '32px',
+            color: '#90e0ef',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '16px',
+            transition: 'color 0.3s'
+          }}
+          onMouseEnter={(e) => e.target.style.color = '#caf0f8'}
+          onMouseLeave={(e) => e.target.style.color = '#90e0ef'}
         >
           ← Back to Stream
         </button>
 
         {/* Drone Selection */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-8 text-center">
+        <div style={{ marginBottom: '48px' }}>
+          <h1 style={{ 
+            fontSize: '2.5rem', 
+            fontWeight: 'bold', 
+            marginBottom: '32px', 
+            textAlign: 'center' 
+          }}>
             🚁 Start Streaming in 2 Minutes
           </h1>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', 
+            gap: '16px', 
+            marginBottom: '32px',
+            maxWidth: '800px',
+            margin: '0 auto'
+          }}>
             {['Mavic 3', 'Air 2S', 'Mini 3 Pro', 'DJI FPV', 'Phantom 4', 'Inspire 2'].map(drone => (
-              <div key={drone} className="border-2 border-green-500 rounded-lg p-4 text-center bg-green-500/10">
-                <span className="text-green-400">✓</span> {drone}
+              <div key={drone} style={{
+                border: '2px solid #48cae4',
+                borderRadius: '8px',
+                padding: '16px',
+                textAlign: 'center',
+                background: 'rgba(72, 202, 228, 0.1)'
+              }}>
+                <span style={{ color: '#48cae4' }}>✓</span> {drone}
               </div>
             ))}
           </div>
         </div>
 
         {/* Independent Setup */}
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-8 border border-white/20">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '16px',
+            padding: '32px',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+          }}>
+            <h2 style={{ 
+              fontSize: '1.5rem', 
+              fontWeight: 'bold', 
+              marginBottom: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
               📱 Your Independent Streaming Setup
             </h2>
 
             {!streamKey ? (
-              <div className="text-center py-12">
-                <p className="text-xl mb-6">Generate your personal stream key</p>
+              <div style={{ textAlign: 'center', padding: '48px 0' }}>
+                <p style={{ fontSize: '1.25rem', marginBottom: '24px' }}>
+                  Generate your personal stream key
+                </p>
                 <button
                   onClick={generateStreamKey}
                   disabled={loading}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 disabled:opacity-50"
+                  style={{
+                    background: 'linear-gradient(135deg, #48cae4, #0096c7)',
+                    color: '#03045e',
+                    padding: '16px 32px',
+                    borderRadius: '12px',
+                    fontWeight: 'bold',
+                    fontSize: '1.125rem',
+                    border: 'none',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.3s',
+                    transform: loading ? 'scale(0.95)' : 'scale(1)',
+                    opacity: loading ? 0.7 : 1
+                  }}
                 >
                   {loading ? 'Generating...' : 'Generate Stream Key'}
                 </button>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {/* Stream Key */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">🔑 Your Stream Key:</h3>
-                  <div className="bg-black/50 p-4 rounded-lg font-mono text-green-400 flex items-center justify-between">
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '12px' }}>
+                    🔑 Your Stream Key:
+                  </h3>
+                  <div style={{
+                    background: 'rgba(0, 0, 0, 0.5)',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    fontFamily: 'monospace',
+                    color: '#48cae4',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}>
                     <span>{streamKey.streamKey}</span>
                     <button 
                       onClick={() => copyToClipboard(streamKey.streamKey)}
-                      className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm"
+                      style={{
+                        background: '#0077b6',
+                        color: 'white',
+                        padding: '8px 16px',
+                        borderRadius: '4px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '0.875rem'
+                      }}
                     >
                       Copy
                     </button>
@@ -92,28 +174,68 @@ export default function PilotSetup() {
                 </div>
 
                 {/* OBS Setup */}
-                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold mb-3 text-yellow-400">🎬 OBS Studio Setup:</h3>
-                  <div className="space-y-2 font-mono text-sm">
-                    <div className="flex items-center justify-between">
+                <div style={{
+                  background: 'rgba(255, 204, 0, 0.1)',
+                  border: '1px solid rgba(255, 204, 0, 0.3)',
+                  borderRadius: '8px',
+                  padding: '24px'
+                }}>
+                  <h3 style={{ 
+                    fontSize: '1.125rem', 
+                    fontWeight: '600', 
+                    marginBottom: '12px',
+                    color: '#ffcc00'
+                  }}>
+                    🎬 OBS Studio Setup:
+                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.875rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span>Server:</span>
-                      <div className="flex items-center gap-2">
-                        <code className="bg-black/50 px-2 py-1 rounded">{streamKey.instructions.obs.server}</code>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <code style={{
+                          background: 'rgba(0, 0, 0, 0.5)',
+                          padding: '4px 8px',
+                          borderRadius: '4px'
+                        }}>
+                          {streamKey.instructions.obs.server}
+                        </code>
                         <button 
                           onClick={() => copyToClipboard(streamKey.instructions.obs.server)}
-                          className="bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded text-xs"
+                          style={{
+                            background: '#0077b6',
+                            color: 'white',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: '0.75rem'
+                          }}
                         >
                           Copy
                         </button>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span>Stream Key:</span>
-                      <div className="flex items-center gap-2">
-                        <code className="bg-black/50 px-2 py-1 rounded">{streamKey.streamKey}</code>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <code style={{
+                          background: 'rgba(0, 0, 0, 0.5)',
+                          padding: '4px 8px',
+                          borderRadius: '4px'
+                        }}>
+                          {streamKey.streamKey}
+                        </code>
                         <button 
                           onClick={() => copyToClipboard(streamKey.streamKey)}
-                          className="bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded text-xs"
+                          style={{
+                            background: '#0077b6',
+                            color: 'white',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: '0.75rem'
+                          }}
                         >
                           Copy
                         </button>
@@ -123,16 +245,45 @@ export default function PilotSetup() {
                 </div>
 
                 {/* DJI Fly App Setup */}
-                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold mb-3 text-blue-400">🎮 DJI Fly App Setup:</h3>
-                  <ol className="space-y-2 text-sm">
+                <div style={{
+                  background: 'rgba(0, 119, 182, 0.1)',
+                  border: '1px solid rgba(0, 119, 182, 0.3)',
+                  borderRadius: '8px',
+                  padding: '24px'
+                }}>
+                  <h3 style={{ 
+                    fontSize: '1.125rem', 
+                    fontWeight: '600', 
+                    marginBottom: '12px',
+                    color: '#48cae4'
+                  }}>
+                    🎮 DJI Fly App Setup:
+                  </h3>
+                  <ol style={{ fontSize: '0.875rem', lineHeight: '1.8' }}>
                     <li>1. Open DJI Fly → Settings → Live Streaming</li>
                     <li>2. Select "RTMP Custom"</li>
-                    <li>3. Enter URL: 
-                      <code className="bg-black/50 px-2 py-1 rounded ml-2">{streamKey.instructions.obs.server}</code>
+                    <li style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+                      3. Enter URL: 
+                      <code style={{
+                        background: 'rgba(0, 0, 0, 0.5)',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        marginLeft: '8px'
+                      }}>
+                        {streamKey.instructions.obs.server}
+                      </code>
                       <button 
                         onClick={() => copyToClipboard(streamKey.instructions.obs.server)}
-                        className="bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded text-xs ml-2"
+                        style={{
+                          background: '#0077b6',
+                          color: 'white',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '0.75rem',
+                          marginLeft: '8px'
+                        }}
                       >
                         Copy
                       </button>
@@ -143,39 +294,92 @@ export default function PilotSetup() {
                 </div>
 
                 {/* Mobile Apps */}
-                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold mb-3 text-green-400">📱 Mobile Streaming Apps:</h3>
-                  <div className="grid md:grid-cols-2 gap-4 text-sm">
+                <div style={{
+                  background: 'rgba(72, 202, 228, 0.1)',
+                  border: '1px solid rgba(72, 202, 228, 0.3)',
+                  borderRadius: '8px',
+                  padding: '24px'
+                }}>
+                  <h3 style={{ 
+                    fontSize: '1.125rem', 
+                    fontWeight: '600', 
+                    marginBottom: '12px',
+                    color: '#48cae4'
+                  }}>
+                    📱 Mobile Streaming Apps:
+                  </h3>
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                    gap: '16px',
+                    fontSize: '0.875rem'
+                  }}>
                     <div>
-                      <h4 className="font-semibold">iOS:</h4>
-                      <ul className="list-disc list-inside space-y-1">
+                      <h4 style={{ fontWeight: '600', marginBottom: '8px' }}>iOS:</h4>
+                      <ul style={{ listStyle: 'disc', paddingLeft: '20px', lineHeight: '1.6' }}>
                         <li>Larix Broadcaster (Free)</li>
                         <li>Broadcast Me</li>
                         <li>Live Stream Studio</li>
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-semibold">Android:</h4>
-                      <ul className="list-disc list-inside space-y-1">
+                      <h4 style={{ fontWeight: '600', marginBottom: '8px' }}>Android:</h4>
+                      <ul style={{ listStyle: 'disc', paddingLeft: '20px', lineHeight: '1.6' }}>
                         <li>Larix Broadcaster (Free)</li>
                         <li>CameraFi Live</li>
                         <li>Streamlabs Mobile</li>
                       </ul>
                     </div>
                   </div>
-                  <p className="mt-3 text-xs text-gray-300">
-                    Use RTMP URL: <code className="bg-black/50 px-1 rounded">{streamKey.rtmpUrl}</code>
+                  <p style={{ marginTop: '12px', fontSize: '0.75rem', color: '#caf0f8' }}>
+                    Use RTMP URL: <code style={{
+                      background: 'rgba(0, 0, 0, 0.5)',
+                      padding: '2px 4px',
+                      borderRadius: '4px'
+                    }}>{streamKey.rtmpUrl}</code>
                   </p>
                 </div>
 
                 {/* Share Link */}
-                <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold mb-3 text-purple-400">🔗 Share Your Stream:</h3>
-                  <div className="bg-black/50 p-3 rounded-lg font-mono text-purple-300 flex items-center justify-between">
+                <div style={{
+                  background: 'rgba(147, 51, 234, 0.1)',
+                  border: '1px solid rgba(147, 51, 234, 0.3)',
+                  borderRadius: '8px',
+                  padding: '24px'
+                }}>
+                  <h3 style={{ 
+                    fontSize: '1.125rem', 
+                    fontWeight: '600', 
+                    marginBottom: '12px',
+                    color: '#c084fc'
+                  }}>
+                    🔗 Share Your Stream:
+                  </h3>
+                  <div style={{
+                    background: 'rgba(0, 0, 0, 0.5)',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    fontFamily: 'monospace',
+                    color: '#c084fc',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    wordBreak: 'break-all'
+                  }}>
                     <span>https://bluetubetv.live/watch/{streamKey.streamKey}</span>
                     <button 
                       onClick={() => copyToClipboard(`https://bluetubetv.live/watch/${streamKey.streamKey}`)}
-                      className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm"
+                      style={{
+                        background: '#9333ea',
+                        color: 'white',
+                        padding: '8px 16px',
+                        borderRadius: '4px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '0.875rem',
+                        marginLeft: '8px',
+                        flexShrink: 0
+                      }}
                     >
                       Copy Link
                     </button>
@@ -183,16 +387,34 @@ export default function PilotSetup() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-4 pt-6">
+                <div style={{ display: 'flex', gap: '16px', paddingTop: '24px' }}>
                   <button
                     onClick={() => router.push(`/watch/${streamKey.streamKey}`)}
-                    className="flex-1 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 py-3 rounded-xl font-bold transition-all transform hover:scale-105"
+                    style={{
+                      flex: 1,
+                      background: 'linear-gradient(135deg, #48cae4, #0096c7)',
+                      color: '#03045e',
+                      padding: '12px',
+                      borderRadius: '12px',
+                      fontWeight: 'bold',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s'
+                    }}
                   >
                     View My Stream Page
                   </button>
                   <button
                     onClick={generateStreamKey}
-                    className="px-6 py-3 border border-white/30 rounded-xl hover:bg-white/10 transition-all"
+                    style={{
+                      padding: '12px 24px',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      borderRadius: '12px',
+                      background: 'transparent',
+                      color: 'white',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s'
+                    }}
                   >
                     Generate New Key
                   </button>
@@ -202,22 +424,25 @@ export default function PilotSetup() {
           </div>
 
           {/* Benefits */}
-          <div className="mt-12 grid md:grid-cols-3 gap-6">
-            <div className="text-center p-6">
-              <div className="text-4xl mb-3">🎯</div>
-              <h3 className="text-lg font-semibold mb-2">Direct Streaming</h3>
-              <p className="text-sm text-gray-300">Stream directly to BlueTubeTV - no external services required!</p>
-            </div>
-            <div className="text-center p-6">
-              <div className="text-4xl mb-3">💰</div>
-              <h3 className="text-lg font-semibold mb-2">Instant Tips</h3>
-              <p className="text-sm text-gray-300">Receive tips directly from viewers while streaming</p>
-            </div>
-            <div className="text-center p-6">
-              <div className="text-4xl mb-3">💬</div>
-              <h3 className="text-lg font-semibold mb-2">Live Chat</h3>
-              <p className="text-sm text-gray-300">Real-time chat with your audience</p>
-            </div>
+          <div style={{ 
+            marginTop: '48px', 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+            gap: '24px' 
+          }}>
+            {[
+              { icon: '🎯', title: 'Direct Streaming', desc: 'Stream directly to BlueTubeTV - no external services required!' },
+              { icon: '💰', title: 'Instant Tips', desc: 'Receive tips directly from viewers while streaming' },
+              { icon: '💬', title: 'Live Chat', desc: 'Real-time chat with your audience' }
+            ].map((feature, idx) => (
+              <div key={idx} style={{ textAlign: 'center', padding: '24px' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '12px' }}>{feature.icon}</div>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '8px' }}>
+                  {feature.title}
+                </h3>
+                <p style={{ fontSize: '0.875rem', color: '#caf0f8' }}>{feature.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
