@@ -1,20 +1,40 @@
 // pages/live.js
 import { useState, useEffect } from 'react';
 import Footer from '../components/Footer';
+import FlightCompliance from '../components/FlightCompliance';
 
 export default function Live() {
-  const [tipAmount, setTipAmount] = useState('');
+  const [tipAmount, setTipAmount] = useState('yhc6wz41fc');
   const [showTipModal, setShowTipModal] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
 
   const shareUrl = 'https://bluetubetv.live/live';
   const shareText = "Check out this amazing drone stream on BlueTubeTV! 🚁";
+  const [streamKey, setStreamKey] = useState();
+  const [showFlightCompliance, setShowFlightCompliance] = useState(false);
 
   return (
     <div style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #023e8a 0%, #0077b6 25%, #0096c7 50%, #00b4d8 75%, #48cae4 100%)',
     }}>
+      {/* Eye Icon */}
+      <div style={{ 
+        position: 'absolute', 
+        top: '1rem', 
+        right: '1rem', 
+        zIndex: 20 
+      }}>
+        <svg style={{ width: '2.5rem', height: '2.5rem' }} viewBox="0 0 40 40" fill="none">
+          <path d="M20 10 C30 15, 30 25, 20 30 C10 25, 10 15, 20 10" 
+                fill="#60a5fa" stroke="#3b82f6" strokeWidth="2"/>
+          <circle cx="20" cy="20" r="6" fill="#1e40af"/>
+          <circle cx="20" cy="20" r="3" fill="#dbeafe"/>
+          <line x1="20" y1="5" x2="20" y2="35" stroke="#3b82f6" strokeWidth="1" opacity="0.5"/>
+          <line x1="5" y1="20" x2="35" y2="20" stroke="#3b82f6" strokeWidth="1" opacity="0.5"/>
+        </svg>
+      </div>
+
       {/* Navigation Bar */}
       <nav style={{
         background: 'rgba(2, 62, 138, 0.2)',
@@ -102,7 +122,7 @@ export default function Live() {
             gap: '15px'
           }}>
             <div>
-              <h2 style={{ color: '#e5c4f3ff', margin: 0 }}>Romulus Stream</h2>
+              <h2 style={{ color: '#caf0f8', margin: 0 }}>Romulus Stream</h2>
               <p style={{ color: '#90e0ef', margin: '5px 0' }}>
                 🔴 LIVE • 1,247 viewers • Flying over Miami Beach
               </p>
@@ -169,7 +189,8 @@ export default function Live() {
                         transition: 'background 0.3s'
                       }}
                       onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.1)'}
-                      onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                      onMouseLeave={(e) => e.target.style.background = 'transparent'
+                      }
                     >
                       🐦 Twitter
                     </a>
@@ -261,20 +282,83 @@ export default function Live() {
             fontSize: '1.5rem',
             position: 'relative'
           }}>
-            Stream has not started yet.
-            
-            {/* Live Stats Overlay */}
-            <div style={{
-              position: 'absolute',
-              top: '20px',
-              left: '20px',
-              background: 'rgba(2, 62, 138, 0.8)',
-              backdropFilter: 'blur(10px)',
-              borderRadius: '10px',
-              padding: '10px 20px',
-              border: '1px solid rgba(255, 223, 0, 0.3)'
+            {/* Video/Stream Container with Watermark */}
+            <div style={{ 
+              width: '100%', 
+              height: '100%', 
+              position: 'relative', 
+              background: 'black', 
+              borderRadius: '16px', 
+              minHeight: '400px', 
+              overflow: 'hidden' 
             }}>
-              <span style={{ color: '#ffdf00' }}>⬆ 285 ft</span>
+              {/* NO GUIDANCE Watermark */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10,
+                pointerEvents: 'none'
+              }}>
+                <img 
+                  src="/no-guidance-logo.png"
+                  alt="No Guidance"
+                  style={{ height: '12rem', width: 'auto', opacity: 0.2 }}
+                />
+              </div>
+              
+              {/* Stream Content */}
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                height: '100%', 
+                width: '100%', 
+                position: 'relative', 
+                zIndex: 1 
+              }}>
+                <span>🔴 Stream is live! (Video player placeholder)</span>
+              </div>
+              
+              {/* Live Stats Overlay */}
+              <div style={{
+                position: 'absolute',
+                top: '20px',
+                left: '20px',
+                background: 'rgba(2, 62, 138, 0.8)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '10px',
+                padding: '10px 20px',
+                border: '1px solid rgba(255, 223, 0, 0.3)'
+              }}>
+                <span style={{ color: '#ffdf00' }}>⬆ 285 ft</span>
+              </div>
+              
+              {/* Flight Compliance Toggle */}
+              <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 20 }}>
+                <button
+                  onClick={() => setShowFlightCompliance(!showFlightCompliance)}
+                  style={{
+                    padding: '10px 20px',
+                    background: '#0077b6',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    marginBottom: '10px'
+                  }}
+                >
+                  {showFlightCompliance ? 'Hide' : 'Show'} Flight Compliance
+                </button>
+                {showFlightCompliance && (
+                  <div style={{ marginTop: '10px' }}>
+                    <FlightCompliance streamKey={streamKey} />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -300,218 +384,205 @@ export default function Live() {
           </div>
         </div>
       </div>
-{/* Tip Modal - WITH BOTH PAYMENT OPTIONS */}
-{showTipModal && (
-  <div style={{
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'rgba(0, 0, 0, 0.8)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000
-  }}>
-    <div style={{
-      background: 'white',
-      borderRadius: '20px',
-      padding: '30px',
-      maxWidth: '450px',
-      width: '90%',
-      position: 'relative'
-    }}>
-      {/* Close Button */}
-      <button
-        onClick={() => setShowTipModal(false)}
-        style={{
-          position: 'absolute',
-          top: '15px',
-          right: '15px',
-          background: 'none',
-          border: 'none',
-          fontSize: '1.5rem',
-          cursor: 'pointer',
-          color: '#666'
-        }}
-      >
-        ✕
-      </button>
-      
-     <h2 style={{ color: '#03045e', marginBottom: '20px' }}>
-  💰 Send a Tip to Romulus
-     </h2>
-      
-      {/* Quick tip amounts */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        {[5, 10, 20, 50].map(amount => (
-          <button
-            key={amount}
-            onClick={() => setTipAmount(amount.toString())}
-            style={{
-              flex: 1,
-              padding: '10px',
-              border: tipAmount === amount.toString() ? '2px solid #0077b6' : '1px solid #ddd',
-              borderRadius: '10px',
-              background: tipAmount === amount.toString() ? '#e6f4ff' : 'white',
-              cursor: 'pointer',
-              transition: 'all 0.3s'
-            }}
-          >
-            ${amount}
-          </button>
-        ))}
-      </div>
-      
-      {/* Custom amount input */}
-      <input
-        type="number"
-        placeholder="Custom amount"
-        value={tipAmount}
-        onChange={(e) => setTipAmount(e.target.value)}
-        style={{
-          width: '100%',
-          padding: '15px',
-          borderRadius: '10px',
-          border: '1px solid #ddd',
-          marginBottom: '20px',
-          fontSize: '1.1rem'
-        }}
-      />
-      
-      {/* BOTH PAYMENT BUTTONS */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        
-        {/* Stripe Button */}
-        <button
-          onClick={async () => {
-            if (!tipAmount || tipAmount === '0') {
-              alert('Please enter a tip amount');
-              return;
-            }
-            
-            // Stripe Checkout
-            const response = await fetch('/api/create-checkout', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ 
-                amount: tipAmount,
-                pilotName: 'DroneKing'
-              })
-            });
-            
-            const { url } = await response.json();
-            window.location.href = url; // Redirect to Stripe
-          }}
-          style={{
-            width: '100%',
-            padding: '15px',
-            background: 'linear-gradient(135deg, #635bff, #7c73ff)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '10px',
-            fontWeight: 'bold',
-            fontSize: '1.1rem',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px',
-            transition: 'transform 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          <span>💳</span> Pay ${tipAmount || '0'} with Card
-        </button>
-        
-        {/* PayPal Button */}
-        <form 
-          action="https://www.paypal.com/cgi-bin/webscr" 
-          method="post" 
-          target="_blank"
-          style={{ width: '100%' }}
-        >
-          <input type="hidden" name="cmd" value="_xclick" />
-          <input type="hidden" name="business" value="garlanrobinson@icloud.com" />
-          <input type="hidden" name="item_name" value="Tip to Romulus- BlueTubeTV" />
-          <input type="hidden" name="amount" value={tipAmount || '0'} />
-          <input type="hidden" name="currency_code" value="USD" />
-          <input type="hidden" name="return" value="https://bluetubetv.live/success" />
-          
-          <button 
-            type="submit"
-            disabled={!tipAmount || tipAmount === '0'}
-            style={{
-              width: '100%',
-              padding: '15px',
-              background: 'linear-gradient(135deg, #FFC439, #FFB700)',
-              color: '#003087',
-              border: 'none',
-              borderRadius: '10px',
-              fontWeight: 'bold',
-              fontSize: '1.1rem',
-              cursor: tipAmount ? 'pointer' : 'not-allowed',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              transition: 'transform 0.2s',
-              opacity: tipAmount ? 1 : 0.6
-            }}
-            onMouseEnter={(e) => tipAmount && (e.currentTarget.style.transform = 'scale(1.02)')}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            <span>🅿️</span> Pay ${tipAmount || '0'} with PayPal
-          </button>
-        </form>
-      </div>
-      
-      {/* Payment security note */}
-      <p style={{
-        textAlign: 'center',
-        marginTop: '20px',
-        color: '#666',
-        fontSize: '0.9rem'
-      }}>
-        🔒 Secure payment • Pilot gets 80% • Platform fee 20%
-      </p>
-      
-      {/* Alternative: Buy Me a Coffee */}
-      <div style={{
-        borderTop: '1px solid #eee',
-        marginTop: '20px',
-        paddingTop: '20px',
-        textAlign: 'center'
-      }}>
-        <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '10px' }}>
-          Or support us on:
-        </p>
-        <a 
-          href="https://buymeacoffee.com/bluetubetv" 
-          target="_blank"
-          style={{
-            display: 'inline-block',
-            padding: '10px 20px',
-            background: '#FFDD00',
-            color: '#000',
-            borderRadius: '10px',
-            textDecoration: 'none',
-            fontWeight: 'bold',
-            transition: 'transform 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          ☕ Buy Me a Coffee
-        </a>
-      </div>
-    </div>
-  </div>
-)}
 
-      {/* Footer */}
+      {/* Tip Modal */}
+      {showTipModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '20px',
+            padding: '30px',
+            maxWidth: '450px',
+            width: '90%',
+            position: 'relative'
+          }}>
+            {/* Close Button */}
+            <button
+              onClick={() => setShowTipModal(false)}
+              style={{
+                position: 'absolute',
+                top: '15px',
+                right: '15px',
+                background: 'none',
+                border: 'none',
+                fontSize: '1.5rem',
+                cursor: 'pointer',
+                color: '#666'
+              }}
+            >
+              ✕
+            </button>
+            
+            <h2 style={{ color: '#03045e', marginBottom: '20px' }}>
+              💰 Send a Tip to Romulus
+            </h2>
+            
+            {/* Quick tip amounts */}
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+              {[5, 10, 20, 50].map(amount => (
+                <button
+                  key={amount}
+                  onClick={() => setTipAmount(amount.toString())}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    border: tipAmount === amount.toString() ? '2px solid #0077b6' : '1px solid #ddd',
+                    borderRadius: '10px',
+                    background: tipAmount === amount.toString() ? '#e6f4ff' : 'white',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s'
+                  }}
+                >
+                  ${amount}
+                </button>
+              ))}
+            </div>
+            
+            {/* Custom amount input */}
+            <input
+              type="number"
+              placeholder="Custom amount"
+              value={tipAmount}
+              onChange={(e) => setTipAmount(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '15px',
+                borderRadius: '10px',
+                border: '1px solid #ddd',
+                marginBottom: '20px',
+                fontSize: '1.1rem'
+              }}
+            />
+            
+            {/* Payment Buttons */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              {/* Stripe Button */}
+              <button
+                onClick={async () => {
+                  if (!tipAmount || tipAmount === '0') {
+                    alert('Please enter a tip amount');
+                    return;
+                  }
+                  alert(`Stripe payment of $${tipAmount} would be processed here`);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '15px',
+                  background: 'linear-gradient(135deg, #635bff, #7c73ff)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontWeight: 'bold',
+                  fontSize: '1.1rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  transition: 'transform 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                <span>💳</span> Pay ${tipAmount || '0'} with Card
+              </button>
+              
+              {/* PayPal Button */}
+              <form 
+                action="https://www.paypal.com/cgi-bin/webscr" 
+                method="post" 
+                target="_blank"
+                style={{ width: '100%' }}
+              >
+                <input type="hidden" name="cmd" value="_xclick" />
+                <input type="hidden" name="business" value="garlanrobinson@icloud.com" />
+                <input type="hidden" name="item_name" value="Tip to Romulus- BlueTubeTV" />
+                <input type="hidden" name="amount" value={tipAmount || '0'} />
+                <input type="hidden" name="currency_code" value="USD" />
+                <input type="hidden" name="return" value="https://bluetubetv.live/success" />
+                
+                <button 
+                  type="submit"
+                  disabled={!tipAmount || tipAmount === '0'}
+                  style={{
+                    width: '100%',
+                    padding: '15px',
+                    background: 'linear-gradient(135deg, #FFC439, #FFB700)',
+                    color: '#003087',
+                    border: 'none',
+                    borderRadius: '10px',
+                    fontWeight: 'bold',
+                    fontSize: '1.1rem',
+                    cursor: tipAmount ? 'pointer' : 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px',
+                    transition: 'transform 0.2s',
+                    opacity: tipAmount ? 1 : 0.6
+                  }}
+                  onMouseEnter={(e) => tipAmount && (e.currentTarget.style.transform = 'scale(1.02)')}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  <span>🅿️</span> Pay ${tipAmount || '0'} with PayPal
+                </button>
+              </form>
+            </div>
+            
+            {/* Payment security note */}
+            <p style={{
+              textAlign: 'center',
+              marginTop: '20px',
+              color: '#666',
+              fontSize: '0.9rem'
+            }}>
+              🔒 Secure payment • Pilot gets 80% • Platform fee 20%
+            </p>
+            
+            {/* Alternative: Buy Me a Coffee */}
+            <div style={{
+              borderTop: '1px solid #eee',
+              marginTop: '20px',
+              paddingTop: '20px',
+              textAlign: 'center'
+            }}>
+              <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '10px' }}>
+                Or support us on:
+              </p>
+              <a 
+                href="https://buymeacoffee.com/bluetubetv" 
+                target="_blank"
+                style={{
+                  display: 'inline-block',
+                  padding: '10px 20px',
+                  background: '#FFDD00',
+                  color: '#000',
+                  borderRadius: '10px',
+                  textDecoration: 'none',
+                  fontWeight: 'bold',
+                  transition: 'transform 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                ☕ Buy Me a Coffee
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
