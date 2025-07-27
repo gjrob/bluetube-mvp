@@ -4,7 +4,7 @@ import Footer from '../components/Footer';
 import FlightCompliance from '../components/FlightCompliance';
 
 export default function Live() {
-  const [tipAmount, setTipAmount] = useState('');
+  const [tipAmount, setTipAmount] = useState('0f0b10f617828a02c2e6e702077fd504');
   const [showTipModal, setShowTipModal] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
 
