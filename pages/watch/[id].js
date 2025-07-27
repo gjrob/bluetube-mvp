@@ -1,4 +1,4 @@
-// pages/watch/[id].js - Beautiful version
+// pages/watch/[id].js - Clean minimal version
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
@@ -6,189 +6,146 @@ import Head from 'next/head';
 export default function WatchStream() {
   const router = useRouter();
   const { id } = router.query;
-  const [viewerCount, setViewerCount] = useState(Math.floor(Math.random() * 100) + 50);
-  const [isLoading, setIsLoading] = useState(true);
+  const [viewerCount, setViewerCount] = useState(117);
 
   useEffect(() => {
+    if (!id) return;
+    
     // Simulate viewer count changes
     const interval = setInterval(() => {
       setViewerCount(prev => Math.max(10, prev + Math.floor(Math.random() * 5) - 2));
     }, 5000);
     
-    // Loading complete when we have the ID
-    if (id) {
-      setIsLoading(false);
-    }
-    
     return () => clearInterval(interval);
   }, [id]);
 
-  // UPDATE THESE WITH YOUR ACTUAL LINKS!
+  // UPDATE THESE!
   const PAYPAL_LINK = "https://paypal.me/garlanjrobinson";
   const BUYMEACOFFEE_LINK = "https://buymeacoffee.com/garlanjrobinson";
+
 
   return (
     <>
       <Head>
         <title>Live Stream - BlueTubeTV</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
 
-      <div className="min-h-screen bg-black">
-        {/* Header */}
-        <div className="bg-zinc-900/80 backdrop-blur-md border-b border-zinc-800 sticky top-0 z-50">
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6">
-            <div className="flex items-center justify-between h-16">
-              <a href="/" className="flex items-center gap-2 text-white hover:opacity-80 transition">
-                <span className="text-2xl">🚁</span>
-                <span className="font-bold text-lg hidden sm:inline">BlueTubeTV</span>
-              </a>
-              
-              <div className="flex items-center gap-2 sm:gap-4">
-                <div className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1.5">
-                  <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-                  LIVE
-                </div>
-                <div className="text-white text-sm">
-                  <span className="hidden sm:inline">👁 </span>
-                  {viewerCount}
-                </div>
-              </div>
+      <div className="min-h-screen bg-white text-black">
+        {/* Simple Header */}
+        <div className="border-b border-gray-200 p-4">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <a href="/" className="flex items-center gap-2 text-black hover:opacity-70">
+              <span className="text-xl">🚁</span>
+              <span className="font-semibold">BlueTubeTV</span>
+            </a>
+            
+            <div className="flex items-center gap-3 text-sm">
+              <span className="text-red-600 font-semibold">LIVE</span>
+              <span>👁 {viewerCount}</span>
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="max-w-screen-2xl mx-auto lg:flex lg:gap-6 p-4 sm:p-6">
-          {/* Video Section */}
-          <div className="flex-1">
-            {/* Video Player */}
-            <div className="relative aspect-video bg-zinc-900 rounded-lg overflow-hidden">
-              {isLoading || !id ? (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-zinc-400">Loading stream...</p>
+        <div className="max-w-6xl mx-auto p-4 md:p-6">
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Video Column */}
+            <div className="md:col-span-2">
+              {/* Video Player */}
+              <div className="relative aspect-video bg-gray-100 rounded overflow-hidden">
+                {!id ? (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <p className="text-gray-500">(Video player placeholder)</p>
                   </div>
-                </div>
-              ) : (
-                <iframe
-                  src={`https://customer-f33zs165nr7gyfy4.cloudflarestream.com/${id}/iframe`}
-                  style={{ border: 'none', position: 'absolute', top: 0, left: 0, height: '100%', width: '100%' }}
-                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                  allowFullScreen={true}
-                ></iframe>
-              )}
-            </div>
+                ) : (
+                  <iframe
+                    src={`https://customer-f33zs165nr7gyfy4.cloudflarestream.com/${id}/iframe`}
+                    className="absolute inset-0 w-full h-full"
+                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                    allowFullScreen={true}
+                  />
+                )}
+              </div>
 
-            {/* Stream Info */}
-            <div className="mt-4 bg-zinc-900/50 rounded-lg p-4 sm:p-6">
-              <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">
+              {/* Title */}
+              <h1 className="text-2xl font-bold mt-4 mb-2">
                 Aerial Adventures: Sunset Coast Flight 🌅
               </h1>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-zinc-400">
-                <span>Sky Pilot Pro</span>
-                <span className="hidden sm:inline">•</span>
-                <span>Started streaming 23 minutes ago</span>
-              </div>
-            </div>
-
-            {/* Mobile Tip Buttons */}
-            <div className="lg:hidden mt-4 grid grid-cols-2 gap-3">
-              <a
-                href={PAYPAL_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg text-center transition"
-              >
-                PayPal 💳
-              </a>
-              <a
-                href={BUYMEACOFFEE_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-3 px-4 rounded-lg text-center transition"
-              >
-                Buy Coffee ☕
-              </a>
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:w-80 mt-6 lg:mt-0 space-y-4">
-            {/* Streamer Card */}
-            <div className="bg-zinc-900/50 rounded-lg p-4 sm:p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <span className="text-xl sm:text-2xl">✈️</span>
-                </div>
-                <div>
-                  <h3 className="font-bold text-white">Sky Pilot Pro</h3>
-                  <p className="text-sm text-zinc-400">2.5K followers</p>
-                </div>
-              </div>
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition">
-                Follow
-              </button>
-            </div>
-
-            {/* Stream Stats */}
-            <div className="bg-zinc-900/50 rounded-lg p-4 sm:p-6">
-              <h3 className="font-bold text-white mb-4">Stream Stats</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-zinc-400">Viewers</span>
-                  <span className="text-white">{viewerCount}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-400">Duration</span>
-                  <span className="text-white">23:45</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-400">Quality</span>
-                  <span className="text-white">1080p</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Desktop Tip Section */}
-            <div className="hidden lg:block bg-zinc-900/50 rounded-lg p-4 sm:p-6">
-              <h3 className="font-bold text-white mb-4">Support the Stream 💰</h3>
-              <div className="space-y-3">
-                <a
-                  href={PAYPAL_LINK}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition"
-                >
+              
+              {/* Streamer Info */}
+              <p className="text-gray-600 mb-4">
+                Sky Pilot Pro•Started streaming 23 minutes ago
+              </p>
+              
+              {/* Payment Links */}
+              <div className="flex gap-2 text-sm">
+                <a href={PAYPAL_LINK} target="_blank" rel="noopener noreferrer" 
+                   className="text-blue-600 hover:underline">
                   PayPal 💳
                 </a>
-                <a
-                  href={BUYMEACOFFEE_LINK}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition"
-                >
-                  ☕ Buy Me a Coffee
+                <span>➡️</span>
+                <a href={BUYMEACOFFEE_LINK} target="_blank" rel="noopener noreferrer"
+                   className="text-blue-600 hover:underline">
+                  Buy Me a Coffee ☕
                 </a>
               </div>
             </div>
 
-            {/* Share */}
-            <div className="bg-zinc-900/50 rounded-lg p-4 sm:p-6">
-              <h3 className="font-bold text-white mb-4">Share Stream</h3>
-              <button
-                onClick={() => {
-                  if (typeof window !== 'undefined' && navigator.clipboard) {
-                    navigator.clipboard.writeText(window.location.href)
-                      .then(() => alert('Link copied to clipboard!'))
-                      .catch(() => alert('Failed to copy link'));
-                  }
-                }}
-                className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-2.5 rounded-lg transition"
-              >
-                📋 Copy Link
-              </button>
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Streamer Card */}
+              <div>
+                <h2 className="text-xl font-bold mb-2">Sky Pilot Pro</h2>
+                <p className="text-gray-600 mb-3">2.5K followers</p>
+                <button className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 w-full">
+                  Follow
+                </button>
+              </div>
+
+              {/* Stream Stats */}
+              <div>
+                <h3 className="font-bold mb-3">Stream Stats</h3>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span>Viewers</span>
+                    <span>{viewerCount}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Duration</span>
+                    <span>23:45</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Quality</span>
+                    <span>1080p</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Support Section */}
+              <div>
+                <h3 className="font-bold mb-3">Support the Stream 💰</h3>
+                <div className="space-y-2">
+                  <a href={PAYPAL_LINK} target="_blank" rel="noopener noreferrer"
+                     className="block text-blue-600 hover:underline text-sm">
+                    PayPal 💳 ➡️ Buy Me a Coffee
+                  </a>
+                </div>
+              </div>
+
+              {/* Share */}
+              <div>
+                <h3 className="font-bold mb-3">Share Stream</h3>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert('Link copied!');
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 w-full text-sm"
+                >
+                  📋 Copy Link
+                </button>
+              </div>
             </div>
           </div>
         </div>
