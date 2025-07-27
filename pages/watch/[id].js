@@ -1,4 +1,4 @@
-// pages/watch/[id].js - Fixed & Beautiful Version
+// pages/watch/[id].js - Beautiful version
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
@@ -15,15 +15,17 @@ export default function WatchStream() {
       setViewerCount(prev => Math.max(10, prev + Math.floor(Math.random() * 5) - 2));
     }, 5000);
     
-    // Simulate loading complete
-    setTimeout(() => setIsLoading(false), 1000);
+    // Loading complete when we have the ID
+    if (id) {
+      setIsLoading(false);
+    }
     
     return () => clearInterval(interval);
-  }, []);
+  }, [id]);
 
-  // Replace these with your actual payment links
-  const PAYPAL_LINK = "https://paypal.me/your-username";
-  const BUYMEACOFFEE_LINK = "https://buymeacoffee.com/your-username";
+  // UPDATE THESE WITH YOUR ACTUAL LINKS!
+  const PAYPAL_LINK = "https://paypal.me/garlanjrobinson";
+  const BUYMEACOFFEE_LINK = "https://buymeacoffee.com/garlanjrobinson";
 
   return (
     <>
@@ -62,7 +64,7 @@ export default function WatchStream() {
           <div className="flex-1">
             {/* Video Player */}
             <div className="relative aspect-video bg-zinc-900 rounded-lg overflow-hidden">
-              {isLoading ? (
+              {isLoading || !id ? (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -71,10 +73,10 @@ export default function WatchStream() {
                 </div>
               ) : (
                 <iframe
-                  src={`https://customer-f33zs165nr7gyfy4.cloudflarestream.com/${id || '6c5352b797fdb73a57dc190c8b617066'}/iframe`}
-                  className="absolute inset-0 w-full h-full"
+                  src={`https://customer-f33zs165nr7gyfy4.cloudflarestream.com/${id}/iframe`}
+                  style={{ border: 'none', position: 'absolute', top: 0, left: 0, height: '100%', width: '100%' }}
                   allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                  allowFullScreen
+                  allowFullScreen={true}
                 ></iframe>
               )}
             </div>
@@ -159,10 +161,7 @@ export default function WatchStream() {
                   rel="noopener noreferrer"
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition"
                 >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72c.07-.398.412-.693.814-.693h6.858c4.051 0 6.873 1.805 6.873 5.691 0 4.894-3.451 7.604-7.257 7.604h-2.35l-.962 5.015z"/>
-                  </svg>
-                  PayPal
+                  PayPal 💳
                 </a>
                 <a
                   href={BUYMEACOFFEE_LINK}
@@ -180,8 +179,11 @@ export default function WatchStream() {
               <h3 className="font-bold text-white mb-4">Share Stream</h3>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(window.location.href);
-                  alert('Link copied to clipboard!');
+                  if (typeof window !== 'undefined' && navigator.clipboard) {
+                    navigator.clipboard.writeText(window.location.href)
+                      .then(() => alert('Link copied to clipboard!'))
+                      .catch(() => alert('Failed to copy link'));
+                  }
                 }}
                 className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-2.5 rounded-lg transition"
               >

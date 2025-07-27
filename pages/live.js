@@ -565,7 +565,7 @@ export default function Live() {
                 Or support us on:
               </p>
               <a 
-                href="https://buymeacoffee.com/bluetubetv" 
+                href="https://coff.ee/garlanjrobinson" 
                 target="_blank"
                 style={{
                   display: 'inline-block',
