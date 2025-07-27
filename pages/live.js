@@ -4,10 +4,14 @@ import Footer from '../components/Footer';
 import FlightCompliance from '../components/FlightCompliance';
 
 export default function Live() {
-  const [tipAmount, setTipAmount] = useState('0f0b10f617828a02c2e6e702077fd504');
+  const [tipAmount, setTipAmount] = useState('');
   const [showTipModal, setShowTipModal] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
-
+  const startStreaming = async () => {
+  const response = await fetch('/api/generate-stream-key');
+  const data = await response.json();
+  setStreamKey(data.streamKey);
+};
   const shareUrl = 'https://bluetubetv.live/live';
   const shareText = "Check out this amazing drone stream on BlueTubeTV! 🚁";
   const [streamKey, setStreamKey] = useState();
