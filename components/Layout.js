@@ -1,5 +1,6 @@
 // components/Layout.js - With inline styles
 import Navigation from './Navigation';
+import Link from 'next/link';
 
 export default function Layout({ children }) {
   const layoutStyle = {

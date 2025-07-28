@@ -143,7 +143,28 @@ useEffect(() => {
           telemetry: newTelemetry
         };
       });
-      
+      const checkCompliance = async () => {
+  try {
+    const response = await fetch('/api/faa/train-model', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        flightData: {
+          streamId: id,
+          timestamp: new Date()
+        },
+        location: { lat: 34.0522, lng: -118.2437 }, // Get from browser
+        altitude: 250, // Get from drone telemetry
+        droneModel: 'DJI Mavic 3'
+      })
+    });
+    
+    const data = await response.json();
+    setComplianceStatus(data.compliance);
+  } catch (error) {
+    console.error('Compliance check failed:', error);
+  }
+};
       // Refresh analytics
       fetchAnalytics();
     }, 2000);

@@ -1,217 +1,343 @@
-// pages/watch/[id].js - COMPLETE VERSION with Layout
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import Head from 'next/head';
+// pages/watch/[id].js
 import Layout from '../../components/Layout';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import FlightCompliance from '../../components/FlightCompliance';
 
-export default function WatchStream() {
+export default function Watch() {
   const router = useRouter();
   const { id } = router.query;
-  const [viewerCount, setViewerCount] = useState(117);
-  const [isReady, setIsReady] = useState(false);
-  const [contentType, setContentType] = useState('detecting');
-  const [streamInfo, setStreamInfo] = useState({
-    title: 'Loading...',
-    description: '',
-    duration: null,
-    isLive: false
-  });
+
+  const [viewerCount, setViewerCount] = useState(1251);
+  const [messages, setMessages] = useState([
+    { user: 'User123', message: 'Amazing footage! 🚁', color: '#60a5fa' },
+    { user: 'DroneEnthusiast', message: 'What drone are you using?', color: '#60a5fa' }
+  ]);
+  const [newMessage, setNewMessage] = useState('');
+  const [showCompliance, setShowCompliance] = useState(false);
+  const [complianceStatus, setComplianceStatus] = useState(null);
+
+  const videoRef = useRef(null);
+  const flvPlayerRef = useRef(null);
 
   useEffect(() => {
-    if (id) {
-      setIsReady(true);
-      detectContentType(id);
-    }
+    if (!videoRef.current || !id) return;
+
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/flv.js@latest/dist/flv.min.js';
+    script.async = true;
+
+    script.onload = () => {
+      if (window.flvjs && window.flvjs.isSupported()) {
+        const flvPlayer = window.flvjs.createPlayer({
+          type: 'flv',
+          url: `http://localhost:8000/live/${id}.flv`,
+          isLive: true,
+          hasAudio: true,
+          hasVideo: true,
+          enableStashBuffer: false
+        });
+
+        flvPlayer.attachMediaElement(videoRef.current);
+        flvPlayer.load();
+        flvPlayer.play();
+        flvPlayerRef.current = flvPlayer;
+      }
+    };
+
+    document.body.appendChild(script);
+
+    return () => {
+      if (flvPlayerRef.current) {
+        flvPlayerRef.current.pause();
+        flvPlayerRef.current.unload();
+        flvPlayerRef.current.detachMediaElement();
+        flvPlayerRef.current.destroy();
+      }
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
   }, [id]);
 
-  const detectContentType = (videoId) => {
-    if (videoId.length === 32 && /^[a-f0-9]+$/.test(videoId)) {
-      setContentType('live');
-      setStreamInfo({
-        title: 'Aerial Adventures: Live Drone Flight 🚁',
-        description: 'Live streaming drone footage from amazing locations',
-        duration: null,
-        isLive: true
-      });
-    } else {
-      setContentType('vod');
-      setStreamInfo({
-        title: 'Recorded Flight: Sunset Coast 🌅',
-        description: 'Beautiful aerial footage from our coastal flight',
-        duration: '15:32',
-        isLive: false
-      });
-    }
-  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setViewerCount((prev) => prev + Math.floor(Math.random() * 10) - 5);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
-    if (!isReady || contentType !== 'live') return;
-    
-    const interval = setInterval(() => {
-      setViewerCount(prev => Math.max(10, prev + Math.floor(Math.random() * 5) - 2));
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, [isReady, contentType]);
+    setComplianceStatus({
+      isCompliant: Math.random() > 0.3
+    });
+  }, [id]);
 
-  const PAYPAL_LINK = "https://paypal.me/garlanjrobinson";
-  const BUYMEACOFFEE_LINK = "https://buymeacoffee.com/garlanjrobinson";
+  const sendMessage = (e) => {
+    e.preventDefault();
+    if (newMessage.trim()) {
+      setMessages((prev) => [
+        ...prev,
+        { user: 'You', message: newMessage, color: '#10b981' }
+      ]);
+      setNewMessage('');
+    }
+  };
+const handleStripeTip = async (amount) => {
+  try {
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount,
+        pilotName: 'Sky Pilot Pro' // you can make this dynamic later
+      })
+    });
 
-  if (!isReady) {
-    return (
-      <Layout>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-4xl mb-4 animate-spin">🚁</div>
-            <p className="text-gray-600">Loading content...</p>
-          </div>
-        </div>
-      </Layout>
-    );
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Failed to start checkout');
+    }
+  } catch (err) {
+    console.error('Stripe Checkout error:', err);
+    alert('Error: could not start Stripe Checkout');
   }
+};
+
 
   return (
-    <Layout>
+    <>
       <Head>
-        <title>{streamInfo.title} - BlueTubeTV</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Watch Stream - BlueTubeTV</title>
       </Head>
 
-      <div className="bg-gray-50 py-6">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Video Player */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="relative aspect-video bg-black">
-                  <iframe
-                    src={`https://customer-f33zs165nr7gyfy4.cloudflarestream.com/${id}/iframe`}
-                    className="absolute inset-0 w-full h-full"
-                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
-                    allowFullScreen
-                  />
-                  
-                  {contentType === 'vod' && streamInfo.duration && (
-                    <div className="absolute bottom-4 right-4 bg-black/70 text-white px-2 py-1 rounded text-sm">
-                      {streamInfo.duration}
-                    </div>
-                  )}
-                </div>
-                
-                <div className="p-6">
-                  <h1 className="text-2xl font-bold mb-2">{streamInfo.title}</h1>
-                  <p className="text-gray-600 mb-4">{streamInfo.description}</p>
-                  
-                  <div className="flex items-center gap-4 mb-4">
-                    {contentType === 'live' ? (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                        🔴 Live Stream • {viewerCount} watching
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                        📹 Recorded Video
-                      </span>
+      <div style={{
+        background: 'linear-gradient(180deg, #0a0e27 0%, #1a237e 50%, #0f172a 100%)',
+        minHeight: '100vh',
+        color: 'white'
+      }}>
+        <Layout>
+          <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '40px 20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '30px' }}>
+              {/* Video Player */}
+              <div>
+                <div style={{
+                  background: 'rgba(30, 41, 59, 0.5)',
+                  borderRadius: '20px',
+                  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    background: '#000',
+                    height: '600px',
+                    position: 'relative'
+                  }}>
+                    <video ref={videoRef} controls style={{ width: '100%', height: '100%' }} />
+
+                    {/* Compliance Banner */}
+                    {complianceStatus && (
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '20px',
+                        left: '20px',
+                        background: complianceStatus.isCompliant
+                          ? 'rgba(16, 185, 129, 0.9)'
+                          : 'rgba(239, 68, 68, 0.9)',
+                        color: 'white',
+                        padding: '10px 20px',
+                        borderRadius: '10px',
+                        fontSize: '14px'
+                      }}>
+                        {complianceStatus.isCompliant
+                          ? '✅ FAA Compliant'
+                          : '⚠️ Compliance Warning'}
+                      </div>
                     )}
+                    <div style={{ marginTop: '20px', display: 'flex', gap: '20px' }}>
+  <button
+    onClick={() => handleStripeTip(5)}
+    style={tipButtonStyle}
+  >
+    💵 Tip $5
+  </button>
+  <button
+    onClick={() => handleStripeTip(10)}
+    style={tipButtonStyle}
+  >
+    💸 Tip $10
+  </button>
+</div>
                   </div>
-                  
-                  <div className="flex flex-wrap gap-3">
-                    <a 
-                      href={PAYPAL_LINK} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                    >
-                      💳 PayPal
+                </div>
+
+                {/* Flight Compliance Toggle */}
+                <button
+                  onClick={() => setShowCompliance((prev) => !prev)}
+                  style={{
+                    marginTop: '20px',
+                    background: 'linear-gradient(135deg, #10b981 0%, #3b82f6 100%)',
+                    color: 'white',
+                    padding: '12px 30px',
+                    borderRadius: '50px',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 10px 40px rgba(16, 185, 129, 0.4)'
+                  }}
+                >
+                  ✈️ Flight Compliance
+                </button>
+
+                {showCompliance && <FlightCompliance />}
+
+                {/* Video Info */}
+                <div style={{
+                  background: 'rgba(30, 41, 59, 0.5)',
+                  border: '1px solid rgba(59, 130, 246, 0.2)',
+                  borderRadius: '20px',
+                  padding: '30px',
+                  marginTop: '20px'
+                }}>
+                  <h1 style={{ fontSize: '28px', marginBottom: '20px' }}>
+                    Aerial Adventures: Live Drone Flight 🚁
+                  </h1>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '20px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                      <div style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <span style={{ fontSize: '24px' }}>🚁</span>
+                      </div>
+                      <div>
+                        <h3>Sky Pilot Pro</h3>
+                        <p style={{ color: '#94a3b8' }}>2.5K followers</p>
+                      </div>
+                    </div>
+
+                    <button style={{
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #66d9ef 100%)',
+                      color: 'white',
+                      padding: '12px 30px',
+                      borderRadius: '50px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      border: 'none',
+                      cursor: 'pointer'
+                    }}>
+                      Follow
+                    </button>
+                  </div>
+
+                  {/* Tip Links */}
+                  <button
+                      onClick={handleStripeTip}
+                      style={{
+                      background: 'linear-gradient(135deg, #635bff 0%, #2ec4b6 100%)',
+                      color: 'white',
+                      padding: '14px 30px',
+                      borderRadius: '50px',
+                      fontSize: '18px',
+                      fontWeight: '600',
+                      border: 'none',
+                      cursor: 'pointer',
+                      boxShadow: '0 10px 40px rgba(99, 91, 255, 0.4)'
+            }}
+      >
+                 💸 Tip via Stripe
+                 </button>
+
+                  <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                    <a href="https://paypal.me/garlanjrobinson" target="_blank" rel="noopener noreferrer" style={tipButtonStyle}>
+                      💳 PayPal Tip
                     </a>
-                    <a 
-                      href={BUYMEACOFFEE_LINK} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
-                    >
+                    <a href="https://coff.ee/garlanjrobinson" target="_blank" rel="noopener noreferrer" style={tipButtonStyle}>
                       ☕ Buy Me a Coffee
                     </a>
                   </div>
                 </div>
               </div>
-              
-              {contentType === 'live' && (
-                <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4">
-                  <h3 className="font-semibold text-amber-900 mb-2">📡 Live Streaming Now</h3>
-                  <p className="text-sm text-amber-800">
-                    This is a live broadcast. If you see "Stream has not started yet", 
-                    the broadcaster may be setting up. Refresh the page in a moment!
-                  </p>
-                </div>
-              )}
-            </div>
 
-            {/* Sidebar */}
-            <div className="space-y-4">
-              {/* Creator Card */}
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <span className="text-2xl">✈️</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">Sky Pilot Pro</h3>
-                    <p className="text-gray-600 text-sm">2.5K followers</p>
-                  </div>
+              {/* Sidebar: Stream Stats + Chat */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={cardStyle}>
+                  <h3 style={{ marginBottom: '20px' }}>Stream Stats</h3>
+                  <p>Viewers: <strong>{viewerCount}</strong></p>
+                  <p>Duration: <strong>45:23</strong></p>
+                  <p>Tips Received: <strong style={{ color: '#10b981' }}>$127.50</strong></p>
                 </div>
-                <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
-                  Follow
-                </button>
-              </div>
 
-              {/* Stream Stats */}
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="font-bold mb-4">
-                  {contentType === 'live' ? 'Stream Stats' : 'Video Stats'}
-                </h3>
-                <div className="space-y-2 text-sm">
-                  {contentType === 'live' && (
-                    <>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Viewers</span>
-                        <span className="font-medium">{viewerCount}</span>
+                <div style={cardStyle}>
+                  <h3 style={{ marginBottom: '20px' }}>Live Chat</h3>
+                  <div style={{
+                    height: '300px',
+                    overflowY: 'auto',
+                    background: '#1e293b',
+                    borderRadius: '12px',
+                    padding: '15px',
+                    marginBottom: '15px'
+                  }}>
+                    {messages.map((msg, i) => (
+                      <div key={i} style={{ marginBottom: '12px' }}>
+                        <strong style={{ color: msg.color }}>{msg.user}:</strong>
+                        <span style={{ marginLeft: '8px' }}>{msg.message}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Status</span>
-                        <span className="text-green-600 font-medium">● Live</span>
-                      </div>
-                    </>
-                  )}
-                  {contentType === 'vod' && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Duration</span>
-                      <span className="font-medium">{streamInfo.duration}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Quality</span>
-                    <span className="font-medium">1080p</span>
+                    ))}
                   </div>
+                  <form onSubmit={sendMessage}>
+                    <input
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder="Type a message..."
+                      style={{
+                        width: '100%',
+                        padding: '12px 15px',
+                        background: '#0f172a',
+                        color: 'white',
+                        border: '1px solid #334155',
+                        borderRadius: '10px'
+                      }}
+                    />
+                  </form>
                 </div>
-              </div>
-
-              {/* Share */}
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="font-bold mb-4">Share</h3>
-                <button 
-                  onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
-                    alert('Link copied to clipboard!');
-                  }}
-                  className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition"
-                >
-                  📋 Copy Link
-                </button>
               </div>
             </div>
           </div>
-        </div>
+        </Layout>
       </div>
-    </Layout>
+    </>
   );
 }
+
+const cardStyle = {
+  background: 'rgba(30, 41, 59, 0.5)',
+  borderRadius: '20px',
+  padding: '30px',
+  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+};
+
+const tipButtonStyle = {
+  background: 'linear-gradient(135deg, #0070ba 0%, #00c6ff 100%)',
+  color: 'white',
+  padding: '14px 25px',
+  borderRadius: '50px',
+  fontSize: '16px',
+  fontWeight: '600',
+  textDecoration: 'none',
+  display: 'inline-block'
+};

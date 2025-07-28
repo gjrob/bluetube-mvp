@@ -30,7 +30,7 @@ return (
   Upload
 </button>
 <p style={{ fontSize: '12px', color: '#666' }}>
-  By uploading, you agree to our <a href="/legal">terms</a>
+  By uploading, you agree to our <Link href="/legal"><span>terms</span></Link>
 </p>
   </div>
 );

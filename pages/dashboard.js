@@ -1,259 +1,257 @@
-// pages/dashboard.js
 import Layout from '../components/Layout';
 import { useState, useEffect } from 'react';
-import Footer from '../components/Footer';  // ← ADD THIS IMPORT
+import Head from 'next/head';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
-  
+
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
+    try {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+    } catch (e) {
+      console.log('No user data');
     }
   }, []);
 
   return (
-    <Layout>
+    <>
+      <Head>
+        <title>Dashboard - BlueTubeTV</title>
+      </Head>
+
       <div style={{
+        background: 'linear-gradient(180deg, #0a0e27 0%, #1a237e 50%, #0f172a 100%)',
         minHeight: '100vh',
-        display: 'flex',
-      flexDirection: 'column',
-      background: 'linear-gradient(135deg, #03045e 0%, #023e8a 20%, #0077b6 40%, #0096c7 60%, #00b4d8 80%, #48cae4 100%)',
-      position: 'relative'
-    }}>
-      {/* Main Content */}
-      <div style={{ position: 'relative', zIndex: 1, padding: '40px 20px', flex: 1 }}>
-        {/* Header */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(20px)',
-          borderRadius: '20px',
-          padding: '30px',
-          marginBottom: '30px',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          textAlign: 'center'
-        }}>
-          <h1 style={{
-            fontSize: '2.5rem',
-            background: 'linear-gradient(to right, #90e0ef, #caf0f8)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            marginBottom: '10px'
-          }}>
-            Welcome to Your Dashboard{user ? `, ${user.username}` : ''}!
-          </h1>
-          <p style={{ color: '#90e0ef', fontSize: '1.2rem' }}>
-            Your streaming command center
-          </p>
-        </div>
+        color: 'white'
+      }}>
+        <Layout>
+          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
+            <h1 style={{
+              fontSize: '48px',
+              fontWeight: '900',
+              background: 'linear-gradient(135deg, #818cf8, #60a5fa)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              marginBottom: '20px',
+              textAlign: 'center'
+            }}>
+              Creator Dashboard
+            </h1>
 
-        {/* Stats Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '20px',
-          marginBottom: '30px'
-        }}>
-          {/* Total Views Card */}
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '20px',
-            padding: '30px',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            transform: 'translateY(0)',
-            transition: 'transform 0.3s',
-            cursor: 'pointer'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-            <h3 style={{ color: '#caf0f8', marginBottom: '10px' }}>Total Views</h3>
-            <p style={{ fontSize: '3rem', fontWeight: 'bold', color: '#90e0ef', margin: 0 }}>0</p>
-            <p style={{ color: '#48cae4', marginTop: '5px' }}>Start streaming to track views</p>
-          </div>
+            <p style={{ 
+              color: '#94a3b8', 
+              fontSize: '20px',
+              textAlign: 'center',
+              marginBottom: '60px'
+            }}>
+              Welcome back{user ? `, ${user.username}` : ''}! Your streaming command center awaits.
+            </p>
 
-          {/* Streaming Hours Card */}
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '20px',
-            padding: '30px',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            transform: 'translateY(0)',
-            transition: 'transform 0.3s',
-            cursor: 'pointer'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-            <h3 style={{ color: '#caf0f8', marginBottom: '10px' }}>Stream Hours</h3>
-            <p style={{ fontSize: '3rem', fontWeight: 'bold', color: '#90e0ef', margin: 0 }}>0h</p>
-            <p style={{ color: '#48cae4', marginTop: '5px' }}>Ready for takeoff!</p>
-          </div>
-
-          {/* Earnings Card */}
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(72, 202, 228, 0.3), rgba(144, 224, 239, 0.3))',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '20px',
-            padding: '30px',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-            border: '2px solid rgba(72, 202, 228, 0.5)',
-            transform: 'translateY(0)',
-            transition: 'transform 0.3s',
-            cursor: 'pointer'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-            <h3 style={{ color: '#caf0f8', marginBottom: '10px' }}>Earnings</h3>
-            <p style={{ fontSize: '3rem', fontWeight: 'bold', color: '#caf0f8', margin: 0 }}>$0</p>
-            <p style={{ color: '#90e0ef', marginTop: '5px' }}>Tips & sponsorships</p>
-          </div>
-        </div>
-          <div style={{
-  background: 'linear-gradient(135deg, rgba(255, 223, 0, 0.2), rgba(255, 183, 3, 0.2))',
-  backdropFilter: 'blur(10px)',
-  border: '2px solid rgba(255, 223, 0, 0.4)',
-  borderRadius: '20px',
-  padding: '25px',
-  marginBottom: '30px',
-  boxShadow: '0 5px 20px rgba(255, 223, 0, 0.2)'
-}}>
-  <h3 style={{ 
-    color: '#caf0f8', 
-    marginBottom: '15px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px'
-  }}>
-    💰 Pilot Payout Information
-  </h3>
-  <div style={{ color: '#90e0ef' }}>
-    <p style={{ marginBottom: '15px' }}>
-      <strong>Beta Launch Payout Schedule:</strong>
-    </p>
-    <ul style={{ 
-      listStyle: 'none', 
-      padding: 0,
-      margin: 0
-    }}>
-      <li style={{ marginBottom: '8px' }}>
-        ✅ Tips collected by BlueTubeTV platform
-      </li>
-      <li style={{ marginBottom: '8px' }}>
-        ✅ Payouts every Friday via PayPal/Venmo
-      </li>
-      <li style={{ marginBottom: '8px' }}>
-        ✅ You keep 80% of all tips received
-      </li>
-      <li style={{ marginBottom: '8px' }}>
-        ✅ Minimum payout: $25
-      </li>
-      <li style={{ marginBottom: '8px' }}>
-        ⏳ Instant payouts coming soon!
-      </li>
-    </ul>
-    <p style={{ 
-      marginTop: '20px', 
-      fontSize: '0.9rem',
-      color: '#48cae4'
-    }}>
-      <strong>Questions?</strong> Email us at{' '}
-      <a 
-        href="mailto:pilot@bluetubetv.live" 
-        style={{ color: '#90e0ef', textDecoration: 'underline' }}
-      >
-        pilot@bluetubetv.live
-      </a>
-    </p>
-  </div>
-</div>
-        {/* Quick Actions */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(20px)',
-          borderRadius: '20px',
-          padding: '30px',
-          border: '1px solid rgba(255, 255, 255, 0.2)'
-        }}>
-          <h2 style={{ color: '#caf0f8', marginBottom: '20px' }}>Quick Actions</h2>
-          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => window.location.href = '/live'}
-              style={{
-                background: 'linear-gradient(135deg, #48cae4, #90e0ef)',
-                color: '#03045e',
-                border: 'none',
-                padding: '15px 30px',
-                borderRadius: '10px',
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                boxShadow: '0 5px 15px rgba(72, 202, 228, 0.3)',
-                transition: 'all 0.3s'
-              }}
-              onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
-              onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-            >
-              🚀 Go Live
-            </button>
-            <button
-              onClick={() => alert('Analytics coming soon!')}
-              style={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                color: '#caf0f8',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                padding: '15px 30px',
-                borderRadius: '10px',
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                cursor: 'pointer'
-              }}
-            >
-              📊 View Analytics
-            </button>
-            <button
-              onClick={() => alert('Settings coming soon!')}
-              style={{
-                background: 'transparent',
-                color: '#90e0ef',
-                border: '2px solid #48cae4',
-                padding: '15px 30px',
-                borderRadius: '10px',
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                cursor: 'pointer'
-              }}
-            >
-              ⚙️ Settings
-            </button>
+            {/* Stats Grid */}
             <div style={{
-  background: 'rgba(255, 223, 0, 0.1)',
-  border: '1px solid rgba(255, 223, 0, 0.3)',
-  borderRadius: '10px',
-  padding: '20px',
-  marginBottom: '20px'
-}}>
-  <h3>💰 Pilot Payouts</h3>
-  <p>During our beta launch:</p>
-  <ul>
-    <li>Tips are collected by BlueTubeTV</li>
-    <li>Payouts every Friday via PayPal/Venmo</li>
-    <li>You keep 80% of all tips</li>
-    <li>Instant payouts coming soon!</li>
-  </ul>
-  <p><strong>Questions?</strong> Email: pilot@bluetubetv.live</p>
-</div>
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '30px',
+              marginBottom: '40px'
+            }}>
+              {/* Total Views */}
+              <div style={cardStyle}
+                onMouseEnter={hoverIn}
+                onMouseLeave={hoverOut}>
+                <h3 style={statHeader}>Total Views</h3>
+                <p style={statNumber}>24,539</p>
+                <p style={{ color: '#10b981', marginTop: '10px' }}>↑ 12% this week</p>
+              </div>
+
+              {/* Stream Hours */}
+              <div style={cardStyle}
+                onMouseEnter={hoverIn}
+                onMouseLeave={hoverOut}>
+                <h3 style={statHeader}>Stream Hours</h3>
+                <p style={statNumber}>47h</p>
+                <p style={{ color: '#60a5fa', marginTop: '10px' }}>Ready for takeoff!</p>
+              </div>
+
+              {/* Earnings */}
+              <div style={{
+                ...cardStyle,
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1))',
+                border: '2px solid rgba(16, 185, 129, 0.3)'
+              }}
+                onMouseEnter={hoverIn}
+                onMouseLeave={hoverOut}>
+                <h3 style={statHeader}>Earnings</h3>
+                <p style={{ ...statNumber, color: '#10b981' }}>$1,247</p>
+                <p style={{ color: '#10b981', marginTop: '10px' }}>Tips & sponsorships</p>
+              </div>
+            </div>
+
+            {/* Payout Info */}
+            <h3 style={{ 
+              color: '#fbbf24', 
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              fontSize: '24px'
+            }}>
+              💰 Pilot Payout Information
+            </h3>
+            <div style={{ color: '#e2e8f0' }}>
+              <p style={{ marginBottom: '20px', fontSize: '18px' }}>
+                <strong>Beta Launch Payout Schedule:</strong>
+              </p>
+              <ul style={{ 
+                listStyle: 'none', 
+                padding: 0,
+                margin: 0,
+                fontSize: '16px',
+                lineHeight: '2'
+              }}>
+                <li style={{ marginBottom: '10px' }}>✅ Tips collected by BlueTubeTV platform</li>
+                <li style={{ marginBottom: '10px' }}>✅ Payouts every Friday via PayPal/Venmo</li>
+                <li style={{ 
+                  marginBottom: '10px',
+                  color: '#10b981',
+                  fontWeight: 'bold',
+                  fontSize: '18px'
+                }}>✅ You keep 85% of all tips received (15% platform fee)</li>
+                <li style={{ marginBottom: '10px' }}>✅ Minimum payout: $25</li>
+                <li style={{ marginBottom: '10px' }}>⏳ Instant payouts coming soon!</li>
+                <li style={{ 
+                  marginBottom: '10px',
+                  color: '#60a5fa',
+                  fontStyle: 'italic'
+                }}>🎯 Platform fee drops to 5% after we secure sponsorships!</li>
+              </ul>
+              <p style={{ marginTop: '20px', color: '#94a3b8' }}>
+                <strong>Questions?</strong> Email us at{' '}
+                <a 
+                  href="mailto:pilot@bluetubetv.live" 
+                  style={{ color: '#60a5fa', textDecoration: 'none' }}
+                >
+                  pilot@bluetubetv.live
+                </a>
+              </p>
+            </div>
+
+            {/* Quick Actions */}
+            <div style={cardStyle}>
+              <h2 style={{ color: '#60a5fa', marginBottom: '30px', fontSize: '28px' }}>
+                Quick Actions
+              </h2>
+              <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => window.location.href = '/live'}
+                  style={primaryButton}
+                  onMouseEnter={buttonHoverIn}
+                  onMouseLeave={buttonHoverOut}
+                >
+                  🚀 Go Live Now
+                </button>
+
+                <button
+                  onClick={() => alert('Analytics coming soon!')}
+                  style={outlineButtonBlue}
+                >
+                  📊 View Analytics
+                </button>
+
+                <button
+                  onClick={() => alert('Settings coming soon!')}
+                  style={outlineButtonPurple}
+                >
+                  ⚙️ Settings
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        </Layout>
       </div>
-      <Footer />
-    </div>
-    </Layout>
+    </>
   );
+}
+
+// 🔹 Reusable styles
+const cardStyle = {
+  background: 'rgba(30, 41, 59, 0.5)',
+  backdropFilter: 'blur(20px)',
+  border: '1px solid rgba(59, 130, 246, 0.2)',
+  borderRadius: '20px',
+  padding: '30px',
+  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+  transition: 'all 0.3s ease',
+  cursor: 'pointer'
+};
+
+const statHeader = {
+  color: '#94a3b8',
+  marginBottom: '10px'
+};
+
+const statNumber = {
+  fontSize: '48px',
+  fontWeight: 'bold',
+  margin: '0'
+};
+
+const primaryButton = {
+  background: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
+  color: 'white',
+  border: 'none',
+  padding: '16px 40px',
+  borderRadius: '50px',
+  fontSize: '18px',
+  fontWeight: '600',
+  cursor: 'pointer',
+  boxShadow: '0 10px 40px rgba(239, 68, 68, 0.4)',
+  transition: 'all 0.3s ease'
+};
+
+const outlineButtonBlue = {
+  background: 'rgba(59, 130, 246, 0.2)',
+  color: '#60a5fa',
+  border: '1px solid rgba(59, 130, 246, 0.4)',
+  padding: '16px 40px',
+  borderRadius: '50px',
+  fontSize: '18px',
+  fontWeight: '600',
+  cursor: 'pointer',
+  transition: 'all 0.3s ease'
+};
+
+const outlineButtonPurple = {
+  background: 'transparent',
+  color: '#818cf8',
+  border: '2px solid #818cf8',
+  padding: '16px 40px',
+  borderRadius: '50px',
+  fontSize: '18px',
+  fontWeight: '600',
+  cursor: 'pointer',
+  transition: 'all 0.3s ease'
+};
+
+// 🔹 Hover logic
+function hoverIn(e) {
+  e.currentTarget.style.transform = 'translateY(-5px)';
+  e.currentTarget.style.boxShadow = '0 25px 70px rgba(0, 0, 0, 0.4)';
+}
+
+function hoverOut(e) {
+  e.currentTarget.style.transform = 'translateY(0)';
+  e.currentTarget.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.3)';
+}
+
+function buttonHoverIn(e) {
+  e.target.style.transform = 'translateY(-3px)';
+  e.target.style.boxShadow = '0 15px 50px rgba(239, 68, 68, 0.6)';
+}
+
+function buttonHoverOut(e) {
+  e.target.style.transform = 'translateY(0)';
+  e.target.style.boxShadow = '0 10px 40px rgba(239, 68, 68, 0.4)';
 }

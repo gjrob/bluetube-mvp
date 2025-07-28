@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import '../styles/globals.css'
 
 function MyApp({ Component, pageProps }) {
-  const [mounted, setMounted] = useState(false)
-  
   useEffect(() => {
-    setMounted(true)
+    // Fix hydration issues
+    const jssStyles = document.querySelector('#jss-server-side')
+    if (jssStyles) {
+      jssStyles.parentElement.removeChild(jssStyles)
+    }
   }, [])
-  
-  if (!mounted) return null
-  
+
   return <Component {...pageProps} />
 }
 
