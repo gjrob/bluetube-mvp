@@ -1,5 +1,4 @@
 // pages/dashboard.js
-import Layout from '../components/Layout';
 import { useState, useEffect } from 'react';
 import Footer from '../components/Footer';  // ← ADD THIS IMPORT
 
@@ -14,10 +13,9 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <Layout>
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
       flexDirection: 'column',
       background: 'linear-gradient(135deg, #03045e 0%, #023e8a 20%, #0077b6 40%, #0096c7 60%, #00b4d8 80%, #48cae4 100%)',
       position: 'relative'
@@ -254,6 +252,5 @@ export default function Dashboard() {
       </div>
       <Footer />
     </div>
-    </Layout>
   );
 }
