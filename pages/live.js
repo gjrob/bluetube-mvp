@@ -1,4 +1,4 @@
-// pages/live.js - CLEANED VERSION
+// pages/live.js - FIXED VERSION
 import Layout from '../components/Layout';
 import Head from 'next/head';
 import { useState } from 'react';

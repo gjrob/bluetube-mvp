@@ -1,4 +1,4 @@
-// pages/browse.js
+// pages/browse.js - FIXED VERSION
 import Layout from '../components/Layout';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -203,7 +203,11 @@ export default function Browse() {
               {(activeTab === 'all' ? streams : 
                 activeTab === 'live' ? liveStreams : 
                 recordedStreams).map((stream) => (
-                  <Link href={`/watch/${stream.id}`} style={{ textDecoration: 'none' }} key={stream.id}>
+                  <Link 
+                    href={`/watch/${stream.id}`} 
+                    key={stream.id}
+                    style={{ textDecoration: 'none' }}
+                  >
                     <div style={{
                       background: 'rgba(30, 41, 59, 0.6)',
                       backdropFilter: 'blur(10px)',
@@ -342,7 +346,7 @@ export default function Browse() {
                         </div>
                       </div>
                     </div>
-                </Link>
+                  </Link>
               ))}
               
               {/* Add More Content Card */}
@@ -399,25 +403,22 @@ export default function Browse() {
                 <p style={{ color: '#94a3b8', fontSize: '18px', marginBottom: '30px' }}>
                   Be the first to {activeTab === 'live' ? 'go live' : 'upload content'}!
                 </p>
-            <Link href="/live">
-  <span
-    className="hero-button"
-    style={{
-      background: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
-      color: 'white',
-      padding: '16px 48px',
-      borderRadius: '50px',
-      fontSize: '18px',
-      fontWeight: '600',
-      textDecoration: 'none',
-      display: 'inline-block',
-      boxShadow: '0 10px 40px rgba(239, 68, 68, 0.4)'
-    }}
-  >
-    🚁 Start Streaming Now
-  </span>
-</Link>
-
+                <Link 
+                  href="/live"
+                  style={{
+                    background: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
+                    color: 'white',
+                    padding: '16px 48px',
+                    borderRadius: '50px',
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    textDecoration: 'none',
+                    display: 'inline-block',
+                    boxShadow: '0 10px 40px rgba(239, 68, 68, 0.4)'
+                  }}
+                >
+                  🚁 Start Streaming Now
+                </Link>
               </div>
             )}
           </div>
