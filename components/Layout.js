@@ -83,15 +83,20 @@ export default function Layout({ children }) {
 // CHANGE THIS TO YOUR LINK!
         target="_blank"
         rel="noopener noreferrer"
-        style={donationButtonStyle}
-        onMouseEnter={(e) => {
-          e.target.style.backgroundColor = 'rgba(251, 191, 36, 0.2)';
-          e.target.style.transform = 'scale(1.05)';
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.backgroundColor = 'rgba(251, 191, 36, 0.1)';
-          e.target.style.transform = 'scale(1)';
-        }}
+style={{
+  position: 'fixed',
+  bottom: '30px',
+  right: '30px',
+  background: '#000',  // Make it BLACK
+  color: '#fbbf24',    // Yellow text
+  padding: '12px 24px',
+  borderRadius: '50px',
+  textDecoration: 'none',
+  fontSize: '14px',
+  fontWeight: 'bold',
+  border: '2px solid #fbbf24',  // Yellow border
+  zIndex: 1000
+}}
       >
         ☕ Buy me a coffee
       </a>
