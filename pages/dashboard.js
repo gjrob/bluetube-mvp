@@ -127,15 +127,15 @@ export default function Dashboard() {
                   fontStyle: 'italic'
                 }}>🎯 Platform fee drops to 5% after we secure sponsorships!</li>
               </ul>
-              <p style={{ marginTop: '20px', color: '#94a3b8' }}>
-                <strong>Questions?</strong> Email us at{' '}
-                <a 
-                  href="mailto:pilot@bluetubetv.live" 
-                  style={{ color: '#60a5fa', textDecoration: 'none' }}
-                >
-                  pilot@bluetubetv.live
-                </a>
-              </p>
+           <p style={{ marginTop: '20px', color: '#94a3b8' }}>
+  <strong>Questions?</strong> Email us at{' '}
+  <a 
+    href="mailto:pilot@bluetubetv.live" 
+    style={{ color: '#60a5fa', textDecoration: 'none' }}
+  >
+    pilot@bluetubetv.live
+  </a>
+</p>
             </div>
 
             {/* Quick Actions */}
