@@ -3,43 +3,41 @@ import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import Head from 'next/head';
 
-export default function Founders() {
-  const [founderNumber, setFounderNumber] = useState(null);
-  const [name, setName] = useState('');
-  const [totalClaimed, setTotalClaimed] = useState(0);
+const claimFounderSpot = async () => {  // Note: added 'async'
+  if (!name.trim()) {
+    alert('Please enter your pilot name!');
+    return;
+  }
   
-  useEffect(() => {
-    // Check if they already claimed
-    const existingNumber = localStorage.getItem('myFounderNumber');
-    if (existingNumber) {
-      setFounderNumber(existingNumber);
+  // Get current count from localStorage
+  let currentCount = parseInt(localStorage.getItem('founderCount') || '0');
+  
+  if (currentCount < 100) {
+    currentCount += 1;
+    localStorage.setItem('founderCount', currentCount);
+    localStorage.setItem(`founder_${currentCount}`, name);
+    localStorage.setItem('myFounderNumber', currentCount);
+    
+    // NEW CODE - Send to API
+    try {
+      await fetch('/api/claim-badge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          name: name, 
+          number: currentCount 
+        })
+      });
+    } catch (error) {
+      console.error('Failed to track claim:', error);
     }
     
-    // Get current count
-    const currentCount = parseInt(localStorage.getItem('founderCount') || '0');
+    setFounderNumber(currentCount);
     setTotalClaimed(currentCount);
-  }, []);
-  
-  const claimFounderSpot = () => {
-    if (!name.trim()) {
-      alert('Please enter your pilot name!');
-      return;
-    }
-    
-    // Get current count from localStorage
-    let currentCount = parseInt(localStorage.getItem('founderCount') || '0');
-    
-    if (currentCount < 100) {
-      currentCount += 1;
-      localStorage.setItem('founderCount', currentCount);
-      localStorage.setItem(`founder_${currentCount}`, name);
-      localStorage.setItem('myFounderNumber', currentCount);
-      setFounderNumber(currentCount);
-      setTotalClaimed(currentCount);
-    } else {
-      alert('Sorry! All 100 founder spots have been claimed.');
-    }
-  };
+  } else {
+    alert('Sorry! All 100 founder spots have been claimed.');
+  }
+};
 
   return (
     <>
@@ -136,7 +134,8 @@ export default function Founders() {
                 <p style={{ fontSize: '18px', color: '#10b981', marginBottom: '30px' }}>
                   Welcome to the exclusive club, {localStorage.getItem(`founder_${founderNumber}`)}!
                 </p>
-                
+                console.log(`Founder #${currentCount} claimed by ${name} at ${new Date()}`);
+
                 <div style={{
                   background: 'rgba(0, 0, 0, 0.3)',
                   padding: '20px',
@@ -185,4 +184,3 @@ export default function Founders() {
       </div>
     </>
   );
-}
