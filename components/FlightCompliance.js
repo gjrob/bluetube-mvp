@@ -1,294 +1,128 @@
-import { useState, useEffect, useRef } from 'react';
-import { AlertTriangle, Activity, Navigation, Battery } from 'lucide-react';
-import FlightComplianceAIPanel from './FlightComplianceAI';
+// components/FlightCompliance.js
+import { useState, useEffect } from 'react';
 
 export default function FlightCompliance({ streamKey }) {
-  const effectiveStreamKey = streamKey || 'demo-stream';
-  console.log('FlightCompliance using streamKey:', effectiveStreamKey);
-  const simulationInterval = useRef(null);
-
-  const [droneStatus, setDroneStatus] = useState(null);
-  const [analytics, setAnalytics] = useState(null);
-  const [violations, setViolations] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  // Fetch drone status
-  const fetchDroneStatus = async () => {
-    try {
-      const res = await fetch(`/api/drone/status?stream_key=${effectiveStreamKey}`);
-      if (res.ok) {
-        const data = await res.json();
-        setDroneStatus(data);
-        if (data.violations) setViolations(data.violations);
-      }
-    } catch (error) {
-      console.error('Error fetching drone status:', error);
-    }
-  };
-
-  const fetchAnalytics = async () => {
-    try {
-      const res = await fetch(`/api/faa/analytics?stream_key=${effectiveStreamKey}`);
-      if (res.ok) {
-        const data = await res.json();
-        setAnalytics(data);
-      }
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
-    }
-  };
-
-  // Connect/disconnect drone
-  const toggleDroneConnection = async () => {
-    console.log('Toggle connection clicked, current state:', isConnected);
-    setIsLoading(true);
-    try {
-      const res = await fetch('/api/drone/connect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: isConnected ? 'disconnect' : 'connect', stream_key: effectiveStreamKey })
-      });
-      console.log('Sending to API:', { action: isConnected ? 'disconnect' : 'connect', stream_key: effectiveStreamKey });
-      const payload = { action: isConnected ? 'disconnect' : 'connect', stream_key: effectiveStreamKey };
-      console.log('Sending payload:', payload);
-
-      if (res.ok) {
-        fetchDroneStatus();
-        console.log('Fetching drone status...');
-        setIsConnected(!isConnected);
-        console.log('Drone connection toggled:', !isConnected);
-      }
-    } catch (error) {
-      console.error('Error toggling drone connection:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-// Submit telemetry data
-const submitTelemetry = async () => {
-    if (!droneStatus?.telemetry) return;
-
-    try {
-      await fetch('/api/faa/training', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telemetry: droneStatus.telemetry, stream_key: effectiveStreamKey })
-      });
-    } catch (error) {
-      console.error('Error submitting telemetry:', error);
-    }
-  };
-
-// Simulate drone data (if needed)
-const simulateDroneData = async () => {
-  const newTelemetry = {
-    connected: true,
-    altitude: Math.random() * 450,  // Random altitude 0-450ft
-    speed: Math.random() * 35,      // Random speed 0-35mph
-    battery: 100 - (Math.random() * 20),  // Battery 80-100%
-    signalStrength: 85 + (Math.random() * 15),  // Signal 85-100%
-    flightTime: 0,
-    heading: Math.random() * 360,
-    location: { lat: 34.2257, lng: -77.9447 }
-  };
-
-  // Update the state with full drone data
-  setDroneStatus({
-    connected: true,
-    telemetry: newTelemetry
+  const [telemetry, setTelemetry] = useState({
+    altitude: 0,
+    speed: 0,
+    battery: 100,
+    location: { lat: 33.7490, lng: -84.3880 }
   });
 
-  // Submit to backend
-  await submitTelemetry(newTelemetry);
-};
-
-  // Simulate telemetry updates
-useEffect(() => {
-  let interval;
-  
-  if (isConnected) {
-    // Set initial telemetry data
-    setDroneStatus({
-      connected: true,
-      telemetry: {
-        connected: true,
-        altitude: 285,
-        speed: 15,
-        battery: 100,
-        signalStrength: 95,
-        flightTime: 0,
-        heading: 0,
-        location: { lat: 34.2257, lng: -77.9447 }
-      }
-    });
-    
-    // Update every 2 seconds
-    interval = setInterval(() => {
-      setDroneStatus(prev => {
-        if (!prev || !prev.telemetry) return prev;
-        
-        const newTelemetry = {
-          ...prev.telemetry,
-          altitude: prev.telemetry.altitude + (Math.random() - 0.5) * 20,
-          speed: 15 + Math.random() * 10,
-          battery: Math.max(20, prev.telemetry.battery - 0.1),
-          flightTime: prev.telemetry.flightTime + 2
-        };
-        
-        // Submit telemetry in background
-        submitTelemetry(newTelemetry);
-        
-        return {
-          ...prev,
-          telemetry: newTelemetry
-        };
-      });
-      const checkCompliance = async () => {
-  try {
-    const response = await fetch('/api/faa/train-model', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        flightData: {
-          streamId: id,
-          timestamp: new Date()
-        },
-        location: { lat: 34.0522, lng: -118.2437 }, // Get from browser
-        altitude: 250, // Get from drone telemetry
-        droneModel: 'DJI Mavic 3'
-      })
-    });
-    
-    const data = await response.json();
-    setComplianceStatus(data.compliance);
-  } catch (error) {
-    console.error('Compliance check failed:', error);
-  }
-};
-      // Refresh analytics
-      fetchAnalytics();
-    }, 2000);
-  } else {
-    // Reset when disconnected
-    setDroneStatus(null);
-  }
-  
-  return () => {
-    if (interval) clearInterval(interval);
-  };
-}, [isConnected]); // Only depend on isConnected
-
-  // Initial load
   useEffect(() => {
-    fetchDroneStatus();
-    fetchAnalytics();
-  }, []);
-  useEffect(() => {
-  if (isConnected && droneStatus) {
-    const interval = setInterval(() => {
-      simulateDroneData();
-    }, 2000);
-    
-    return () => clearInterval(interval);
-  }
-  }, [isConnected, droneStatus]);
+    if (isConnected) {
+      const interval = setInterval(() => {
+        setTelemetry(prev => ({
+          altitude: Math.min(350, Math.max(0, prev.altitude + (Math.random() - 0.5) * 20)),
+          speed: Math.max(0, 15 + (Math.random() - 0.5) * 10),
+          battery: Math.max(20, prev.battery - 0.1),
+          location: prev.location
+        }));
+      }, 2000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [isConnected]);
+
+  const isCompliant = telemetry.altitude <= 400;
+
   return (
-    <div className="bg-zinc-900 rounded-lg p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-white">
-          Flight Compliance Monitor
-        </h2>
+    <div style={{
+      background: 'rgba(30, 41, 59, 0.5)',
+      backdropFilter: 'blur(20px)',
+      border: '1px solid rgba(59, 130, 246, 0.2)',
+      borderRadius: '20px',
+      padding: '30px',
+      marginTop: '20px',
+      color: 'white'
+    }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginBottom: '20px'
+      }}>
+        <h2 style={{ fontSize: '24px', margin: 0, color: 'white' }}>✈️ Flight Compliance Monitor</h2>
         <button
-          onClick={toggleDroneConnection}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            isConnected 
-              ? 'bg-red-600 hover:bg-red-700 text-white' 
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
-          }`}
+          onClick={() => setIsConnected(!isConnected)}
+          style={{
+            padding: '10px 20px',
+            background: isConnected ? '#ef4444' : '#10b981',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease'
+          }}
         >
-          {isConnected ? 'Disconnect Drone' : 'Connect Drone'}
+          {isConnected ? 'Disconnect' : 'Connect'}
         </button>
       </div>
 
-      {/* Telemetry Display */}
-      {droneStatus?.telemetry && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-zinc-800 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-gray-400 mb-2">
-              <Navigation className="w-4 h-4" />
-              <span className="text-sm">Altitude</span>
+      {isConnected ? (
+        <div style={{
+          background: 'rgba(15, 23, 42, 0.5)',
+          borderRadius: '12px',
+          padding: '20px',
+          border: `2px solid ${isCompliant ? '#10b981' : '#ef4444'}`
+        }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '15px',
+            marginBottom: '15px'
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#60a5fa' }}>
+                {telemetry.altitude.toFixed(1)} ft
+              </div>
+              <div style={{ fontSize: '14px', color: '#94a3b8' }}>Altitude</div>
             </div>
-            <div className={`text-2xl font-bold ${
-              droneStatus.telemetry.altitude > 400 ? 'text-red-500' : 'text-white'
-            }`}>
-              {droneStatus.telemetry.altitude.toFixed(0)}ft
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#60a5fa' }}>
+                {telemetry.speed.toFixed(1)} mph
+              </div>
+              <div style={{ fontSize: '14px', color: '#94a3b8' }}>Speed</div>
             </div>
-            {droneStatus.telemetry.altitude > 400 && (
-              <div className="text-xs text-red-400 mt-1">⚠️ FAA Limit: 400ft</div>
-            )}
-            {isConnected && droneStatus?.telemetry && (
-            <FlightComplianceAIPanel 
-             streamKey={effectiveStreamKey}
-             currentTelemetry={droneStatus.telemetry}
-             />
-      )}
-          </div>
-
-          <div className="bg-zinc-800 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-gray-400 mb-2">
-              <Activity className="w-4 h-4" />
-              <span className="text-sm">Speed</span>
-            </div>
-            <div className="text-2xl font-bold text-white">
-              {droneStatus.telemetry.speed.toFixed(1)}mph
-            </div>
-          </div>
-
-          <div className="bg-zinc-800 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-gray-400 mb-2">
-              <Battery className="w-4 h-4" />
-              <span className="text-sm">Battery</span>
-            </div>
-            <div className={`text-2xl font-bold ${
-              droneStatus.telemetry.battery < 20 ? 'text-orange-500' : 'text-white'
-            }`}>
-              {droneStatus.telemetry.battery.toFixed(0)}%
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#60a5fa' }}>
+                {telemetry.battery.toFixed(1)}%
+              </div>
+              <div style={{ fontSize: '14px', color: '#94a3b8' }}>Battery</div>
             </div>
           </div>
-
-          <div className="bg-zinc-800 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-gray-400 mb-2">
-              <AlertTriangle className="w-4 h-4" />
-              <span className="text-sm">Compliance</span>
+          
+          <div style={{ 
+            textAlign: 'center',
+            padding: '10px',
+            borderRadius: '8px',
+            background: isCompliant ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'
+          }}>
+            <div style={{ 
+              fontSize: '18px', 
+              fontWeight: 'bold',
+              color: isCompliant ? '#10b981' : '#ef4444'
+            }}>
+              {isCompliant ? '✅ Flight Compliant' : '⚠️ Altitude Violation!'}
             </div>
-            <div className={`text-2xl font-bold ${
-              analytics?.complianceRate >= 95 ? 'text-green-500' : 'text-orange-500'
-            }`}>
-              {analytics?.complianceRate.toFixed(0)}%
+            <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '5px' }}>
+              GPS: {telemetry.location.lat.toFixed(4)}, {telemetry.location.lng.toFixed(4)}
             </div>
           </div>
         </div>
-      )}
-
-      {/* Recent Violations */}
-      {violations.length > 0 && (
-        <div className="bg-zinc-800 rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-white mb-3">
-            Recent Violations
-          </h3>
-          <div className="space-y-2 max-h-40 overflow-y-auto">
-            {violations.map((violation, index) => (
-              <div key={index} className="flex items-center gap-3 text-sm">
-                <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
-                <span className="text-gray-300">{violation.message}</span>
-                <span className="text-gray-500 text-xs">
-                  {new Date(violation.timestamp).toLocaleTimeString()}
-                </span>
-              </div>
-            ))}
-          </div>
+      ) : (
+        <div style={{
+          textAlign: 'center',
+          padding: '40px',
+          color: '#94a3b8'
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '10px' }}>📡</div>
+          <div>Click "Connect" to start monitoring flight telemetry</div>
         </div>
       )}
     </div>
   );
+
 }

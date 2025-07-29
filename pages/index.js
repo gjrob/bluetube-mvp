@@ -80,20 +80,6 @@ export default function Home() {
                     <Link 
                      href="/browse"
                       className="hero-button"
-                      style={{
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #66d9ef 100%)',
-                      color: 'white',
-                      padding: '16px 48px',
-                      borderRadius: '50px',
-                      fontSize: '20px',
-                      fontWeight: '600',
-                      border: 'none',
-                      cursor: 'pointer',
-                      boxShadow: '0 10px 40px rgba(102, 126, 234, 0.4)',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      textDecoration: 'none',
-                      display: 'inline-block'
-                    }}
                   >
                     🎬 Watch Live Streams
                 </Link>
@@ -230,14 +216,7 @@ export default function Home() {
                 }}>
                 <Link 
                     href="/browse"
-                     className="hero-button"
-                      style={{
-                        aspectRatio: '16/9',
-                        background: 'linear-gradient(135deg, #374151, #4b5563)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
+                     className="hero-button">
                         <span style={{ fontSize: '60px' }}>📹</span>
                   
                       <div style={{ padding: '20px' }}>
@@ -329,9 +308,8 @@ export default function Home() {
                     <p style={{ color: '#94a3b8', marginBottom: '20px' }}>{item.desc}</p>
                     {item.link ? (
                       <Link href={item.link}>
-                        <a style={{ color: '#60a5fa', textDecoration: 'none', fontWeight: 'bold' }}>
                           {item.linkText}
-                        </a>
+                      
                     </Link>
                     ) : (
                       <span style={{ color: '#6b7280' }}>{item.linkText}</span>
