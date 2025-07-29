@@ -3,11 +3,29 @@ import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import Head from 'next/head';
 
-const claimFounderSpot = async () => {  // Note: added 'async'
+const claimFounderSpot = async () => {
   if (!name.trim()) {
     alert('Please enter your pilot name!');
     return;
   }
+  
+  let currentCount = parseInt(localStorage.getItem('founderCount') || '0');
+  
+  if (currentCount < 100) {       // <-- Opening brace
+    // ... all your localStorage code ...
+    
+    try {
+      // ... fetch code ...
+    } catch (error) {
+      console.error('Failed to track claim:', error);
+    }
+    
+    setFounderNumber(currentCount);
+    setTotalClaimed(currentCount);
+  } else {                        // <-- You're missing this closing brace
+    alert('Sorry! All 100 founder spots have been claimed.');
+  }
+};                               // <-- Function closing
   
   // Get current count from localStorage
   let currentCount = parseInt(localStorage.getItem('founderCount') || '0');
@@ -37,8 +55,6 @@ const claimFounderSpot = async () => {  // Note: added 'async'
   } else {
     alert('Sorry! All 100 founder spots have been claimed.');
   }
-};
-
   return (
     <>
       <Head>
