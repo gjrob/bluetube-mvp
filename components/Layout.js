@@ -50,6 +50,25 @@ export default function Layout({ children }) {
     color: '#6b7280'
   };
   
+  // ADD THIS - Donation button style
+  const donationButtonStyle = {
+    position: 'fixed',
+    bottom: '30px',
+    right: '30px',
+    backgroundColor: 'rgba(251, 191, 36, 0.1)',
+    border: '1px solid rgba(251, 191, 36, 0.3)',
+    color: '#fbbf24',
+    padding: '12px 24px',
+    borderRadius: '50px',
+    textDecoration: 'none',
+    fontSize: '14px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    zIndex: 100,
+    transition: 'all 0.3s ease'
+  };
+  
   // Media query for responsive
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
@@ -57,6 +76,25 @@ export default function Layout({ children }) {
     <div style={layoutStyle}>
       <Navigation />
       <main style={mainStyle}>{children}</main>
+      
+      {/* ADD THIS - Donation Button */}
+      <a
+       href="https://coff.ee/garlanjrobinson"
+// CHANGE THIS TO YOUR LINK!
+        target="_blank"
+        rel="noopener noreferrer"
+        style={donationButtonStyle}
+        onMouseEnter={(e) => {
+          e.target.style.backgroundColor = 'rgba(251, 191, 36, 0.2)';
+          e.target.style.transform = 'scale(1.05)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.backgroundColor = 'rgba(251, 191, 36, 0.1)';
+          e.target.style.transform = 'scale(1)';
+        }}
+      >
+        ☕ Buy me a coffee
+      </a>
       
       <footer style={footerStyle}>
         <div style={{
