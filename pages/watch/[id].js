@@ -1,26 +1,27 @@
-// Quick fix for watch page - make it work with Cloudflare Stream
 // pages/watch/[id].js
-
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import Layout from '../../components/Layout';
 import Head from 'next/head';
+import Layout from '../../components/Layout'; // FIXED: Correct path (../../ not ../)
+import NFTMinting from '../../components/NFTMinting'; // Add this import
 
 export default function WatchStream() {
   const router = useRouter();
   const { id } = router.query;
   const [isLoading, setIsLoading] = useState(true);
+  const [isLive, setIsLive] = useState(false);
 
-  // Cloudflare Stream URL format
-  const streamUrl = `https://customer-${id}.cloudflarestream.com/manifest/video.m3u8`;
+  // Cloudflare configuration
+  const accountHash = 'customer-qvzqb8nqvcsqqf40';
   
   // For testing - your working stream
-  const testStreamId = '9f6bec4c809ca878d3f17ac651ef3e89';
+  const testStreamId = '5d5c67636850f4e587b7e27067824b1c'; // Your actual live input ID
 
   useEffect(() => {
-    // Simple check if stream exists
     if (id) {
       setIsLoading(false);
+      // In production, you'd check if stream is actually live
+      setIsLive(true);
     }
   }, [id]);
 
@@ -31,7 +32,7 @@ export default function WatchStream() {
       </Head>
       
       <div style={{
-        background: 'linear-gradient(180deg, #0a0e27 0%, #1a237e 50%, #0f172a 100%)',
+background: 'linear-gradient(180deg, #1a0033 0%, #330066 40%, #4d0099 100%)',
         minHeight: '100vh',
         color: 'white'
       }}>
@@ -43,7 +44,7 @@ export default function WatchStream() {
               </div>
             ) : (
               <>
-                {/* Cloudflare Stream Player */}
+                {/* Cloudflare Stream Player - ONLY ONE IFRAME */}
                 <div style={{
                   position: 'relative',
                   paddingTop: '56.25%', // 16:9 aspect ratio
@@ -53,7 +54,7 @@ export default function WatchStream() {
                   overflow: 'hidden'
                 }}>
                   <iframe
-                    src={`https://iframe.cloudflarestream.com/${id || testStreamId}?poster=https%3A%2F%2Fbluetubtv.live%2Fdrone-poster.jpg`}
+                    src={`https://${accountHash}.cloudflarestream.com/${id || testStreamId}/iframe`}
                     style={{
                       position: 'absolute',
                       top: 0,
@@ -62,9 +63,9 @@ export default function WatchStream() {
                       height: '100%',
                       border: 'none'
                     }}
-                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
                     allowFullScreen
-                  ></iframe>
+                  />
                 </div>
 
                 {/* Stream Info */}
@@ -73,15 +74,16 @@ export default function WatchStream() {
                   backdropFilter: 'blur(20px)',
                   border: '1px solid rgba(59, 130, 246, 0.2)',
                   borderRadius: '20px',
-                  padding: '30px'
+                  padding: '30px',
+                  marginBottom: '20px'
                 }}>
                   <h1 style={{ marginBottom: '10px' }}>Drone Live Stream</h1>
                   <p style={{ color: '#94a3b8', marginBottom: '20px' }}>
-                    Stream ID: {id || 'test-stream'}
+                    Stream ID: {id || testStreamId}
                   </p>
                   
                   {/* Quick Actions */}
-                  <div style={{ display: 'flex', gap: '10px' }}>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                     <button style={{
                       background: 'rgba(239, 68, 68, 0.1)',
                       color: '#ef4444',
@@ -92,6 +94,7 @@ export default function WatchStream() {
                     }}>
                       ❤️ Like
                     </button>
+                    
                     <button 
                       onClick={() => {
                         navigator.clipboard.writeText(window.location.href);
@@ -108,45 +111,55 @@ export default function WatchStream() {
                     >
                       📋 Copy Link
                     </button>
-                    {/* ADD TIP PILOT BUTTON */}
-<button 
-  onClick={() => {
-    window.open('https://coff.ee/garlanjrobinson', '_blank');
-  }}
-  style={{
-    background: 'rgba(16, 185, 129, 0.1)',
-    color: '#10b981',
-    border: '1px solid rgba(16, 185, 129, 0.3)',
-    padding: '10px 20px',
-    borderRadius: '20px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    fontSize: '16px'
-  }}
->
-  💰 Tip Pilot
-</button>
-
-{/* If you want PayPal option too */}
-<button 
-  onClick={() => {
-    window.open('https://paypal.me/garlanjrobinson', '_blank'); // Change to YOUR PayPal
-  }}
-  style={{
-    background: 'rgba(0, 112, 243, 0.1)',
-    color: '#0070f3',
-    border: '1px solid rgba(0, 112, 243, 0.3)',
-    padding: '10px 20px',
-    borderRadius: '20px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    fontSize: '16px'
-  }}
->
-  💳 PayPal Tip
-</button>
+                    
+                    <button 
+                      onClick={() => {
+                        window.open('https://coff.ee/garlanjrobinson', '_blank');
+                      }}
+                      style={{
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        color: '#10b981',
+                        border: '1px solid rgba(16, 185, 129, 0.3)',
+                        padding: '10px 20px',
+                        borderRadius: '20px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        fontSize: '16px'
+                      }}
+                    >
+                      💰 Tip Pilot
+                    </button>
+                    
+                    <button 
+                      onClick={() => {
+                        window.open('https://paypal.me/garlanjrobinson', '_blank');
+                      }}
+                      style={{
+                        background: 'rgba(0, 112, 243, 0.1)',
+                        color: '#0070f3',
+                        border: '1px solid rgba(0, 112, 243, 0.3)',
+                        padding: '10px 20px',
+                        borderRadius: '20px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        fontSize: '16px'
+                      }}
+                    >
+                      💳 PayPal Tip
+                    </button>
                   </div>
                 </div>
+
+                {/* NFT Minting Component */}
+                <NFTMinting 
+                  streamId={id || testStreamId}
+                  pilotName="BlueTubeTV Pilot"
+                  isLive={isLive}
+                  currentUser={{
+                    id: "user_123",
+                    name: "Pilot Name"
+                  }}
+                />
               </>
             )}
           </div>
@@ -155,23 +168,3 @@ export default function WatchStream() {
     </>
   );
 }
-
-// Facebook Launch Post Template
-export const FacebookLaunchPost = `
-🚁 Just launched BlueTubeTV - Drone Streaming WITHOUT the BS! 
-
-Tired of YouTube strikes? Facebook compression? We built something better.
-
-✅ Stream directly from your DJI/Autel app
-✅ No copyright strikes on motor noise
-✅ Built-in FAA compliance tracking
-✅ DRONE CAMERAS ONLY (no pets!)
-
-First 100 pilots get founder badges! 🏆
-
-Testing live now: www.bluetubetv.live
-
-What features do YOU want? Comment below! 👇
-
-#dronelife #fpv #dji #droneracing #droneoftheday
-`;

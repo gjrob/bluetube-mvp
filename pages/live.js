@@ -1,11 +1,12 @@
-// pages/live.js - FIXED VERSION
+// pages/live.js - COMPLETE VERSION WITH ALL MONETIZATION
 import Layout from '../components/Layout';
+import BrowserStream from '../components/BrowserStream';
+import SuperChat from '../components/SuperChat';
+import NFTMinting from '../components/NFTMinting';
 import Head from 'next/head';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import dynamic from 'next/dynamic';
-
 const FlightCompliance = dynamic(() => import('../components/FlightCompliance'), { ssr: false });
 
 // This prevents the build error
@@ -17,6 +18,7 @@ export default function Live() {
   const [streamKey, setStreamKey] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showFlightCompliance, setShowFlightCompliance] = useState(false);
+  const [showNFTMinting, setShowNFTMinting] = useState(false);
   const router = useRouter();
 
   const generateStreamKey = async () => {
@@ -29,6 +31,11 @@ export default function Live() {
       console.error('Error generating stream key:', error);
     }
     setLoading(false);
+  };
+
+  // Handle view stream with correct ID
+  const handleViewStream = () => {
+    router.push('/watch/5d5c67636850f4e587b7e27067824b1c');
   };
 
   return (
@@ -58,11 +65,11 @@ export default function Live() {
 
             <div style={{
               display: 'grid',
-              gridTemplateColumns: '1fr 350px',
+              gridTemplateColumns: '1fr 400px',
               gap: '30px',
               marginTop: '20px'
             }}>
-              {/* Stream Preview */}
+              {/* LEFT COLUMN - Stream Preview */}
               <div style={{
                 background: 'rgba(30, 41, 59, 0.5)',
                 backdropFilter: 'blur(20px)',
@@ -92,47 +99,74 @@ export default function Live() {
                     <span style={{ fontSize: '60px' }}>🚁</span>
                   </div>
                   
-                  {/* Flight Compliance Button */}
-                  <button
-                    onClick={() => setShowFlightCompliance(!showFlightCompliance)}
-                    style={{
-                      position: 'absolute',
-                      top: '20px',
-                      right: '20px',
-                      background: 'rgba(0, 0, 0, 0.7)',
-                      color: 'white',
-                      padding: '10px 20px',
-                      borderRadius: '25px',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      cursor: 'pointer',
-                      fontSize: '14px'
-                    }}
-                  >
-                    ✈️ Flight Compliance
-                  </button>
-                  
+                  {/* Top Controls */}
                   <div style={{
                     position: 'absolute',
                     top: '20px',
                     left: '20px',
-                    background: '#ef4444',
-                    color: 'white',
-                    padding: '8px 20px',
-                    borderRadius: '20px',
-                    fontSize: '16px',
-                    fontWeight: '600',
+                    right: '20px',
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
                   }}>
-                    <span style={{
-                      width: '8px',
-                      height: '8px',
-                      background: 'white',
-                      borderRadius: '50%',
-                      animation: 'blink 1.4s infinite'
-                    }}></span>
-                    LIVE
+                    {/* LIVE Badge */}
+                    <div style={{
+                      background: '#ef4444',
+                      color: 'white',
+                      padding: '8px 20px',
+                      borderRadius: '20px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <span style={{
+                        width: '8px',
+                        height: '8px',
+                        background: 'white',
+                        borderRadius: '50%',
+                        animation: 'blink 1.4s infinite'
+                      }}></span>
+                      LIVE
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      {/* NFT Minting Button */}
+                      <button
+                        onClick={() => setShowNFTMinting(!showNFTMinting)}
+                        style={{
+                          background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+                          color: 'white',
+                          padding: '10px 20px',
+                          borderRadius: '25px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          boxShadow: '0 4px 15px rgba(139, 92, 246, 0.3)'
+                        }}
+                      >
+                        🎨 Mint NFT
+                      </button>
+
+                      {/* Flight Compliance Button */}
+                      <button
+                        onClick={() => setShowFlightCompliance(!showFlightCompliance)}
+                        style={{
+                          background: 'rgba(0, 0, 0, 0.7)',
+                          color: 'white',
+                          padding: '10px 20px',
+                          borderRadius: '25px',
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          cursor: 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        ✈️ Flight Compliance
+                      </button>
+                    </div>
                   </div>
                 </div>
                 
@@ -164,8 +198,9 @@ export default function Live() {
                 </div>
               </div>
 
-              {/* Settings & Info */}
+              {/* RIGHT COLUMN - Settings & Monetization */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {/* Stream Settings */}
                 <div style={{
                   background: 'rgba(30, 41, 59, 0.5)',
                   backdropFilter: 'blur(20px)',
@@ -174,7 +209,7 @@ export default function Live() {
                   padding: '30px',
                   boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
                 }}>
-                  <h3 style={{ marginBottom: '20px' }}>Stream Settings</h3>
+                  <h3 style={{ marginBottom: '20px', fontSize: '24px' }}>Stream Settings</h3>
                   <input 
                     placeholder="Stream Title" 
                     style={{
@@ -196,7 +231,8 @@ export default function Live() {
                     borderRadius: '12px',
                     fontSize: '16px',
                     width: '100%',
-                    marginBottom: '15px'
+                    marginBottom: '15px',
+                    cursor: 'pointer'
                   }}>
                     <option>Select Drone Model</option>
                     <option>DJI Mavic 3</option>
@@ -217,6 +253,27 @@ export default function Live() {
                   />
                 </div>
 
+                {/* SuperChat Component */}
+                <SuperChat 
+                  streamId="live_stream_main"
+                  currentUser={{
+                    id: "pilot_123",
+                    name: "Your Pilot Name",
+                    email: "pilot@example.com"
+                  }}
+                  isLive={true}
+                />
+
+                {/* NFT Minting Component (shown when toggled) */}
+                {showNFTMinting && (
+                  <NFTMinting 
+                    streamId="live_stream_main"
+                    streamTitle="Drone Flight Stream"
+                    pilotAddress="0x123..." // Replace with actual wallet address
+                  />
+                )}
+
+                {/* Stream Key Success Message (if generated) */}
                 {streamKey && (
                   <div style={{
                     background: 'rgba(16, 185, 129, 0.1)',
@@ -238,35 +295,54 @@ export default function Live() {
                       <p style={{ margin: '5px 0' }}>Server: {streamKey.rtmpUrl || 'rtmp://your-server/live'}</p>
                       <p style={{ margin: '5px 0' }}>Key: {streamKey.streamKey || streamKey}</p>
                     </div>
-                    <Link
-                      href={`/watch/${streamKey.streamKey || 'test123'}`}
+                    <button
+                      onClick={handleViewStream}
                       style={{
-                        color: '#60a5fa',
-                        textDecoration: 'none',
-                        fontWeight: 'bold'
+                        background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+                        color: 'white',
+                        border: 'none',
+                        padding: '12px 24px',
+                        borderRadius: '12px',
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        width: '100%',
+                        boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)'
                       }}
                     >
-                      View Stream Page →
-                    </Link>
+                      👁️ View Stream Page →
+                    </button>
                   </div>
                 )}
-              </div>
+
+                      <div style={{ marginTop: '40px' }}>
+                        <BrowserStream />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Show Flight Compliance if toggled */}
+                {showFlightCompliance && (
+                  <div style={{ marginTop: '30px' }}>
+                    <FlightCompliance />
+                  </div>
+                )}
+              </Layout>
             </div>
-            
-            {/* Show Flight Compliance if toggled */}
-            {showFlightCompliance && (
-              <div style={{ marginTop: '30px' }}>
-                <FlightCompliance />
-              </div>
-            )}
-          </div>
-        </Layout>
-      </div>
 
       <style jsx>{`
         @keyframes blink {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.3; }
+        }
+        
+        select option {
+          background: #1e293b;
+          color: white;
+        }
+        
+        input::placeholder {
+          color: #64748b;
         }
       `}</style>
     </>

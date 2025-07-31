@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlueTubeTV - Stream Test (Autoplay Fixed)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0a0a0a;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .status {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .stream-wrapper {
+            position: relative;
+            padding-top: 56.25%;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+        
+        .stream-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(59, 130, 246, 0.8);
+            border: none;
+            color: white;
+            padding: 20px 40px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .play-button:hover {
+            background: rgba(59, 130, 246, 1);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .success {
+            color: #10b981;
+        }
+        
+        .error {
+            color: #ef4444;
+        }
+        
+        .warning {
+            color: #f59e0b;
+        }
+        
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #2563eb;
+        }
+        
+        .terminal-test {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 BlueTubeTV - Autoplay Fixed Test</h1>
+        
+        <div class="status">
+            <h3>Since OBS is crashing, try these alternatives:</h3>
+            <ol>
+                <li><strong>Terminal:</strong> Copy the ffmpeg command below</li>
+                <li><strong>Mobile:</strong> Use Larix Broadcaster app</li>
+                <li><strong>Browser:</strong> Use StreamYard.com</li>
+            </ol>
+        </div>
+        
+        <h2>Stream Player (Click to Play)</h2>
+        <div class="stream-wrapper" id="playerWrapper">
+            <button class="play-button" onclick="startStream()">▶️ Click to Start Stream</button>
+            <iframe
+                id="streamPlayer"
+                allow="accelerometer; gyroscope; encrypted-media; picture-in-picture"
+                allowfullscreen
+                style="display: none;"
+            ></iframe>
+        </div>
+        
+        <div class="status">
+            <p id="streamStatus" class="warning">⏸️ Click the play button to load stream (bypasses autoplay restrictions)</p>
+        </div>
+        
+        <h2>Terminal Streaming Command (No OBS Needed!)</h2>
+        <div class="terminal-test">
+            <p># Copy and paste this into Terminal:</p>
+            <p>ffmpeg -f lavfi -i testsrc2=size=1280x720:rate=30 -f lavfi -i sine=frequency=1000 \<br>
+            -vcodec libx264 -preset ultrafast -b:v 2500k \<br>
+            -acodec aac -b:a 128k \<br>
+            -f flv rtmp://live.cloudflare.com:1935/live/cdb72e11e458321ca7b76876f71f96e9</p>
+        </div>
+        
+        <button onclick="copyFFmpegCommand()">📋 Copy Terminal Command</button>
+        <button onclick="testDirectHLS()">🧪 Test HLS Directly</button>
+        
+        <h2>Quick Debug Info</h2>
+        <div id="debugInfo" class="status"></div>
+    </div>
+    
+    <script>
+        const streamId = 'cdb72e11e458321ca7b76876f71f96e9';
+        const accountHash = 'customer-qvzqb8nqvcsqqf40';
+        
+        function startStream() {
+            const player = document.getElementById('streamPlayer');
+            const button = document.querySelector('.play-button');
+            const status = document.getElementById('streamStatus');
+            
+            // Remove button
+            button.classList.add('hidden');
+            
+            // Set iframe source and show it
+            player.src = `https://iframe.cloudflarestream.com/${streamId}?autoplay=true&muted=true`;
+            player.style.display = 'block';
+            
+            status.innerHTML = '✅ Stream player loaded! If black screen, start streaming using one of the methods above.';
+            status.className = 'success';
+            
+            // Log debug info
+            updateDebugInfo('Player loaded with autoplay=true and muted=true');
+        }
+        
+        function copyFFmpegCommand() {
+            const command = `ffmpeg -f lavfi -i testsrc2=size=1280x720:rate=30 -f lavfi -i sine=frequency=1000 -vcodec libx264 -preset ultrafast -b:v 2500k -acodec aac -b:a 128k -f flv rtmp://live.cloudflare.com:1935/live/${streamId}`;
+            
+            navigator.clipboard.writeText(command).then(() => {
+                updateDebugInfo('✅ Command copied! Paste in Terminal and press Enter');
+            });
+        }
+        
+        async function testDirectHLS() {
+            const hlsUrl = `https://${accountHash}.cloudflarestream.com/${streamId}/manifest/video.m3u8`;
+            updateDebugInfo('Testing HLS endpoint...');
+            
+            try {
+                const response = await fetch(hlsUrl, { mode: 'no-cors' });
+                updateDebugInfo(`HLS endpoint contacted. Check Network tab for response.`);
+            } catch (error) {
+                updateDebugInfo(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function updateDebugInfo(message, type = 'info') {
+            const debugDiv = document.getElementById('debugInfo');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : '';
+            
+            debugDiv.innerHTML += `<p class="${className}">[${timestamp}] ${message}</p>`;
+        }
+        
+        // Initial debug info
+        updateDebugInfo('Page loaded. Click play button to start.');
+        updateDebugInfo(`Stream ID: ${streamId}`);
+        updateDebugInfo(`RTMP URL: rtmp://live.cloudflare.com:1935/live/${streamId}`);
+    </script>
+</body>
+</html>

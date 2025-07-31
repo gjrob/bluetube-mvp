@@ -1,0 +1,242 @@
+/* Layout.module.css - BlueTubeTV Premium Styling */
+
+/* layoutStyle → .layout */
+.layout {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a1628 0%, #1e3a8a 50%, #1e40af 100%);
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: white;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.layout::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="200" cy="200" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="800" cy="300" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="400" cy="600" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="600" cy="800" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+  animation: float 20s infinite linear;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+}
+
+/* mainStyle → .main */
+.main {
+  flex: 1;
+  z-index: 10;
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  animation: fadeInUp 1s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* footerStyle → .footer */
+.footer {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 3rem;
+  padding: 1.5rem 0;
+  z-index: 10;
+  position: relative;
+}
+
+/* footerContainerStyle → .footerContainer */
+.footerContainer {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Responsive footer variants */
+.footerMobile {
+  flex-direction: column;
+  justify-content: center;
+}
+
+.footerDesktop {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+/* footerLinksStyle → .footerLinks */
+.footerLinks {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+}
+
+/* footerLinkStyle → .footerLink */
+.footerLink {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footerLink:hover {
+  color: #60a5fa;
+  background: rgba(96, 165, 250, 0.1);
+  border-color: rgba(96, 165, 250, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(96, 165, 250, 0.2);
+}
+
+/* logoSectionStyle → .logoSection */
+.logoSection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+}
+
+.logoIcon {
+  font-size: 1.25rem;
+}
+
+/* donationButtonStyle → .donationButton */
+.donationButton {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06d6a0);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: bold;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.4s ease;
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.donationButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.donationButton:hover::before {
+  left: 100%;
+}
+
+.donationButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(59, 130, 246, 0.6);
+  background: linear-gradient(45deg, #60a5fa, #a78bfa, #34d399);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .main {
+    padding: 1rem;
+  }
+  
+  .donationButton {
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+  
+  .footerContainer {
+    padding: 0 1rem;
+  }
+  
+  .footerLinks {
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .footerLink {
+    padding: 0.3rem 0.8rem;
+  }
+}
+
+/* Additional premium styling elements */
+.glassMorphism {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+}
+
+.premiumCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.premiumCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.gradientText {
+  background: linear-gradient(45deg, #60a5fa, #a78bfa, #34d399);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-weight: bold;
+}
+
+/* Floating animation for interactive elements */
+@keyframes floatAround {
+  0% { transform: translateX(-100px) translateY(0px) rotate(0deg); opacity: 0.1; }
+  25% { transform: translateX(calc(100vw + 100px)) translateY(-50px) rotate(90deg); opacity: 0.2; }
+  50% { transform: translateX(calc(100vw + 100px)) translateY(50px) rotate(180deg); opacity: 0.1; }
+  75% { transform: translateX(-100px) translateY(25px) rotate(270deg); opacity: 0.15; }
+  100% { transform: translateX(-100px) translateY(0px) rotate(360deg); opacity: 0.1; }
+}
