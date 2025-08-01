@@ -1,5 +1,4 @@
 // pages/live.js - COMPLETE VERSION WITH ALL MONETIZATION
- import PilotStreamInterface from '../components/PilotStreamInterface';
 import Layout from '../components/Layout';
 import BrowserStream from '../components/BrowserStream';
 import SuperChat from '../components/SuperChat';
@@ -82,10 +81,19 @@ export default function Live() {
                   justifyContent: 'center',
                   position: 'relative'
                 }}>
-              <PilotStreamInterface 
-  streamKey={streamKey}
-  isLive={!!streamKey}
-/>
+                  <div style={{
+                    width: '120px',
+                    height: '120px',
+                    borderRadius: '50%',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    border: '2px solid rgba(59, 130, 246, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <span style={{ fontSize: '60px' }}>🚁</span>
+                  </div>
+                  
                   {/* Top Controls */}
                   <div style={{
                     position: 'absolute',
@@ -282,29 +290,31 @@ export default function Live() {
                       <p style={{ margin: '5px 0' }}>Server: {streamKey.rtmpUrl || 'rtmp://live.bluetubetv.live/live'}</p>
                       <p style={{ margin: '5px 0' }}>Key: {streamKey.streamKey || streamKey}</p>
                     </div>
-            <button
-  onClick={() => {
-    // Use the actual video ID from Cloudflare
-    const videoId = streamKey.videoId || '7aca43ca01ef93f28a8d6e2e020eea0d';
-    router.push(`/watch/${videoId}`);
-  }}
-  style={{
-    background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
-    color: 'white',
-    border: 'none',
-    padding: '12px 24px',
-    borderRadius: '12px',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    width: '100%',
-    boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)'
-  }}>
-    👁️ View Stream Page →
-  </button>
-</div>
+                    <button
+                      onClick={() => {
+                        // Use the actual video ID from Cloudflare
+                        const videoId = streamKey.videoId || '7aca43ca01ef93f28a8d6e2e020eea0d';
+                        router.push(`/watch/${videoId}`);
+                      }}
+                      style={{
+                        background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+                        color: 'white',
+                        border: 'none',
+                        padding: '12px 24px',
+                        borderRadius: '12px',
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        width: '100%',
+                        boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)'
+                      }}
+                    >
+                      👁️ View Stream Page →
+                    </button>
+                  </div>
                 )}
 
+                {/* Browser Stream Component */}
                 <div style={{ marginTop: '40px' }}>
                   <BrowserStream />
                 </div>
