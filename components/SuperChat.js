@@ -150,11 +150,7 @@ return (
   placeholder="Add a message..."
   value={message}
   onChange={(e) => setMessage(e.target.value)}
-  onKeyPress={(e) => {
-    if (e.key === 'Enter') {
-      handleSendTip();
-    }
-  }}
+  onKeyPress={(e) => e.key === 'Enter' && handleSend()}
   style={{
     flex: 1,
     background: 'rgba(30, 41, 59, 0.5)',
