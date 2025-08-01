@@ -2,26 +2,37 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import Layout from '../../components/Layout'; // FIXED: Correct path (../../ not ../)
-import NFTMinting from '../../components/NFTMinting'; // Add this import
+import Layout from '../../components/Layout';
+import NFTMinting from '../../components/NFTMinting';
 
 export default function WatchStream() {
   const router = useRouter();
   const { id } = router.query;
   const [isLoading, setIsLoading] = useState(true);
   const [isLive, setIsLive] = useState(false);
+  const [streamError, setStreamError] = useState(false);
 
-  // Cloudflare configuration
+  // Updated Cloudflare configuration
   const accountHash = 'customer-qvzqb8nqvcsqqf40';
   
-  // For testing - your working stream
-  const testStreamId = '5d5c67636850f4e587b7e27067824b1c'; // Your actual live input ID
-
   useEffect(() => {
     if (id) {
-      setIsLoading(false);
-      // In production, you'd check if stream is actually live
-      setIsLive(true);
+      // Check if the stream exists
+      const checkStream = async () => {
+        try {
+          setIsLoading(true);
+          // For now, assume stream is live if we have an ID
+          // In production, you'd check Cloudflare API
+          setIsLive(true);
+          setIsLoading(false);
+        } catch (error) {
+          console.error('Stream check error:', error);
+          setStreamError(true);
+          setIsLoading(false);
+        }
+      };
+      
+      checkStream();
     }
   }, [id]);
 
@@ -32,7 +43,7 @@ export default function WatchStream() {
       </Head>
       
       <div style={{
-background: 'linear-gradient(180deg, #1a0033 0%, #330066 40%, #4d0099 100%)',
+        background: 'linear-gradient(180deg, #1a0033 0%, #330066 40%, #4d0099 100%)',
         minHeight: '100vh',
         color: 'white'
       }}>
@@ -42,19 +53,42 @@ background: 'linear-gradient(180deg, #1a0033 0%, #330066 40%, #4d0099 100%)',
               <div style={{ textAlign: 'center', padding: '100px' }}>
                 <h2>Loading stream...</h2>
               </div>
+            ) : streamError ? (
+              <div style={{ textAlign: 'center', padding: '100px' }}>
+                <h2>Stream not found</h2>
+                <p>The stream may have ended or the ID is invalid.</p>
+              </div>
             ) : (
               <>
-                {/* Cloudflare Stream Player - ONLY ONE IFRAME */}
+                {/* Cloudflare Stream Player */}
                 <div style={{
                   position: 'relative',
                   paddingTop: '56.25%', // 16:9 aspect ratio
                   marginBottom: '20px',
                   background: '#000',
                   borderRadius: '20px',
-                  overflow: 'hidden'
+                  overflow: 'hidden',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
                 }}>
+                  {!isLive && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      textAlign: 'center',
+                      zIndex: 10,
+                      background: 'rgba(0,0,0,0.8)',
+                      padding: '40px',
+                      borderRadius: '20px'
+                    }}>
+                      <h2>Stream has not started yet.</h2>
+                      <p>Waiting for the pilot to go live...</p>
+                    </div>
+                  )}
+                  
                   <iframe
-                    src={`https://${accountHash}.cloudflarestream.com/${id || testStreamId}/iframe`}
+                    src={`https://${accountHash}.cloudflarestream.com/${id}/iframe`}
                     style={{
                       position: 'absolute',
                       top: 0,
@@ -66,6 +100,34 @@ background: 'linear-gradient(180deg, #1a0033 0%, #330066 40%, #4d0099 100%)',
                     allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
                     allowFullScreen
                   />
+                  
+                  {/* Live Badge */}
+                  {isLive && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '20px',
+                      left: '20px',
+                      background: '#ef4444',
+                      color: 'white',
+                      padding: '8px 20px',
+                      borderRadius: '20px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      zIndex: 5
+                    }}>
+                      <span style={{
+                        width: '8px',
+                        height: '8px',
+                        background: 'white',
+                        borderRadius: '50%',
+                        animation: 'pulse 1.4s infinite'
+                      }}></span>
+                      LIVE
+                    </div>
+                  )}
                 </div>
 
                 {/* Stream Info */}
@@ -79,7 +141,7 @@ background: 'linear-gradient(180deg, #1a0033 0%, #330066 40%, #4d0099 100%)',
                 }}>
                   <h1 style={{ marginBottom: '10px' }}>Drone Live Stream</h1>
                   <p style={{ color: '#94a3b8', marginBottom: '20px' }}>
-                    Stream ID: {id || testStreamId}
+                    Stream ID: {id}
                   </p>
                   
                   {/* Quick Actions */}
@@ -152,7 +214,7 @@ background: 'linear-gradient(180deg, #1a0033 0%, #330066 40%, #4d0099 100%)',
 
                 {/* NFT Minting Component */}
                 <NFTMinting 
-                  streamId={id || testStreamId}
+                  streamId={id}
                   pilotName="BlueTubeTV Pilot"
                   isLive={isLive}
                   currentUser={{
@@ -165,6 +227,13 @@ background: 'linear-gradient(180deg, #1a0033 0%, #330066 40%, #4d0099 100%)',
           </div>
         </Layout>
       </div>
+
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
     </>
   );
 }

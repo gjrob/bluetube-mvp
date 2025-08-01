@@ -21,22 +21,59 @@ export default function Live() {
   const [showNFTMinting, setShowNFTMinting] = useState(false);
   const router = useRouter();
 
-  const generateStreamKey = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/generate-stream-key', { method: 'POST' });
-      const data = await res.json();
-      setStreamKey(data);
-    } catch (error) {
-      console.error('Error generating stream key:', error);
-    }
-    setLoading(false);
-  };
+// In your generateStreamKey function:
+const generateStreamKey = async () => {
+  setLoading(true);
+  try {
+    const res = await fetch('/api/generate-stream-key', { method: 'POST' });
+    const data = await res.json();
+    setStreamKey(data); // This now includes videoId and watchUrl
+  } catch (error) {
+    console.error('Error generating stream key:', error);
+  }
+  setLoading(false);
+};
 
-  // Handle view stream with correct ID
-  const handleViewStream = () => {
-    router.push('/watch/5d5c67636850f4e587b7e27067824b1c');
-  };
+// Update the "View Stream Page" button:
+{streamKey && (
+  <div style={{
+    background: 'rgba(16, 185, 129, 0.1)',
+    border: '2px solid rgba(16, 185, 129, 0.3)',
+    borderRadius: '20px',
+    padding: '20px',
+    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+  }}>
+    <h3 style={{ color: '#10b981', marginBottom: '15px' }}>✅ Stream Ready!</h3>
+    <div style={{
+      background: 'rgba(15, 23, 42, 0.5)',
+      padding: '15px',
+      borderRadius: '8px',
+      fontFamily: 'monospace',
+      fontSize: '12px',
+      marginBottom: '15px',
+      wordBreak: 'break-all'
+    }}>
+      <p style={{ margin: '5px 0' }}>Server: {streamKey.rtmpUrl}</p>
+      <p style={{ margin: '5px 0' }}>Key: {streamKey.streamKey}</p>
+    </div>
+    <button
+      onClick={() => router.push(streamKey.watchUrl)}
+      style={{
+        background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+        color: 'white',
+        padding: '15px 30px',
+        borderRadius: '25px',
+        border: 'none',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        fontSize: '16px',
+        width: '100%'
+      }}
+    >
+      👁️ View Stream Page →
+    </button>
+  </div>
+)}
 
   return (
     <>
