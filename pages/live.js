@@ -67,35 +67,7 @@ export default function Live() {
               marginTop: '20px'
             }}>
               {/* LEFT COLUMN - Stream Preview */}
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.5)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(59, 130, 246, 0.2)',
-                borderRadius: '20px',
-                overflow: 'hidden',
-                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
-              }}>
-                <div style={{
-                  background: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
-                  height: '500px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'relative'
-                }}>
-                  <div style={{
-                    width: '120px',
-                    height: '120px',
-                    borderRadius: '50%',
-                    background: 'rgba(59, 130, 246, 0.1)',
-                    border: '2px solid rgba(59, 130, 246, 0.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <span style={{ fontSize: '60px' }}>🚁</span>
-                  </div>
-                  
+            <PilotStreamInterface streamKey={streamKey} isLive={!!streamKey} />                
                   {/* Top Controls */}
                   <div style={{
                     position: 'absolute',
@@ -290,8 +262,8 @@ export default function Live() {
                       wordBreak: 'break-all'
                     }}>
                      <p style={{ margin: '5px 0' }}>
-  Server: {streamKey.rtmpUrl || 'rtmps://live.cloudflare.com:443/live/'}
-</p>
+                      Server: {streamKey.rtmpUrl || 'rtmps://live.cloudflare.com:443/live/'}
+                      </p>
                       <p style={{ margin: '5px 0' }}>Key: {streamKey.streamKey || streamKey}</p>
                     </div>
                     <button
@@ -323,15 +295,12 @@ export default function Live() {
                   <BrowserStream />
                 </div>
               </div>
-            </div>
-
             {/* Show Flight Compliance if toggled */}
             {showFlightCompliance && (
               <div style={{ marginTop: '30px' }}>
                 <FlightCompliance />
               </div>
             )}
-          </div>
         </Layout>
       </div>
 
