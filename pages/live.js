@@ -1,4 +1,6 @@
 // pages/live.js - COMPLETE VERSION WITH ALL MONETIZATION
+
+import PilotStreamInterface from '../components/PilotStreamInterface';
 import Layout from '../components/Layout';
 import BrowserStream from '../components/BrowserStream';
 import SuperChat from '../components/SuperChat';
