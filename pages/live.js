@@ -289,7 +289,9 @@ export default function Live() {
                       marginBottom: '15px',
                       wordBreak: 'break-all'
                     }}>
-                      <p style={{ margin: '5px 0' }}>Server: {streamKey.rtmpUrl || 'rtmp://live.bluetubetv.live/live'}</p>
+                     <p style={{ margin: '5px 0' }}>
+  Server: {streamKey.rtmpUrl || 'rtmps://live.cloudflare.com:443/live/'}
+</p>
                       <p style={{ margin: '5px 0' }}>Key: {streamKey.streamKey || streamKey}</p>
                     </div>
                     <button
