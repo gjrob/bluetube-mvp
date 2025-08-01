@@ -63,12 +63,7 @@ export default function WatchStream() {
                 {/* Cloudflare Stream Player */}
                 <div style={{
                   position: 'relative',
-                  paddingTop: '56.25%', // 16:9 aspect ratio
-                  marginBottom: '20px',
-                  background: '#000',
-                  borderRadius: '20px',
-                  overflow: 'hidden',
-                  boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
+                  paddingTop: '56.25%' // 16:9 aspect ratio
                 }}>
                   {!isLive && (
                     <div style={{
@@ -145,15 +140,27 @@ export default function WatchStream() {
                   </p>
                   
                   {/* Quick Actions */}
-                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    <button style={{
-                      background: 'rgba(239, 68, 68, 0.1)',
-                      color: '#ef4444',
-                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                      padding: '10px 20px',
-                      borderRadius: '20px',
-                      cursor: 'pointer'
-                    }}>
+                  <div style={{
+                    display: 'flex',
+                    gap: '15px',
+                    flexWrap: 'wrap'
+                  }}>
+                    <button 
+                      onClick={() => {
+                        // Add like functionality
+                        alert('Liked! (Add backend integration here)');
+                      }}
+                      style={{
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        color: '#ef4444',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        padding: '10px 20px',
+                        borderRadius: '20px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        fontSize: '16px'
+                      }}
+                    >
                       ❤️ Like
                     </button>
                     
@@ -168,7 +175,9 @@ export default function WatchStream() {
                         border: '1px solid rgba(59, 130, 246, 0.3)',
                         padding: '10px 20px',
                         borderRadius: '20px',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        fontSize: '16px'
                       }}
                     >
                       📋 Copy Link
