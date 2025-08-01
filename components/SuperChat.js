@@ -145,10 +145,28 @@ return (
       </div>
 
       {/* Input Section */}
-      <div style={{
-        borderTop: '1px solid rgba(59, 130, 246, 0.2)',
-        paddingTop: '15px'
-      }}>
+  <input
+  type="text"
+  placeholder="Add a message..."
+  value={message}
+  onChange={(e) => setMessage(e.target.value)}
+  onKeyPress={(e) => {
+    if (e.key === 'Enter') {
+      handleSendTip();
+    }
+  }}
+  style={{
+    flex: 1,
+    background: 'rgba(30, 41, 59, 0.5)',
+    border: '1px solid rgba(59, 130, 246, 0.3)',
+    color: 'white',
+    padding: '12px',
+    borderRadius: '12px',
+    fontSize: '14px',
+    outline: 'none'
+  }}
+/>
+
         {/* Amount Selector */}
         <div style={{
           display: 'flex',
@@ -236,18 +254,17 @@ return (
   {isProcessing ? '⏳' : '💰'}
   Send
 </button>
-          </div>
-          <style jsx>{`
-            @keyframes slideIn {
-              from {
-                opacity: 0;
-                transform: translateY(-10px);
-              }
-              to {
-                opacity: 1;
-                transform: translateY(0);
-              }
-            }
+              <style jsx>{`
+                @keyframes slideIn {
+                  from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                  }
+                  to {
+                    opacity: 1;
+                    transform: translateY(0);
+                  }
+                }
               `}</style>
             </div>
           </div>

@@ -21,59 +21,17 @@ export default function Live() {
   const [showNFTMinting, setShowNFTMinting] = useState(false);
   const router = useRouter();
 
-// In your generateStreamKey function:
-const generateStreamKey = async () => {
-  setLoading(true);
-  try {
-    const res = await fetch('/api/generate-stream-key', { method: 'POST' });
-    const data = await res.json();
-    setStreamKey(data); // This now includes videoId and watchUrl
-  } catch (error) {
-    console.error('Error generating stream key:', error);
-  }
-  setLoading(false);
-};
-
-// Update the "View Stream Page" button:
-{streamKey && (
-  <div style={{
-    background: 'rgba(16, 185, 129, 0.1)',
-    border: '2px solid rgba(16, 185, 129, 0.3)',
-    borderRadius: '20px',
-    padding: '20px',
-    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
-  }}>
-    <h3 style={{ color: '#10b981', marginBottom: '15px' }}>✅ Stream Ready!</h3>
-    <div style={{
-      background: 'rgba(15, 23, 42, 0.5)',
-      padding: '15px',
-      borderRadius: '8px',
-      fontFamily: 'monospace',
-      fontSize: '12px',
-      marginBottom: '15px',
-      wordBreak: 'break-all'
-    }}>
-      <p style={{ margin: '5px 0' }}>Server: {streamKey.rtmpUrl}</p>
-      <p style={{ margin: '5px 0' }}>Key: {streamKey.streamKey}</p>
-    </div>
-    <button
-      onClick={() => router.push(streamKey.watchUrl)}
-      style={{
-        background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-        color: 'white',
-        padding: '15px 30px',
-        borderRadius: '25px',
-        border: 'none',
-        cursor: 'pointer',
-        fontWeight: 'bold',
-        fontSize: '16px',
-        width: '100%'
-      }}
-    >
-      👁️ View Stream Page →
-    </button>
-  </div>
-)}
+  const generateStreamKey = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/generate-stream-key', { method: 'POST' });
+      const data = await res.json();
+      setStreamKey(data);
+    } catch (error) {
+      console.error('Error generating stream key:', error);
+    }
+    setLoading(false);
+  };
 
   return (
     <>
@@ -306,7 +264,7 @@ const generateStreamKey = async () => {
                   <NFTMinting 
                     streamId="live_stream_main"
                     streamTitle="Drone Flight Stream"
-                    pilotAddress="0x123..." // Replace with actual wallet address
+                    pilotAddress="0x123..."
                   />
                 )}
 
@@ -329,43 +287,47 @@ const generateStreamKey = async () => {
                       marginBottom: '15px',
                       wordBreak: 'break-all'
                     }}>
-                      <p style={{ margin: '5px 0' }}>Server: {streamKey.rtmpUrl || 'rtmp://your-server/live'}</p>
+                      <p style={{ margin: '5px 0' }}>Server: {streamKey.rtmpUrl || 'rtmp://live.bluetubetv.live/live'}</p>
                       <p style={{ margin: '5px 0' }}>Key: {streamKey.streamKey || streamKey}</p>
                     </div>
-                    <button
-                      onClick={handleViewStream}
-                      style={{
-                        background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
-                        color: 'white',
-                        border: 'none',
-                        padding: '12px 24px',
-                        borderRadius: '12px',
-                        fontSize: '16px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        width: '100%',
-                        boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)'
-                      }}
-                    >
-                      👁️ View Stream Page →
-                    </button>
-                  </div>
+            <button
+  onClick={() => {
+    // Use the actual video ID from Cloudflare
+    const videoId = streamKey.videoId || '7aca43ca01ef93f28a8d6e2e020eea0d';
+    router.push(`/watch/${videoId}`);
+  }}
+  style={{
+    background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+    color: 'white',
+    border: 'none',
+    padding: '12px 24px',
+    borderRadius: '12px',
+    fontSize: '16px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    width: '100%',
+    boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)'
+  }}>
+    👁️ View Stream Page →
+  </button>
+</div>
                 )}
 
-                      <div style={{ marginTop: '40px' }}>
-                        <BrowserStream />
-                      </div>
-                    </div>
-                  </div>
+                <div style={{ marginTop: '40px' }}>
+                  <BrowserStream />
                 </div>
-                {/* Show Flight Compliance if toggled */}
-                {showFlightCompliance && (
-                  <div style={{ marginTop: '30px' }}>
-                    <FlightCompliance />
-                  </div>
-                )}
-              </Layout>
+              </div>
             </div>
+
+            {/* Show Flight Compliance if toggled */}
+            {showFlightCompliance && (
+              <div style={{ marginTop: '30px' }}>
+                <FlightCompliance />
+              </div>
+            )}
+          </div>
+        </Layout>
+      </div>
 
       <style jsx>{`
         @keyframes blink {
