@@ -22,20 +22,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, []);
 
   return (
-    <div className={styles.layout}>
-      <Navigation />
-      <main className={styles.main}>{children}</main>
-      
-      {/* Donation Button */}
-      <a
-        href="https://coff.ee/garlanjrobinson"
-        target="_blank"
-        rel="noopener noreferrer"
-        className={styles.donationButton}
-      >
-        ☕ Buy me a coffee
-      </a>
-      
+    <>
+      <div className={styles.layout}>
+        <Navigation />
+        <main className={styles.main}>{children}</main>
+
+        {/* Donation Button */}
+        <a
+          href="https://coff.ee/garlanjrobinson"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.donationButton}
+        >
+          ☕ Buy me a coffee
+        </a>
+      </div>
+
       <footer className={styles.footer}>
         <div className={`${styles.footerContainer} ${isMobile ? styles.footerMobile : styles.footerDesktop}`}>
           <div className={styles.logoSection}>
@@ -55,7 +57,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
       </footer>
-    </div>
+    </>
   );
 };
 

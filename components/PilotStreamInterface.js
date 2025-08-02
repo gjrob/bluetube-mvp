@@ -31,14 +31,35 @@ export default function PilotStreamInterface({ streamKey, isLive }) {
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
-      height: '500px',
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'relative',
+      background: 'rgba(30, 41, 59, 0.5)',
+      backdropFilter: 'blur(20px)',
+      border: '1px solid rgba(59, 130, 246, 0.2)',
       borderRadius: '20px',
-      overflow: 'hidden'
+      padding: '30px',
+      position: 'relative',
+      minHeight: '400px'
     }}>
+      {isLive && streamKey ? (
+        // Show video player when live
+        <video 
+          controls
+          autoPlay
+          muted
+          style={{ 
+            width: '100%', 
+            borderRadius: '12px',
+            background: '#000'
+          }}
+          src={`https://customer-${process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH}.cloudflarestream.com/${streamKey}/manifest/video.m3u8`}
+        />
+      ) : (
+        // Show ready state when not live
+        <div style={{ textAlign: 'center', padding: '100px 0' }}>
+          <div style={{ fontSize: '72px', marginBottom: '20px' }}>🚁</div>
+          <h2>Ready to Stream!</h2>
+          <p>Start broadcasting to see your pilot dashboard</p>
+        </div>
+      )}
       {/* Live Status Bar */}
       <div style={{
         background: 'rgba(0, 0, 0, 0.5)',
@@ -214,7 +235,7 @@ export default function PilotStreamInterface({ streamKey, isLive }) {
                 </div>
               </div>
             </div>
-
+                  
             {/* Right side - Recent Activity */}
             <div style={{
               background: 'rgba(0, 0, 0, 0.3)',

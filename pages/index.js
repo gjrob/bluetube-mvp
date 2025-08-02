@@ -48,24 +48,26 @@ export default function Home() {
               </div>
 
               <h1 style={{
-                fontSize: 'clamp(48px, 8vw, 72px)',
+                fontSize:'clamp(2rem, 5vw, 4rem)',
                 fontWeight: '900',
                 background: 'linear-gradient(135deg, #818cf8 0%, #60a5fa 25%, #66d9ef 50%, #a78bfa 75%, #818cf8 100%)',
                 backgroundSize: '200% 200%',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 animation: 'gradient-shift 5s ease infinite',
-                marginBottom: '20px'
+                marginBottom: '20px',
+                padding: '0 20px'
               }}>
                 BlueTubeTV
               </h1>
               
               <p style={{ 
-                fontSize: '24px', 
+                fontSize:'clamp(16px, 4vw, 24px)', 
                 color: '#94a3b8', 
                 marginBottom: '60px',
                 maxWidth: '700px',
-                margin: '0 auto 60px'
+                margin: '0 auto 60px',
+                padding: '0 20px'
               }}>
                 The world's first live drone streaming platform. 
                 Stream your flights, get tipped, and join the community.
@@ -87,6 +89,7 @@ export default function Home() {
                     background: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
                     color: 'white',
                     padding: '16px 48px',
+                    width: '90%',
                     borderRadius: '50px',
                     fontSize: '20px',
                     fontWeight: '600',

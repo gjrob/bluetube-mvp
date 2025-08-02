@@ -1,274 +1,214 @@
-// components/SuperChat.js
-import { useState, useEffect } from 'react';
-import io from 'socket.io-client';
+// components/SuperChat.js - COMPLETE WORKING VERSION
+import { useState } from 'react';
 
 export default function SuperChat({ streamId, currentUser, isLive }) {
   const [message, setMessage] = useState('');
-  const [amount, setAmount] = useState(5);
-  const [superChats, setSuperChats] = useState([]);
+  const [selectedAmount, setSelectedAmount] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
-
-  // Quick tip amounts
-  const tipAmounts = [5, 10, 20, 50, 100];
+  const [superChats, setSuperChats] = useState([]);
 
   const handleSuperChat = async () => {
-    if (!message.trim() || amount < 5) return;
+    if (!message.trim() || !selectedAmount || isProcessing) return;
     
     setIsProcessing(true);
     
     try {
-      // Create payment intent
       const response = await fetch('/api/super-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: amount * 100, // Convert to cents
-          username: currentUser.name,
+          amount: selectedAmount,
           message: message,
-          streamId: streamId
+          streamId: streamId,
+          userId: currentUser?.id || 'anonymous',
+          userName: currentUser?.name || 'Anonymous'
         })
       });
-
+      
       const data = await response.json();
-    if (data.checkoutUrl) {
-      window.location.href = data.checkoutUrl;
-    } else {
-      console.error('No checkout URL received:', data);
-      alert('Payment setup failed');
+      
+      if (data.url) {
+        // Open Stripe checkout in new tab
+        window.open(data.url, '_blank');
+        
+        // Add to local chat display
+        setSuperChats(prev => [...prev, {
+          id: Date.now(),
+          amount: selectedAmount,
+          message: message,
+          userName: currentUser?.name || 'Anonymous',
+          timestamp: new Date()
+        }]);
+        
+        // Clear form
+        setMessage('');
+        setSelectedAmount(null);
+      }
+    } catch (error) {
+      console.error('SuperChat error:', error);
+      alert('Failed to process tip. Please try again.');
+    } finally {
+      setIsProcessing(false);
     }
-  } catch (err) {
-    console.error('SuperChat error:', err);
-    alert('Something went wrong');
-  } finally {
-    setIsProcessing(false);
-  }
-};
+  };
 
-return (
-  <div style={{
-    background: 'rgba(15, 23, 42, 0.8)',
-    backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(59, 130, 246, 0.2)',
-    borderRadius: '20px',
-    padding: '20px',
-    height: '600px',
-    display: 'flex',
-    flexDirection: 'column'
-  }}>
-    {/* Header */}
+  return (
     <div style={{
-      borderBottom: '1px solid rgba(59, 130, 246, 0.2)',
-      paddingBottom: '15px',
-      marginBottom: '15px'
+      background: 'rgba(30, 41, 59, 0.5)',
+      backdropFilter: 'blur(20px)',
+      border: '1px solid rgba(59, 130, 246, 0.2)',
+      borderRadius: '20px',
+      padding: '30px',
+      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
     }}>
-      <h3 style={{
-        margin: 0,
-        fontSize: '20px',
-        fontWeight: '600',
-        background: 'linear-gradient(135deg, #60a5fa, #818cf8)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent'
+      <h3 style={{ 
+        fontSize: '24px', 
+        marginBottom: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
       }}>
         💰 Super Chat
       </h3>
-      <p style={{ 
-        margin: '5px 0 0 0', 
-        fontSize: '14px', 
-        color: '#94a3b8' 
-      }}>
+      
+      <p style={{ color: '#94a3b8', marginBottom: '20px' }}>
         Support the pilot with a tip!
       </p>
-    </div>
 
-      {/* Super Chats List */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        marginBottom: '15px'
-      }}>
-        {superChats.length === 0 ? (
-          <div style={{
-            textAlign: 'center',
-            color: '#64748b',
-            padding: '40px',
-            fontSize: '14px'
-          }}>
-            Be the first to send a Super Chat! 🎉
-          </div>
-        ) : (
-          superChats.map(chat => (
+      {/* Recent Super Chats Display */}
+      {superChats.length > 0 && (
+        <div style={{
+          maxHeight: '200px',
+          overflowY: 'auto',
+          marginBottom: '20px',
+          padding: '10px',
+          background: 'rgba(0, 0, 0, 0.2)',
+          borderRadius: '10px'
+        }}>
+          {superChats.map(chat => (
             <div key={chat.id} style={{
-              background: amount >= 50 
-                ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' 
-                : 'rgba(59, 130, 246, 0.1)',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
-              borderRadius: '12px',
-              padding: '12px',
+              padding: '10px',
               marginBottom: '10px',
-              animation: 'slideIn 0.3s ease-out'
+              background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2))',
+              border: '1px solid rgba(251, 191, 36, 0.5)',
+              borderRadius: '8px'
             }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '8px'
-              }}>
-                <span style={{
-                  fontWeight: '600',
-                  color: amount >= 50 ? '#000' : '#60a5fa'
-                }}>
-                  🦈 {chat.username}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                <span style={{ fontWeight: 'bold', color: '#fbbf24' }}>
+                  🦈 {chat.userName}
                 </span>
-                <span style={{
-                  background: amount >= 50 
-                    ? 'rgba(0, 0, 0, 0.2)' 
-                    : 'rgba(16, 185, 129, 0.2)',
-                  color: amount >= 50 ? '#000' : '#10b981',
-                  padding: '4px 12px',
-                  borderRadius: '20px',
-                  fontSize: '14px',
-                  fontWeight: '600'
-                }}>
+                <span style={{ color: '#10b981', fontWeight: 'bold' }}>
                   ${chat.amount}
                 </span>
               </div>
-              <p style={{
-                margin: 0,
-                fontSize: '14px',
-                color: amount >= 50 ? '#000' : '#e2e8f0'
-              }}>
-                {chat.message}
-              </p>
+              <p style={{ margin: 0, color: 'white' }}>{chat.message}</p>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {/* Input Section */}
-  <input
-  type="text"
-  placeholder="Add a message..."
-  value={message}
-  onChange={(e) => setMessage(e.target.value)}
-  onKeyPress={(e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      e.stopPropagation();
+      {/* Input Form */}
+      <form onSubmit={(e) => {
+        e.preventDefault();
         handleSuperChat();
-    }
-  }}
-  style={{
-    flex: 1,
-    background: 'rgba(30, 41, 59, 0.5)',
-    border: '1px solid rgba(59, 130, 246, 0.3)',
-    color: 'white',
-    padding: '12px',
-    borderRadius: '12px',
-    fontSize: '14px',
-    outline: 'none'
-  }}
-/>
-
-        {/* Amount Selector */}
-        <div style={{
-          display: 'flex',
-          gap: '8px',
-          marginBottom: '12px'
+      }}>
+        {/* Message Input */}
+        <input
+          type="text"
+          placeholder="Add a message..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          disabled={isProcessing}
+          style={{
+            width: '100%',
+            background: 'rgba(30, 41, 59, 0.5)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            color: 'white',
+            padding: '12px',
+            borderRadius: '12px',
+            fontSize: '16px',
+            marginBottom: '15px',
+            outline: 'none'
+          }}
+        />
+        
+        {/* Amount Selection */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '10px', 
+          marginBottom: '20px',
+          flexWrap: 'wrap'
         }}>
-          {tipAmounts.map(tipAmount => (
+          {[5, 10, 20, 50, 100].map(amount => (
             <button
-              key={tipAmount}
-              onClick={() => setAmount(tipAmount)}
+              key={amount}
+              type="button"
+              onClick={() => setSelectedAmount(amount)}
+              disabled={isProcessing}
               style={{
-                flex: 1,
-                background: amount === tipAmount 
-                  ? 'linear-gradient(135deg, #60a5fa, #818cf8)'
+                background: selectedAmount === amount 
+                  ? 'linear-gradient(135deg, #3b82f6, #60a5fa)'
                   : 'rgba(30, 41, 59, 0.5)',
-                border: amount === tipAmount 
-                  ? '2px solid #60a5fa'
-                  : '1px solid rgba(59, 130, 246, 0.2)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
                 color: 'white',
-                padding: '8px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: amount === tipAmount ? '600' : '400',
-                transition: 'all 0.2s ease'
+                padding: '10px 20px',
+                borderRadius: '12px',
+                fontSize: '16px',
+                cursor: isProcessing ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+                flex: '1',
+                minWidth: '60px'
               }}
             >
-              ${tipAmount}
+              ${amount}
             </button>
           ))}
         </div>
-
-        {/* Message Input */}
-        <div style={{
-          display: 'flex',
-          gap: '8px'
+        
+        {/* Send Button */}
+        <button
+          type="submit"
+          disabled={!message.trim() || !selectedAmount || isProcessing}
+          style={{
+            background: (!message.trim() || !selectedAmount || isProcessing)
+              ? 'rgba(107, 114, 128, 0.5)'
+              : 'linear-gradient(135deg, #10b981, #059669)',
+            color: 'white',
+            border: 'none',
+            padding: '15px',
+            borderRadius: '12px',
+            fontSize: '18px',
+            fontWeight: '600',
+            cursor: (!message.trim() || !selectedAmount || isProcessing) 
+              ? 'not-allowed' 
+              : 'pointer',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            transition: 'all 0.2s'
+          }}
+        >
+          {isProcessing ? (
+            <>⏳ Processing...</>
+          ) : (
+            <>💰 Send ${selectedAmount || '0'}</>
+          )}
+        </button>
+      </form>
+      
+      {/* Tip Display */}
+      {!superChats.length && (
+        <p style={{ 
+          textAlign: 'center', 
+          color: '#64748b', 
+          marginTop: '20px',
+          fontSize: '14px'
         }}>
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Add a message..."
-            maxLength={200}
-            style={{
-              flex: 1,
-              background: 'rgba(30, 41, 59, 0.5)',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
-              color: 'white',
-              padding: '12px',
-              borderRadius: '12px',
-              fontSize: '14px',
-              outline: 'none'
-            }}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' && !isProcessing) {
-                
-                handleSuperChat();
-              }
-            }}
-          />
-          
-<button
-  onClick={handleSuperChat}
-  disabled={isProcessing || !message.trim()}
-  style={{
-    background: isProcessing 
-      ? 'rgba(100, 116, 139, 0.5)'
-      : 'linear-gradient(135deg, #10b981, #059669)',
-    color: 'white',
-    border: 'none',
-    padding: '12px 24px',
-    borderRadius: '12px',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: isProcessing ? 'not-allowed' : 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    boxShadow: isProcessing 
-      ? 'none'
-      : '0 4px 20px rgba(16, 185, 129, 0.3)',
-    transition: 'all 0.2s ease'
-  }}
->
-  {isProcessing ? '⏳' : '💰'}
-  Send
-</button>
-              <style jsx>{`
-                @keyframes slideIn {
-                  from {
-                    opacity: 0;
-                    transform: translateY(-10px);
-                  }
-                  to {
-                    opacity: 1;
-                    transform: translateY(0);
-                  }
-                }
-              `}</style>
-            </div>
-          </div>
-        );
-    }
+          Be the first to send a Super Chat! 🎉
+        </p>
+      )}
+    </div>
+  );
+}

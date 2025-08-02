@@ -198,3 +198,28 @@ body {
 .error-container, [class*="error-boundary"] {
   display: none !important;
 }
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Mobile-first approach */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px !important;
+  }
+  
+  h1 {
+    font-size: 2rem !important;
+  }
+  
+  button {
+    width: 100% !important;
+    font-size: 1rem !important;
+  }
+}

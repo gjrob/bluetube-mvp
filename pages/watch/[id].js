@@ -1,10 +1,12 @@
 // pages/watch/[id].js
+import SuperChat from '../../components/SuperChat';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Layout from '../../components/Layout';
 import NFTMinting from '../../components/NFTMinting';
-
+import dynamic from 'next/dynamic';
+const FlightCompliance = dynamic(() => import('../../components/FlightCompliance'), { ssr: false });
 export default function WatchStream() {
   const router = useRouter();
   const { id } = router.query;
@@ -35,134 +37,141 @@ export default function WatchStream() {
       checkStream();
     }
   }, [id]);
-
-  return (
-    <>
-      <Head>
-        <title>Live Stream - BlueTubeTV</title>
-      </Head>
-      
-      <div style={{
-        background: 'linear-gradient(180deg, #1a0033 0%, #330066 40%, #4d0099 100%)',
-        minHeight: '100vh',
-        color: 'white'
-      }}>
-        <Layout>
-          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-            {isLoading ? (
-              <div style={{ textAlign: 'center', padding: '100px' }}>
-                <h2>Loading stream...</h2>
-              </div>
-            ) : streamError ? (
-              <div style={{ textAlign: 'center', padding: '100px' }}>
-                <h2>Stream not found</h2>
-                <p>The stream may have ended or the ID is invalid.</p>
-              </div>
-            ) : (
-              <>
-                {/* Cloudflare Stream Player */}
-                <div style={{
-                  position: 'relative',
-                  paddingTop: '56.25%' // 16:9 aspect ratio
-                }}>
-                  {!isLive && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      textAlign: 'center',
-                      zIndex: 10,
-                      background: 'rgba(0,0,0,0.8)',
-                      padding: '40px',
-                      borderRadius: '20px'
-                    }}>
-                      <h2>Stream has not started yet.</h2>
-                      <p>Waiting for the pilot to go live...</p>
-                    </div>
-                  )}
-                  
-                  <iframe
-                    src={`https://${accountHash}.cloudflarestream.com/${id}/iframe`}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      border: 'none'
-                    }}
-                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
-                    allowFullScreen
-                  />
-                  
-                  {/* Live Badge */}
-                  {isLive && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '20px',
-                      left: '20px',
-                      background: '#ef4444',
-                      color: 'white',
-                      padding: '8px 20px',
-                      borderRadius: '20px',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      zIndex: 5
-                    }}>
-                      <span style={{
-                        width: '8px',
-                        height: '8px',
-                        background: 'white',
-                        borderRadius: '50%',
-                        animation: 'pulse 1.4s infinite'
-                      }}></span>
-                      LIVE
-                    </div>
-                  )}
-                </div>
-
-                {/* Stream Info */}
-                <div style={{
-                  background: 'rgba(30, 41, 59, 0.5)',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(59, 130, 246, 0.2)',
-                  borderRadius: '20px',
-                  padding: '30px',
-                  marginBottom: '20px'
-                }}>
-                  <h1 style={{ marginBottom: '10px' }}>Drone Live Stream</h1>
-                  <p style={{ color: '#94a3b8', marginBottom: '20px' }}>
-                    Stream ID: {id}
-                  </p>
-                  
-                  {/* Quick Actions */}
+return (
+  <>
+    <Head>
+      <title>Live Stream - BlueTubeTV</title>
+    </Head>
+    
+    <div style={{
+      background: 'linear-gradient(180deg, #1a0033 0%, #330066 40%, #4d0099 100%)',
+      minHeight: '100vh',
+      color: 'white'
+    }}>
+      <Layout>
+ <div style={{ 
+    maxWidth: '1200px', 
+    margin: '0 auto', 
+    padding: '20px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '30px' // This adds spacing between all components
+  }}>
+          {isLoading ? (
+            <div style={{ textAlign: 'center', padding: '100px' }}>
+              <h2>Loading stream...</h2>
+            </div>
+          ) : streamError ? (
+            <div style={{ textAlign: 'center', padding: '100px' }}>
+              <h2>Stream not found</h2>
+              <p>The stream may have ended or the ID is invalid.</p>
+            </div>
+          ) : (
+            <>
+              {/* Cloudflare Stream Player Container */}
+              <div style={{
+                position: 'relative',
+                paddingTop: '56.25%', // 16:9 aspect ratio
+                marginBottom: '30px' // Add space below video
+              }}>
+                {!isLive && (
                   <div style={{
-                    display: 'flex',
-                    gap: '15px',
-                    flexWrap: 'wrap'
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    textAlign: 'center',
+                    zIndex: 10,
+                    background: 'rgba(0,0,0,0.8)',
+                    padding: '40px',
+                    borderRadius: '20px'
                   }}>
-                    <button 
-                      onClick={() => {
-                        // Add like functionality
-                        alert('Liked! (Add backend integration here)');
-                      }}
-                      style={{
-                        background: 'rgba(239, 68, 68, 0.1)',
-                        color: '#ef4444',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
-                        padding: '10px 20px',
-                        borderRadius: '20px',
-                        cursor: 'pointer',
-                        fontWeight: 'bold',
-                        fontSize: '16px'
-                      }}
-                    >
-                      ❤️ Like
-                    </button>
+                    <h2>Stream has not started yet.</h2>
+                    <p>Waiting for the pilot to go live...</p>
+                  </div>
+                )}
+                
+                <iframe
+                  src={`https://${accountHash}.cloudflarestream.com/${id}/iframe`}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    border: 'none'
+                  }}
+                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                />
+                
+                {/* Live Badge */}
+                {isLive && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '20px',
+                    left: '20px',
+                    background: '#ef4444',
+                    color: 'white',
+                    padding: '8px 20px',
+                    borderRadius: '20px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    zIndex: 5
+                  }}>
+                    <span style={{
+                      width: '8px',
+                      height: '8px',
+                      background: 'white',
+                      borderRadius: '50%',
+                      animation: 'pulse 1.4s infinite'
+                    }}></span>
+                    LIVE
+                  </div>
+                )}
+              </div>
+
+              {/* SuperChat - MOVED HERE! Between video and stream info */}
+              <div style={{ marginBottom: '30px' }}>
+                <SuperChat 
+                  streamId={id}
+                  currentUser={{
+                    id: "viewer_" + Date.now(),
+                    name: "Anonymous Viewer",
+                    email: "viewer@example.com"
+                  }}
+                  isLive={true}
+                />
+              </div>
+
+              {/* Stream Info */}
+              <div style={{
+                background: 'rgba(30, 41, 59, 0.5)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(59, 130, 246, 0.2)',
+                borderRadius: '20px',
+                padding: '30px',
+                marginBottom: '20px'
+              }}>
+                <h1 style={{ marginBottom: '10px' }}>Drone Live Stream</h1>
+                <p style={{ color: '#94a3b8', marginBottom: '20px' }}>
+                  Stream ID: {id}
+                </p>
+                
+                {/* Quick Actions */}
+                <div style={{
+                  display: 'flex',
+                  gap: '15px',
+                  flexWrap: 'wrap'
+                }}>
+                  <button onClick={() => {
+                    // Your button actions
+                  }}>
+                    ❤️ Like
+                  </button>
                     
                     <button 
                       onClick={() => {
