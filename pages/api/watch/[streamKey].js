@@ -1,6 +1,7 @@
 // pages/watch/[streamKey].js
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import SuperChat from '../../components/SuperChat';
 
 export default function WatchStream() {
   const router = useRouter();
@@ -10,7 +11,6 @@ export default function WatchStream() {
 
   useEffect(() => {
     if (streamKey) {
-      // Fetch stream details from Cloudflare
       fetchStreamData();
     }
   }, [streamKey]);
@@ -63,7 +63,7 @@ export default function WatchStream() {
           overflow: 'hidden',
           marginBottom: '20px'
         }}>
-          {/* Cloudflare Stream Player */}
+          {/* Cloudflare Stream Player - Using UID not streamKey! */}
           {streamKey && (
             <iframe
               src={`https://iframe.videodelivery.net/${streamKey}`}
@@ -80,7 +80,24 @@ export default function WatchStream() {
           )}
         </div>
 
-        {/* Chat and Info Section */}
+        {/* SuperChat Component - NEW! */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '10px',
+          padding: '20px',
+          marginBottom: '20px'
+        }}>
+          <SuperChat 
+            streamId={streamKey}
+            currentUser={{
+              id: "viewer_" + Date.now(),
+              name: "Anonymous Viewer"
+            }}
+            isLive={streamData?.isLive}
+          />
+        </div>
+
+        {/* Chat Section */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.1)',
           borderRadius: '10px',
@@ -96,6 +113,14 @@ export default function WatchStream() {
           }}>
             <p>Chat coming soon...</p>
           </div>
+          
+          {/* Stream Info */}
+          {streamData && (
+            <div style={{ marginTop: '20px' }}>
+              <p>Status: {streamData.isLive ? '🔴 LIVE' : '⚫ Offline'}</p>
+              <p>Stream Key: {streamKey}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
