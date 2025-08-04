@@ -24,7 +24,6 @@ export default function SuperChat({ streamId, currentUser, isLive }) {
           userName: currentUser?.name || 'Anonymous'
         })
       });
-    console.log('Response status:', response.status);
       if (!response.ok) {
         throw new Error('Failed to create Super Chat');
       }
