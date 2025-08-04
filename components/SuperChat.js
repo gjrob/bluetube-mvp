@@ -24,7 +24,10 @@ export default function SuperChat({ streamId, currentUser, isLive }) {
           userName: currentUser?.name || 'Anonymous'
         })
       });
-      
+    console.log('Response status:', response.status);
+      if (!response.ok) {
+        throw new Error('Failed to create Super Chat');
+      }
       const data = await response.json();
       
       if (data.url) {
@@ -110,6 +113,7 @@ export default function SuperChat({ streamId, currentUser, isLive }) {
       {/* Input Form */}
       <form onSubmit={(e) => {
         e.preventDefault();
+            console.log('Enter pressed!'); 
         handleSuperChat();
       }}>
         {/* Message Input */}
@@ -118,6 +122,13 @@ export default function SuperChat({ streamId, currentUser, isLive }) {
           placeholder="Add a message..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+          console.log('Enter pressed!'); 
+        handleSuperChat();
+    }
+  }}
           disabled={isProcessing}
           style={{
             width: '100%',

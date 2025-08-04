@@ -9,12 +9,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { amount, username, message, streamId } = req.body;
-    
-    // Validate amount (min $1, max $500)
-    if (amount < 100 || amount > 50000) {
-      return res.status(400).json({ error: 'Invalid amount' });
-    }
+  const { amount, message, streamId, userId, userName } = req.body;
+    if (!amount || !message || !streamId || !userId || !userName) {
+      return res.status(400).json({ error: 'Minimum tip amount is $1'  });
+    }    
 
     // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
@@ -23,7 +21,7 @@ export default async function handler(req, res) {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: `Super Chat from ${username}`,
+            name: `Super Chat from ${userName}`,
             description: message.substring(0, 200) || 'Support the pilot!'
           },
           unit_amount: amount
@@ -35,8 +33,9 @@ export default async function handler(req, res) {
       cancel_url: `${req.headers.origin}/live?canceled=true`,
       metadata: {
         type: 'super_chat',
-        streamId,
-        username,
+        streamId: streamId,
+        userId: userId,
+        userName: userName,
         message: message.substring(0, 200)
       }
     });
