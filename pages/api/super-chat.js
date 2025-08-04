@@ -24,7 +24,7 @@ export default async function handler(req, res) {
             name: `Super Chat from ${userName}`,
             description: message.substring(0, 200) || 'Support the pilot!'
           },
-          unit_amount: amount
+           unit_amount: amount * 100
         },
         quantity: 1
       }],
