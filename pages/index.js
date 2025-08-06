@@ -89,7 +89,7 @@ export default function Home() {
                     background: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
                     color: 'white',
                     padding: '16px 48px',
-                    width: '90%',
+                     width: '90%',
                     borderRadius: '50px',
                     fontSize: '20px',
                     fontWeight: '600',
@@ -309,14 +309,13 @@ export default function Home() {
                     </span>
                     <h3 style={{ fontSize: '24px', marginBottom: '15px' }}>{item.title}</h3>
                     <p style={{ color: '#94a3b8', marginBottom: '20px' }}>{item.desc}</p>
-                    {item.link ? (
-                      <Link href={item.link}>
-                          {item.linkText}
-                      
-                    </Link>
-                    ) : (
-                      <span style={{ color: '#6b7280' }}>{item.linkText}</span>
-                    )}
+                   {item.link ? (
+  <Link href={item.link}>
+    {item.linkText}
+  </Link>
+) : (
+  <span style={{ color: '#6b7280' }}>{item.linkText}</span>
+)}
                   </div>
                 ))}
               </div>

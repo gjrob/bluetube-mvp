@@ -1,6 +1,5 @@
-// pages/live.js - FIXED VERSION WITH PROPER LAYOUT
-
-import PilotStreamInterface from '../components/PilotStreamInterface';
+// pages/live.js - COMPLETE VERSION WITH ALL MONETIZATION
+import QuickSetupCard from '../components/QuickSetupCard';
 import Layout from '../components/Layout';
 import BrowserStream from '../components/BrowserStream';
 import SuperChat from '../components/SuperChat';
@@ -10,11 +9,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 const FlightCompliance = dynamic(() => import('../components/FlightCompliance'), { ssr: false });
-
-// This prevents the build error
-export const getServerSideProps = async () => {
-  return { props: {} };
-};
 
 export default function Live() {
   const [streamKey, setStreamKey] = useState(null);
@@ -67,20 +61,35 @@ export default function Live() {
               marginTop: '20px'
             }}>
               {/* LEFT COLUMN - Stream Preview */}
-              <div style={{ position: 'relative' }}>
-                <PilotStreamInterface streamKey={streamKey} isLive={!!streamKey} />
-                
-                {/* Stream Preview Container */}
+              <div style={{
+                background: 'rgba(30, 41, 59, 0.5)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(59, 130, 246, 0.2)',
+                borderRadius: '20px',
+                overflow: 'hidden',
+                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+              }}>
                 <div style={{
-                  background: 'rgba(30, 41, 59, 0.5)',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(59, 130, 246, 0.2)',
-                  borderRadius: '20px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                  minHeight: '500px',
-                  marginTop: '20px'
+                  background: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
+                  height: '500px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative'
                 }}>
+                  <div style={{
+                    width: '120px',
+                    height: '120px',
+                    borderRadius: '50%',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    border: '2px solid rgba(59, 130, 246, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <span style={{ fontSize: '60px' }}>🚁</span>
+                  </div>
+                  
                   {/* Top Controls */}
                   <div style={{
                     position: 'absolute',
@@ -89,32 +98,29 @@ export default function Live() {
                     right: '20px',
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center',
-                    zIndex: 10
+                    alignItems: 'center'
                   }}>
                     {/* LIVE Badge */}
-                    {streamKey && (
-                      <div style={{
-                        background: '#ef4444',
-                        color: 'white',
-                        padding: '8px 20px',
-                        borderRadius: '20px',
-                        fontSize: '16px',
-                        fontWeight: '600',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                      }}>
-                        <span style={{
-                          width: '8px',
-                          height: '8px',
-                          background: 'white',
-                          borderRadius: '50%',
-                          animation: 'blink 1.4s infinite'
-                        }}></span>
-                        LIVE
-                      </div>
-                    )}
+                    <div style={{
+                      background: '#ef4444',
+                      color: 'white',
+                      padding: '8px 20px',
+                      borderRadius: '20px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <span style={{
+                        width: '8px',
+                        height: '8px',
+                        background: 'white',
+                        borderRadius: '50%',
+                        animation: 'blink 1.4s infinite'
+                      }}></span>
+                      LIVE
+                    </div>
 
                     {/* Action Buttons */}
                     <div style={{ display: 'flex', gap: '10px' }}>
@@ -153,34 +159,33 @@ export default function Live() {
                       </button>
                     </div>
                   </div>
-                  
-                  {/* Stream Content Area */}
-                  <div style={{ padding: '30px', marginTop: '60px' }}>
-                    <h2 style={{ fontSize: '28px', marginBottom: '20px' }}>Your Stream Setup</h2>
-                    <p style={{ color: '#94a3b8', marginBottom: '30px' }}>
-                      Configure your stream settings below and click "Generate Stream Key"
-                    </p>
-                    <button
-                      onClick={generateStreamKey}
-                      disabled={loading}
-                      style={{
-                        background: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
-                        color: 'white',
-                        border: 'none',
-                        padding: '20px',
-                        borderRadius: '50px',
-                        fontSize: '20px',
-                        fontWeight: '600',
-                        cursor: loading ? 'not-allowed' : 'pointer',
-                        boxShadow: '0 10px 40px rgba(239, 68, 68, 0.4)',
-                        width: '100%',
-                        opacity: loading ? 0.7 : 1,
-                        transition: 'all 0.3s ease'
-                      }}
-                    >
-                      {loading ? '⏳ Generating...' : '🔴 Generate Stream Key'}
-                    </button>
-                  </div>
+                </div>
+                
+                <div style={{ padding: '30px' }}>
+                  <h2 style={{ fontSize: '28px', marginBottom: '20px' }}>Your Stream Setup</h2>
+                  <p style={{ color: '#94a3b8', marginBottom: '30px' }}>
+                    Configure your stream settings below and click "Generate Stream Key"
+                  </p>
+                  <button
+                    onClick={generateStreamKey}
+                    disabled={loading}
+                    style={{
+                      background: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
+                      color: 'white',
+                      border: 'none',
+                      padding: '20px',
+                      borderRadius: '50px',
+                      fontSize: '20px',
+                      fontWeight: '600',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      boxShadow: '0 10px 40px rgba(239, 68, 68, 0.4)',
+                      width: '100%',
+                      opacity: loading ? 0.7 : 1,
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    {loading ? '⏳ Generating...' : '🔴 Generate Stream Key'}
+                  </button>
                 </div>
               </div>
 
@@ -278,14 +283,11 @@ export default function Live() {
                       marginBottom: '15px',
                       wordBreak: 'break-all'
                     }}>
-                      <p style={{ margin: '5px 0' }}>
-                        Server: {streamKey.rtmpUrl || 'rtmps://live.cloudflare.com:443/live/'}
-                      </p>
+                      <p style={{ margin: '5px 0' }}>Server: {streamKey.rtmpUrl || 'rtmp://live.bluetubetv.live/live'}</p>
                       <p style={{ margin: '5px 0' }}>Key: {streamKey.streamKey || streamKey}</p>
                     </div>
                     <button
                       onClick={() => {
-                        // Use the actual video ID from Cloudflare
                         const videoId = streamKey.videoId || '7aca43ca01ef93f28a8d6e2e020eea0d';
                         router.push(`/watch/${videoId}`);
                       }}
@@ -314,7 +316,7 @@ export default function Live() {
               </div>
             </div>
 
-            {/* Show Flight Compliance if toggled - Outside grid */}
+            {/* Show Flight Compliance if toggled */}
             {showFlightCompliance && (
               <div style={{ marginTop: '30px' }}>
                 <FlightCompliance />
