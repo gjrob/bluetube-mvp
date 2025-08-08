@@ -1,5 +1,6 @@
 // pages/live.js - COMPLETE VERSION WITH ALL MONETIZATION
 import QuickSetupCard from '../components/QuickSetupCard';
+import LiveChat from '../components/LiveChat'; 
 import Layout from '../components/Layout';
 import BrowserStream from '../components/BrowserStream';
 import SuperChat from '../components/SuperChat';
@@ -253,6 +254,13 @@ export default function Live() {
                     email: "pilot@example.com"
                   }}
                   isLive={true}
+                />
+
+                {/* Live Chat Component */}
+                <LiveChat 
+                  streamId="live_stream_main"
+                  userId="pilot_123"
+                  username="Your Pilot Name"
                 />
 
                 {/* NFT Minting Component (shown when toggled) */}

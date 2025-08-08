@@ -1,8 +1,10 @@
 // next.config.js
 module.exports = {
   reactStrictMode: false,
-  experimental: {
-    forceSwcTransforms: true,
+  // Disable error overlay
+  devIndicators: {
+    buildActivity: false,
+    buildActivityPosition: 'bottom-right',
   },
   // Add these for better performance
   images: {

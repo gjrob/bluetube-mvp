@@ -1,348 +1,582 @@
-// pages/index.js - Professional styled version
-import Layout from '../components/Layout';
-import Head from 'next/head';
-import Link from 'next/link';
+import React, { useState } from 'react';
+import { Play, Briefcase, Search, ChevronRight, Users, Eye, MapPin, DollarSign, Star, Upload, Menu, X } from 'lucide-react';
 
-export default function Home() {
-  const featuredStreams = [
-    { id: '6c5352b797fdb73a57dc190c8b617066', title: 'Test Stream 1', status: 'live' },
-    { id: 'd48e1606f471fb349746c4b106357931', title: 'Test Stream 2', status: 'offline' }
+const LandingPage = () => {
+  const [hoveredCard, setHoveredCard] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const styles = {
+    body: {
+      margin: 0,
+      background: 'linear-gradient(180deg, #0a0e27 0%, #1a237e 50%, #0f172a 100%)',
+      color: 'white',
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      minHeight: '100vh',
+    },
+    topNav: {
+      background: 'rgba(15, 23, 42, 0.8)',
+      backdropFilter: 'blur(20px)',
+      borderBottom: '1px solid rgba(59, 130, 246, 0.2)',
+      position: 'sticky',
+      top: 0,
+      zIndex: 100,
+    },
+    navContainer: {
+      maxWidth: '1400px',
+      margin: '0 auto',
+      padding: '20px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    logo: {
+      fontSize: '28px',
+      fontWeight: 'bold',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      textDecoration: 'none',
+      color: 'white',
+    },
+    navLinks: {
+      display: 'flex',
+      gap: '30px',
+      alignItems: 'center',
+    },
+    navLink: {
+      color: '#94a3b8',
+      textDecoration: 'none',
+      fontSize: '16px',
+      transition: 'color 0.3s ease',
+      cursor: 'pointer',
+    },
+    uploadButton: {
+      background: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
+      color: 'white',
+      border: 'none',
+      padding: '10px 24px',
+      borderRadius: '25px',
+      fontSize: '16px',
+      fontWeight: '600',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      boxShadow: '0 4px 15px rgba(239, 68, 68, 0.3)',
+    },
+    signInButton: {
+      background: 'transparent',
+      border: '1px solid rgba(59, 130, 246, 0.5)',
+      color: '#60a5fa',
+      padding: '10px 24px',
+      borderRadius: '25px',
+      fontSize: '16px',
+      fontWeight: '600',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+    },
+    container: {
+      maxWidth: '1400px',
+      margin: '0 auto',
+      padding: '60px 20px',
+    },
+    header: {
+      textAlign: 'center',
+      marginBottom: '60px',
+    },
+    heroLogo: {
+      fontSize: '56px',
+      fontWeight: 'bold',
+      marginBottom: '20px',
+      background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+    },
+    tagline: {
+      fontSize: '24px',
+      color: '#94a3b8',
+      marginBottom: '40px',
+    },
+    mainGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
+      gap: '30px',
+      marginBottom: '60px',
+    },
+    card: {
+      background: 'rgba(30, 41, 59, 0.5)',
+      backdropFilter: 'blur(20px)',
+      border: '1px solid rgba(59, 130, 246, 0.2)',
+      borderRadius: '20px',
+      padding: '40px',
+      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+      transition: 'all 0.3s ease',
+      cursor: 'pointer',
+      position: 'relative',
+      overflow: 'hidden',
+    },
+    cardHover: {
+      transform: 'translateY(-5px)',
+      boxShadow: '0 30px 80px rgba(0, 0, 0, 0.4)',
+      border: '1px solid rgba(59, 130, 246, 0.4)',
+    },
+    iconContainer: {
+      width: '80px',
+      height: '80px',
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: '25px',
+      fontSize: '40px',
+    },
+    watchIcon: {
+      background: 'linear-gradient(135deg, #ef4444, #f97316)',
+    },
+    workIcon: {
+      background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+    },
+    hireIcon: {
+      background: 'linear-gradient(135deg, #8b5cf6, #a78bfa)',
+    },
+    cardTitle: {
+      fontSize: '32px',
+      fontWeight: 'bold',
+      marginBottom: '15px',
+    },
+    cardSubtitle: {
+      fontSize: '18px',
+      color: '#94a3b8',
+      marginBottom: '30px',
+      lineHeight: '1.6',
+    },
+    buttonPrimary: {
+      background: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
+      color: 'white',
+      border: 'none',
+      padding: '20px 40px',
+      borderRadius: '50px',
+      fontSize: '18px',
+      fontWeight: '600',
+      cursor: 'pointer',
+      boxShadow: '0 10px 40px rgba(239, 68, 68, 0.4)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      justifyContent: 'center',
+      width: '100%',
+      transition: 'all 0.3s ease',
+    },
+    features: {
+      marginTop: '30px',
+      paddingTop: '30px',
+      borderTop: '1px solid rgba(59, 130, 246, 0.2)',
+    },
+    featureItem: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '15px',
+      marginBottom: '15px',
+      color: '#94a3b8',
+      fontSize: '16px',
+    },
+    statsGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(4, 1fr)',
+      gap: '30px',
+      marginBottom: '60px',
+    },
+    statCard: {
+      background: 'rgba(30, 41, 59, 0.3)',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(59, 130, 246, 0.1)',
+      borderRadius: '16px',
+      padding: '25px',
+      textAlign: 'center',
+    },
+    statNumber: {
+      fontSize: '36px',
+      fontWeight: 'bold',
+      marginBottom: '8px',
+      background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+    },
+    statLabel: {
+      color: '#94a3b8',
+      fontSize: '16px',
+    },
+    footer: {
+      background: 'rgba(15, 23, 42, 0.8)',
+      backdropFilter: 'blur(20px)',
+      borderTop: '1px solid rgba(59, 130, 246, 0.2)',
+      marginTop: '100px',
+    },
+    footerContainer: {
+      maxWidth: '1400px',
+      margin: '0 auto',
+      padding: '60px 20px',
+    },
+    footerGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+      gap: '40px',
+      marginBottom: '40px',
+    },
+    footerSection: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '15px',
+    },
+    footerTitle: {
+      fontSize: '20px',
+      fontWeight: 'bold',
+      marginBottom: '10px',
+    },
+    footerLink: {
+      color: '#94a3b8',
+      textDecoration: 'none',
+      fontSize: '16px',
+      transition: 'color 0.3s ease',
+      cursor: 'pointer',
+    },
+    footerBottom: {
+      paddingTop: '40px',
+      borderTop: '1px solid rgba(59, 130, 246, 0.2)',
+      textAlign: 'center',
+      color: '#64748b',
+    },
+    decorativeGradient: {
+      position: 'absolute',
+      top: '-50%',
+      right: '-50%',
+      width: '200%',
+      height: '200%',
+      background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
+      pointerEvents: 'none',
+    },
+    mobileMenuButton: {
+      display: 'none',
+      background: 'transparent',
+      border: 'none',
+      color: 'white',
+      cursor: 'pointer',
+      padding: '10px',
+    },
+    mobileMenu: {
+      position: 'fixed',
+      top: 0,
+      right: 0,
+      width: '300px',
+      height: '100vh',
+      background: 'rgba(15, 23, 42, 0.95)',
+      backdropFilter: 'blur(20px)',
+      transform: 'translateX(100%)',
+      transition: 'transform 0.3s ease',
+      zIndex: 200,
+      padding: '20px',
+    },
+    mobileMenuOpen: {
+      transform: 'translateX(0)',
+    },
+  };
+
+  const navigationPaths = [
+    {
+      id: 'watch',
+      title: 'Watch Live Streams',
+      subtitle: 'Experience stunning aerial views from drone pilots worldwide',
+      icon: '📺',
+      iconBg: styles.watchIcon,
+      button: 'Start Watching',
+      path: '/browse',
+      features: [
+        { icon: '🔴', text: 'Live drone streams 24/7' },
+        { icon: '💬', text: 'Interactive chat with pilots' },
+        { icon: '💰', text: 'Support pilots with tips' },
+        { icon: '🎬', text: 'HD quality streaming' },
+      ],
+    },
+    {
+      id: 'work',
+      title: 'Find Drone Jobs',
+      subtitle: 'Connect with clients who need professional drone services',
+      icon: '🚁',
+      iconBg: styles.workIcon,
+      button: 'Browse Jobs',
+      path: '/jobs',
+      features: [
+        { icon: '💼', text: 'Real-time job listings' },
+        { icon: '💵', text: '$150+ average per job' },
+        { icon: '📍', text: 'Local & remote opportunities' },
+        { icon: '⭐', text: 'Build your reputation' },
+      ],
+    },
+    {
+      id: 'hire',
+      title: 'Hire a Pilot',
+      subtitle: 'Find certified drone operators for your project needs',
+      icon: '🎯',
+      iconBg: styles.hireIcon,
+      button: 'Post a Job',
+      path: '/jobs/post-job',
+      features: [
+        { icon: '✅', text: 'Verified professionals' },
+        { icon: '🛡️', text: 'Insured & licensed pilots' },
+        { icon: '📸', text: 'Portfolio reviews' },
+        { icon: '⚡', text: 'Quick turnaround' },
+      ],
+    },
   ];
 
+  const stats = [
+    { number: '2,847', label: 'Active Pilots' },
+    { number: '12.5K', label: 'Live Viewers' },
+    { number: '$1.2M', label: 'Jobs Completed' },
+    { number: '98%', label: 'Satisfaction' },
+  ];
+
+  // Responsive styles
+  const mediaQueries = {
+    '@media (max-width: 768px)': {
+      navLinks: { display: 'none' },
+      mobileMenuButton: { display: 'block' },
+      statsGrid: { gridTemplateColumns: 'repeat(2, 1fr)' },
+      mainGrid: { gridTemplateColumns: '1fr' },
+    },
+  };
+
   return (
-    <>
-      <Head>
-        <title>BlueTubeTV - Live Drone Streaming Platform</title>
-        <meta name="description" content="Watch live drone flights and amazing aerial footage from pilots worldwide" />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚁</text></svg>" />
-      </Head>
+    <div style={styles.body}>
+      {/* Top Navigation */}
+      <nav style={styles.topNav}>
+        <div style={styles.navContainer}>
+          <a href="/" style={styles.logo}>
+            🚁 BlueTubeTV
+          </a>
+          
+          <div style={styles.navLinks}>
+            <a href="/browse" style={styles.navLink}>Browse</a>
+            <a href="/live" style={styles.navLink}>Go Live</a>
+            <a href="/jobs" style={styles.navLink}>Jobs</a>
+            <a href="/pilot-setup" style={styles.navLink}>Become a Pilot</a>
+            <a href="/dashboard" style={styles.navLink}>Dashboard</a>
+            
+            <button
+              onClick={() => window.location.href = '/api/upload-video'}
+              style={styles.uploadButton}
+            >
+              <Upload size={18} />
+              Upload
+            </button>
+            
+            <button
+              style={styles.signInButton}
+              onMouseEnter={(e) => {
+                e.target.style.background = 'rgba(59, 130, 246, 0.1)';
+                e.target.style.borderColor = 'rgba(59, 130, 246, 0.8)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = 'transparent';
+                e.target.style.borderColor = 'rgba(59, 130, 246, 0.5)';
+              }}
+            >
+              Sign In
+            </button>
+          </div>
 
+          {/* Mobile Menu Button */}
+          <button
+            style={styles.mobileMenuButton}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Menu */}
       <div style={{
-        background: 'linear-gradient(135deg, #FFEC8B 0%, #FFD700 25%, #FFC107 50%, #FFB300 75%, #FFA000 100%)',
-        minHeight: '100vh',
-        color: '#212529'
+        ...styles.mobileMenu,
+        ...(mobileMenuOpen ? styles.mobileMenuOpen : {})
       }}>
-        <Layout>
-          {/* Hero Section */}
-          <section style={{ 
-            padding: '80px 20px',
-            textAlign: 'center',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-              {/* Logo Circle */}
-              <div style={{
-                width: '180px',
-                height: '180px',
-                borderRadius: '50%',
-                background: 'rgba(59, 130, 246, 0.1)',
-                border: '2px solid rgba(59, 130, 246, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 40px',
-                transition: 'all 0.3s ease'
-              }}>
-                <span style={{ fontSize: '80px' }}>🚁</span>
-              </div>
-
-              <h1 style={{
-                fontSize:'clamp(2rem, 5vw, 4rem)',
-                fontWeight: '900',
-                background: 'linear-gradient(135deg, #818cf8 0%, #60a5fa 25%, #66d9ef 50%, #a78bfa 75%, #818cf8 100%)',
-                backgroundSize: '200% 200%',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                animation: 'gradient-shift 5s ease infinite',
-                marginBottom: '20px',
-                padding: '0 20px'
-              }}>
-                BlueTubeTV
-              </h1>
-              
-              <p style={{ 
-                fontSize:'clamp(16px, 4vw, 24px)', 
-                color: '#94a3b8', 
-                marginBottom: '60px',
-                maxWidth: '700px',
-                margin: '0 auto 60px',
-                padding: '0 20px'
-              }}>
-                The world's first live drone streaming platform. 
-                Stream your flights, get tipped, and join the community.
-              </p>
-              
-              <div style={{ 
-                display: 'flex', 
-                gap: '20px', 
-                justifyContent: 'center',
-                flexWrap: 'wrap'
-              }}>
-                    <Link 
-                     href="/browse"
-                      className="hero-button"
-                  >
-                    🎬 Watch Live Streams
-                </Link>
-                <Link href="/live"><span style={{
-                    background: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
-                    color: 'white',
-                    padding: '16px 48px',
-                     width: '90%',
-                    borderRadius: '50px',
-                    fontSize: '20px',
-                    fontWeight: '600',
-                    border: 'none',
-                    cursor: 'pointer',
-                    boxShadow: '0 10px 40px rgba(239, 68, 68, 0.4)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    textDecoration: 'none',
-                    display: 'inline-block'
-                  }}>
-                    🚁 Start Streaming
-                  </span></Link>
-              </div>
-            </div>
-          </section>
-
-          {/* Featured Streams */}
-          <section style={{ padding: '60px 20px' }}>
-            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-              <h2 style={{
-                fontSize: '48px',
-                fontWeight: 'bold',
-                marginBottom: '40px',
-                background: 'linear-gradient(135deg, #818cf8, #60a5fa)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}>
-                Featured Streams
-              </h2>
-              
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: '30px'
-              }}>
-                {featuredStreams.map((stream) => (
-                  <div key={stream.id} style={{
-                    background: 'rgba(30, 41, 59, 0.6)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(59, 130, 246, 0.2)',
-                    borderRadius: '16px',
-                    overflow: 'hidden',
-                    transition: 'all 0.3s ease',
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.05)';
-                    e.currentTarget.style.boxShadow = '0 15px 40px rgba(59, 130, 246, 0.3)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}>
-                    <div style={{
-                      aspectRatio: '16/9',
-                      background: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      position: 'relative'
-                    }}>
-                      <span style={{ fontSize: '60px' }}>🚁</span>
-                      {stream.status === 'live' && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '10px',
-                          left: '10px',
-                          background: '#ef4444',
-                          color: 'white',
-                          padding: '4px 12px',
-                          borderRadius: '20px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          animation: 'pulse 2s infinite'
-                        }}>
-                          <span style={{
-                            width: '8px',
-                            height: '8px',
-                            background: 'white',
-                            borderRadius: '50%',
-                            animation: 'blink 1.4s infinite'
-                          }}></span>
-                          LIVE
-                        </div>
-                      )}
-                    </div>
-                    <div style={{ padding: '20px' }}>
-                      <h3 style={{ fontSize: '20px', marginBottom: '10px' }}>{stream.title}</h3>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ color: stream.status === 'live' ? '#ef4444' : '#94a3b8' }}>
-                          {stream.status === 'live' ? '🔴 LIVE NOW' : 'Offline'}
-                        </span>
-                        <Link href={`/watch/${stream.id}`}>
-                          <span style={{
-                            color: '#60a5fa',
-                            textDecoration: 'none',
-                            fontWeight: 'bold'
-                          }}>
-                            Watch →
-                          </span>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                
-                {/* Browse More Card */}
-                <div style={{
-                  background: 'rgba(255, 255, 255, 0.7)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 193, 7, 0.3)',
-                  borderRadius: '20px',
-                  boxShadow: '0 8px 32px rgba(255, 193, 7, 0.2)',
-                  transition: 'all 0.3s ease',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                  e.currentTarget.style.boxShadow = '0 15px 40px rgba(59, 130, 246, 0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = '0 8px 32px rgba(255, 193, 7, 0.2)';
-                }}>
-                <Link 
-                    href="/browse"
-                     className="hero-button">
-                        <span style={{ fontSize: '60px' }}>📹</span>
-                  
-                      <div style={{ padding: '20px' }}>
-                        <h3 style={{ fontSize: '20px', marginBottom: '10px' }}>See All Content</h3>
-                        <p style={{ color: '#94a3b8', fontSize: '14px' }}>
-                          Browse all live streams and recorded videos
-                        </p>
-                      </div>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* CTA Section */}
-          <section style={{ padding: '60px 20px' }}>
-            <div style={{ maxWidth: '1200px', margin: '0 auto', textAlign: 'center' }}>
-              <h2 style={{
-                fontSize: '48px',
-                fontWeight: 'bold',
-                marginBottom: '20px',
-                background: 'linear-gradient(135deg, #818cf8, #60a5fa)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}>
-                Start Streaming Today
-              </h2>
-              <p style={{ 
-                color: '#94a3b8', 
-                marginBottom: '60px',
-                maxWidth: '700px',
-                margin: '0 auto 60px',
-                fontSize: '20px'
-              }}>
-                Share your drone adventures with the world. Stream live or upload your recorded flights.
-              </p>
-              
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: '30px',
-                maxWidth: '900px',
-                margin: '0 auto'
-              }}>
-                {[
-                  {
-                    icon: '🎥',
-                    title: 'Stream Live',
-                    desc: 'Use OBS to stream your drone footage in real-time',
-                    link: '/live',
-                    linkText: 'Get Started →'
-                  },
-                  {
-                    icon: '📤',
-                    title: 'Upload Videos',
-                    desc: 'Share your best recorded flights',
-                    link: null,
-                    linkText: 'Coming Soon'
-                  },
-                  {
-                    icon: '💰',
-                    title: 'Get Tips',
-                    desc: 'Viewers can support you via PayPal or Buy Me a Coffee',
-                    link: '/dashboard',
-                    linkText: 'Learn More →'
-                  }
-                ].map((item, index) => (
-                  <div key={index} style={{
-                    background: 'rgba(30, 41, 59, 0.5)',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(59, 130, 246, 0.2)',
-                    borderRadius: '20px',
-                    padding: '30px',
-                    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-5px)';
-                    e.currentTarget.style.boxShadow = '0 25px 70px rgba(0, 0, 0, 0.4)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.3)';
-                  }}>
-                    <span style={{ fontSize: '48px', display: 'block', marginBottom: '20px' }}>
-                      {item.icon}
-                    </span>
-                    <h3 style={{ fontSize: '24px', marginBottom: '15px' }}>{item.title}</h3>
-                    <p style={{ color: '#94a3b8', marginBottom: '20px' }}>{item.desc}</p>
-                   {item.link ? (
-  <Link href={item.link}>
-    {item.linkText}
-  </Link>
-) : (
-  <span style={{ color: '#6b7280' }}>{item.linkText}</span>
-)}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        </Layout>
+        <div style={{ marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ margin: 0 }}>Menu</h3>
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}
+          >
+            <X size={24} />
+          </button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <a href="/browse" style={styles.navLink}>Browse</a>
+          <a href="/live" style={styles.navLink}>Go Live</a>
+          <a href="/jobs" style={styles.navLink}>Jobs</a>
+          <a href="/pilot-setup" style={styles.navLink}>Become a Pilot</a>
+          <a href="/dashboard" style={styles.navLink}>Dashboard</a>
+          <button
+            onClick={() => window.location.href = '/api/upload-video'}
+            style={{ ...styles.uploadButton, width: '100%' }}
+          >
+            <Upload size={18} />
+            Upload
+          </button>
+          <button style={{ ...styles.signInButton, width: '100%' }}>
+            Sign In
+          </button>
+        </div>
       </div>
 
-      {/* Add keyframes */}
-      <style jsx>{`
-        @keyframes gradient-shift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        
-        @keyframes pulse {
-          0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-          70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-        
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
-        }
-      `}</style>
-    </>
+      <div style={styles.container}>
+        {/* Header */}
+        <header style={styles.header}>
+          <h1 style={styles.heroLogo}>BlueTubeTV</h1>
+          <p style={styles.tagline}>
+            The Professional Drone Streaming & Job Marketplace
+          </p>
+        </header>
+
+        {/* Stats Bar */}
+        <div style={styles.statsGrid}>
+          {stats.map((stat, index) => (
+            <div key={index} style={styles.statCard}>
+              <div style={styles.statNumber}>{stat.number}</div>
+              <div style={styles.statLabel}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Main Navigation Cards */}
+        <div style={styles.mainGrid}>
+          {navigationPaths.map((path) => (
+            <div
+              key={path.id}
+              style={{
+                ...styles.card,
+                ...(hoveredCard === path.id ? styles.cardHover : {}),
+              }}
+              onMouseEnter={() => setHoveredCard(path.id)}
+              onMouseLeave={() => setHoveredCard(null)}
+              onClick={() => window.location.href = path.path}
+            >
+              <div style={styles.decorativeGradient} />
+              
+              <div style={{ ...styles.iconContainer, ...path.iconBg }}>
+                <span>{path.icon}</span>
+              </div>
+              
+              <h2 style={styles.cardTitle}>{path.title}</h2>
+              <p style={styles.cardSubtitle}>{path.subtitle}</p>
+              
+              <button 
+                style={{
+                  ...styles.buttonPrimary,
+                  ...(path.id === 'work' ? { background: 'linear-gradient(135deg, #3b82f6, #60a5fa)' } : {}),
+                  ...(path.id === 'hire' ? { background: 'linear-gradient(135deg, #8b5cf6, #a78bfa)' } : {}),
+                }}
+              >
+                {path.button}
+                <ChevronRight size={20} />
+              </button>
+
+              <div style={styles.features}>
+                {path.features.map((feature, index) => (
+                  <div key={index} style={styles.featureItem}>
+                    <span>{feature.icon}</span>
+                    <span>{feature.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Secondary Actions */}
+        <div style={{
+          textAlign: 'center',
+          marginTop: '80px',
+          paddingTop: '40px',
+          borderTop: '1px solid rgba(59, 130, 246, 0.2)',
+        }}>
+          <h2 style={{ fontSize: '36px', marginBottom: '20px' }}>
+            Ready to Start Flying?
+          </h2>
+          <p style={{ color: '#94a3b8', fontSize: '18px', marginBottom: '30px' }}>
+            Join thousands of drone pilots and enthusiasts
+          </p>
+          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => window.location.href = '/pilot-setup'}
+              style={styles.buttonPrimary}
+            >
+              🚁 Become a Pilot
+            </button>
+            <button
+              onClick={() => window.location.href = '/live'}
+              style={{
+                ...styles.signInButton,
+                padding: '20px 40px',
+                fontSize: '18px',
+              }}
+            >
+              🔴 Start Streaming
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer style={styles.footer}>
+        <div style={styles.footerContainer}>
+          <div style={styles.footerGrid}>
+            {/* Company */}
+            <div style={styles.footerSection}>
+              <h3 style={styles.footerTitle}>Company</h3>
+              <a href="/about" style={styles.footerLink}>About Us</a>
+              <a href="/careers" style={styles.footerLink}>Careers</a>
+              <a href="/partnerships" style={styles.footerLink}>Partnerships</a>
+              <a href="/founders" style={styles.footerLink}>Founders</a>
+            </div>
+
+            {/* Platform */}
+            <div style={styles.footerSection}>
+              <h3 style={styles.footerTitle}>Platform</h3>
+              <a href="/browse" style={styles.footerLink}>Browse Streams</a>
+              <a href="/jobs" style={styles.footerLink}>Find Jobs</a>
+              <a href="/pilot-setup" style={styles.footerLink}>Become a Pilot</a>
+              <a href="/pricing" style={styles.footerLink}>Pricing</a>
+            </div>
+
+            {/* Resources */}
+            <div style={styles.footerSection}>
+              <h3 style={styles.footerTitle}>Resources</h3>
+              <a href="/help" style={styles.footerLink}>Help Center</a>
+              <a href="/safety" style={styles.footerLink}>Safety</a>
+              <a href="/guidelines" style={styles.footerLink}>Community Guidelines</a>
+              <a href="/blog" style={styles.footerLink}>Blog</a>
+            </div>
+
+            {/* Legal */}
+            <div style={styles.footerSection}>
+              <h3 style={styles.footerTitle}>Legal</h3>
+              <a href="/terms" style={styles.footerLink}>Terms of Service</a>
+              <a href="/privacy" style={styles.footerLink}>Privacy Policy</a>
+              <a href="/legal" style={styles.footerLink}>Legal Notice</a>
+              <a href="/cookies" style={styles.footerLink}>Cookie Policy</a>
+            </div>
+          </div>
+
+          <div style={styles.footerBottom}>
+            <p>© 2025 BlueTubeTV. All rights reserved.</p>
+            <p style={{ marginTop: '10px', fontSize: '14px' }}>
+              Made with ❤️ for the drone community
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
-}
+};
+
+export default LandingPage;

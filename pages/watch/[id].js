@@ -1,5 +1,6 @@
 // pages/watch/[id].js
 import LivePeerPlayer from '../../components/LivePeerPlayer';
+import LiveChat from '../../components/LiveChat';
 import SuperChat from '../../components/SuperChat';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -97,8 +98,8 @@ export default function WatchStream() {
                   )}
                   
                   {/* ONLY THIS PART CHANGES - REPLACE IFRAME WITH PLAYER */}
-                  <LivePeerPlayer playbackId={id} />
-
+                 <LivePeerPlayer playbackId={id} />
+                  
                   {/* Live Badge - KEEP THIS */}
                   {isLive && (
                     <div style={{
@@ -141,7 +142,13 @@ export default function WatchStream() {
                     isLive={true}
                   />
                 </div>
-
+                    <div style={{ marginBottom: '30px' }}>
+  <LiveChat 
+    streamId={id}
+    userId="viewer_123"
+    username="Anonymous Viewer"
+  />
+</div>
                 {/* Stream Info - NO CHANGES */}
                 <div style={{
                   background: 'rgba(30, 41, 59, 0.5)',

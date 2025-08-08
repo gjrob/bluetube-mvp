@@ -1,5 +1,7 @@
 // pages/api/upload-video.js
 // Note: This is a mock implementation. In production, you'd use S3/R2 for storage
+// pages/api/upload-video.js
+// Note: This is a mock implementation. In production, you'd use S3/R2 for storage
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -29,7 +31,7 @@ export default async function handler(req, res) {
     
     return res.status(200).json({ recordings });
   }
-  
+
   if (req.method === 'POST') {
     try {
       // In production:
@@ -38,9 +40,9 @@ export default async function handler(req, res) {
       // 3. Store metadata in database
       // 4. Generate thumbnails
       // 5. Process video for streaming
-      
+
       const { title, category, description, pilot = 'Anonymous' } = req.body || {};
-      
+
       const newRecording = {
         id: `rec${Date.now()}`,
         title: title || 'Untitled Flight',
@@ -53,13 +55,13 @@ export default async function handler(req, res) {
         fileUrl: `/videos/upload-${Date.now()}.mp4`,
         status: 'processing'
       };
-      
+
       return res.status(200).json({ 
         success: true, 
         recording: newRecording,
         message: 'Video uploaded successfully. Processing...'
       });
-      
+
     } catch (error) {
       console.error('Upload error:', error);
       return res.status(500).json({ 
@@ -68,6 +70,6 @@ export default async function handler(req, res) {
       });
     }
   }
-  
+
   return res.status(405).json({ error: 'Method not allowed' });
 }
