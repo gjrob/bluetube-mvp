@@ -1,5 +1,5 @@
 // pages/api/faa/analytics.js
-import { supabase } from '../../../utils/supabase-server';
+import { supabase } from '../../../lib/supabase'
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {

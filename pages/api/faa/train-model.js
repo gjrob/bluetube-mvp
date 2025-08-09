@@ -1,5 +1,6 @@
 // pages/api/faa/train-model.js
-import { supabase } from '../../../utils/supabase-server';
+import { supabase } from '../../../lib/supabase'
+
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
