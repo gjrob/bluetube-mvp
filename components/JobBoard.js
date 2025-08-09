@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-const JobBoard = ({ currentPilotId }) => {
+import { useRouter } from 'next/router';
+import { useAuth } from '../hooks/useAuth';
+
+export default function JobBoard() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
+    category: '',
+    budget_min: '',
+    budget_max: '',
     location: '',
     job_type: '',
     min_budget: '',
@@ -11,128 +17,23 @@ const JobBoard = ({ currentPilotId }) => {
     sort: 'featured_first'
   });
   const [showBidForm, setShowBidForm] = useState(null);
+  
+  const router = useRouter();
+  const { userType, user } = useAuth();
+  
+  // Get current pilot ID from authenticated user
+  const currentPilotId = user?.id;
 
-  // Styles
-  const styles = {
-    container: {
-      maxWidth: '1200px',
-      margin: '0 auto',
-      padding: '20px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    },
-    header: {
-      marginBottom: '30px',
-      textAlign: 'center'
-    },
-    title: {
-      fontSize: '32px',
-      fontWeight: '700',
-      color: '#111827',
-      marginBottom: '12px'
-    },
-    subtitle: {
-      fontSize: '16px',
-      color: '#6B7280'
-    },
-    filtersContainer: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: '16px',
-      marginBottom: '30px',
-      padding: '20px',
-      backgroundColor: '#F9FAFB',
-      borderRadius: '8px'
-    },
-    filterInput: {
-      padding: '8px 12px',
-      border: '1px solid #D1D5DB',
-      borderRadius: '6px',
-      fontSize: '14px'
-    },
-    jobsGrid: {
-      display: 'grid',
-      gap: '24px'
-    },
-    jobCard: (isSponsored) => ({
-      backgroundColor: 'white',
-      border: isSponsored ? '2px solid #F59E0B' : '1px solid #E5E7EB',
-      borderRadius: '12px',
-      padding: '24px',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-      transition: 'all 0.2s ease'
-    }),
-    sponsoredBadge: {
-      display: 'inline-block',
-      backgroundColor: '#F59E0B',
-      color: 'white',
-      padding: '4px 12px',
-      borderRadius: '16px',
-      fontSize: '12px',
-      fontWeight: '600',
-      marginBottom: '12px'
-    },
-    jobTitle: {
-      fontSize: '20px',
-      fontWeight: '600',
-      color: '#111827',
-      marginBottom: '8px'
-    },
-    jobMeta: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '16px',
-      marginBottom: '12px',
-      fontSize: '14px',
-      color: '#6B7280'
-    },
-    jobDescription: {
-      color: '#4B5563',
-      lineHeight: '1.6',
-      marginBottom: '16px'
-    },
-    jobFooter: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingTop: '16px',
-      borderTop: '1px solid #E5E7EB'
-    },
-    budget: {
-      fontSize: '18px',
-      fontWeight: '600',
-      color: '#059669'
-    },
-    bidButton: {
-      backgroundColor: '#3B82F6',
-      color: 'white',
-      padding: '10px 20px',
-      border: 'none',
-      borderRadius: '6px',
-      cursor: 'pointer',
-      fontSize: '14px',
-      fontWeight: '500'
-    },
-    bidCount: {
-      fontSize: '14px',
-      color: '#6B7280'
-    }
-  };
-
-  // Fetch jobs
-  const fetchJobs = async () => {
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+     const fetchJobs = async () => {
     try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.append(key, value);
-      });
-
-      const response = await fetch(`/api/jobs?${params}`);
-      const data = await response.json();
+      const response = await fetch('/api/jobs')
+      const data = await response.json()
       
       if (response.ok) {
-        setJobs(data.jobs || []);
+        setJobs(data.jobs || [])
       }
     } catch (error) {
       console.error('Error fetching jobs:', error);
@@ -141,9 +42,9 @@ const JobBoard = ({ currentPilotId }) => {
     }
   };
 
-  useEffect(() => {
-    fetchJobs();
-  }, [filters]);
+  const handleJobClick = (jobId) => {
+    router.push(`/jobs/${jobId}`);
+  };
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -151,74 +52,134 @@ const JobBoard = ({ currentPilotId }) => {
 
   if (loading) {
     return (
-      <div style={styles.container}>
-        <div style={{textAlign: 'center', padding: '60px'}}>
-          <div style={{
-            display: 'inline-block',
-            width: '32px',
-            height: '32px',
-            border: '3px solid #3B82F6',
-            borderTopColor: 'transparent',
-            borderRadius: '50%',
-            animation: 'spin 0.8s linear infinite'
-          }} />
-          <p style={{marginTop: '16px', color: '#6B7280'}}>Loading jobs...</p>
-        </div>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '200px',
+        color: '#94A3B8'
+      }}>
+        <div>Loading jobs...</div>
       </div>
     );
   }
 
   return (
-    <div style={styles.container}>
-      <style>
-        {`@keyframes spin { to { transform: rotate(360deg); } }`}
-      </style>
-
-      <div style={styles.header}>
-        <h1 style={styles.title}>Available Drone Jobs</h1>
-        <p style={styles.subtitle}>Find your next project and start earning</p>
+    <div style={{ padding: '20px', backgroundColor: '#0F172A', minHeight: '100vh' }}>
+      {/* Header */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '30px'
+      }}>
+        <div>
+          <h1 style={{ color: 'white', fontSize: '32px', margin: 0 }}>Available Jobs</h1>
+          <p style={{ color: '#94A3B8', margin: '8px 0 0 0' }}>
+            {jobs.length} jobs available
+          </p>
+        </div>
+        
+        {userType === 'client' && (
+          <Link href="/jobs/post" style={{
+            backgroundColor: '#3B82F6',
+            color: 'white',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            fontWeight: '600'
+          }}>
+            + Post a Job
+          </Link>
+        )}
       </div>
 
       {/* Filters */}
-      <div style={styles.filtersContainer}>
-        <input
-          type="text"
-          placeholder="Location (e.g. Austin, TX)"
-          value={filters.location}
-          onChange={(e) => handleFilterChange('location', e.target.value)}
-          style={styles.filterInput}
-        />
-        
+      <div style={{
+        display: 'flex',
+        gap: '15px',
+        marginBottom: '30px',
+        flexWrap: 'wrap'
+      }}>
         <select
-          value={filters.job_type}
-          onChange={(e) => handleFilterChange('job_type', e.target.value)}
-          style={styles.filterInput}
+          value={filters.category}
+          onChange={(e) => handleFilterChange('category', e.target.value)}
+          style={{
+            padding: '10px 15px',
+            borderRadius: '6px',
+            border: '1px solid #374151',
+            backgroundColor: '#1E293B',
+            color: 'white',
+            fontSize: '14px'
+          }}
         >
-          <option value="">All Job Types</option>
-          <option value="custom">Regular Jobs</option>
-          <option value="sponsored">Sponsored Jobs</option>
+          <option value="">All Categories</option>
+          <option value="aerial_photography">Aerial Photography</option>
+          <option value="inspection">Inspection</option>
+          <option value="mapping">Mapping</option>
+          <option value="surveillance">Surveillance</option>
+          <option value="delivery">Delivery</option>
         </select>
 
         <input
           type="number"
-          placeholder="Min Budget ($)"
-          value={filters.min_budget}
-          onChange={(e) => handleFilterChange('min_budget', e.target.value)}
-          style={styles.filterInput}
+          placeholder="Min Budget"
+          value={filters.budget_min}
+          onChange={(e) => handleFilterChange('budget_min', e.target.value)}
+          style={{
+            padding: '10px 15px',
+            borderRadius: '6px',
+            border: '1px solid #374151',
+            backgroundColor: '#1E293B',
+            color: 'white',
+            fontSize: '14px',
+            width: '120px'
+          }}
         />
 
         <input
           type="number"
-          placeholder="Max Budget ($)"
-          value={filters.max_budget}
-          onChange={(e) => handleFilterChange('max_budget', e.target.value)}
-          style={styles.filterInput}
+          placeholder="Max Budget"
+          value={filters.budget_max}
+          onChange={(e) => handleFilterChange('budget_max', e.target.value)}
+          style={{
+            padding: '10px 15px',
+            borderRadius: '6px',
+            border: '1px solid #374151',
+            backgroundColor: '#1E293B',
+            color: 'white',
+            fontSize: '14px',
+            width: '120px'
+          }}
+        />
+
+        <input
+          type="text"
+          placeholder="Location"
+          value={filters.location}
+          onChange={(e) => handleFilterChange('location', e.target.value)}
+          style={{
+            padding: '10px 15px',
+            borderRadius: '6px',
+            border: '1px solid #374151',
+            backgroundColor: '#1E293B',
+            color: 'white',
+            fontSize: '14px',
+            width: '200px'
+          }}
         />
 
         <select
           value={filters.sort}
           onChange={(e) => handleFilterChange('sort', e.target.value)}
-          style={styles.filterInput}
+          style={{
+            padding: '10px 15px',
+            borderRadius: '6px',
+            border: '1px solid #374151',
+            backgroundColor: '#1E293B',
+            color: 'white',
+            fontSize: '14px'
+          }}
         >
           <option value="featured_first">Featured First</option>
           <option value="budget_high">Highest Budget</option>
@@ -226,109 +187,275 @@ const JobBoard = ({ currentPilotId }) => {
           <option value="newest">Newest First</option>
         </select>
       </div>
-<div style={{
-  display: 'flex', 
-  justifyContent: 'space-between', 
-  alignItems: 'center',
-  marginBottom: '20px'
-}}>
-  <h2 style={{margin: 0, color: '#111827'}}>
-    {jobs.length} Jobs Available
-  </h2>
-  
-  <Link href="/jobs/post">
-     style={{
-      backgroundColor: '#059669',
-      color: 'white',
-      padding: '12px 24px',
-      borderRadius: '8px',
-      textDecoration: 'none',
-      fontWeight: '600',
-      fontSize: '14px'
-    }}
-      + Post a Job
-  </Link>
-</div>
-      {/* Jobs List */}
-      <div style={styles.jobsGrid}>
-        {jobs.length === 0 ? (
-          <div style={{textAlign: 'center', padding: '60px'}}>
-            <p style={{color: '#6B7280', fontSize: '16px'}}>No jobs found matching your criteria.</p>
-          </div>
-        ) : (
-          jobs.map(job => (
+
+      {/* Job Grid */}
+      {jobs.length === 0 ? (
+        <div style={{ 
+          textAlign: 'center', 
+          color: '#94A3B8', 
+          padding: '60px',
+          backgroundColor: '#1E293B',
+          borderRadius: '12px'
+        }}>
+          <h3 style={{ color: 'white', marginBottom: '16px' }}>No jobs found</h3>
+          <p>Try adjusting your filters or check back later for new opportunities.</p>
+        </div>
+      ) : (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+          gap: '20px'
+        }}>
+          {jobs.map(job => (
             <JobCard 
               key={job.id} 
               job={job} 
+              onClick={() => handleJobClick(job.id)}
+              userType={userType}
               currentPilotId={currentPilotId}
               onBid={() => setShowBidForm(job.id)}
-              styles={styles}
             />
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Bid Form Modal */}
-      {showBidForm && (
+      {showBidForm && userType === 'pilot' && (
         <BidFormModal
           jobId={showBidForm}
           pilotId={currentPilotId}
           onClose={() => setShowBidForm(null)}
           onSuccess={() => {
             setShowBidForm(null);
-            fetchJobs(); // Refresh jobs
+            fetchJobs();
           }}
         />
       )}
     </div>
   );
-};
+}
 
 // Job Card Component
-const JobCard = ({ job, currentPilotId, onBid, styles }) => {
-  const isSponsored = job.job_type === 'sponsored';
-  const bidCount = job.job_bids?.[0]?.count || 0;
+function JobCard({ job, onClick, userType, currentPilotId, onBid }) {
+  const proposalCount = job.proposals?.length || job.job_bids?.[0]?.count || 0;
+  const isUrgent = job.visibility_package === 'urgent';
+  const isFeatured = job.visibility_package === 'featured' || job.job_type === 'sponsored';
+  const isPremium = job.visibility_package === 'premium';
   const isOwnJob = job.client_pilot_id === currentPilotId;
 
   return (
-    <div style={styles.jobCard(isSponsored)}>
-      {isSponsored && (
-        <div style={styles.sponsoredBadge}>
-          ⭐ SPONSORED - Higher Commission Rate
+    <div
+      onClick={onClick}
+      style={{
+        backgroundColor: '#1E293B',
+        borderRadius: '12px',
+        padding: '24px',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        border: isPremium ? '2px solid #F59E0B' : isFeatured ? '2px solid #3B82F6' : '1px solid #374151',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-4px)';
+        e.currentTarget.style.boxShadow = '0 10px 40px rgba(0,0,0,0.3)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
+    >
+      {/* Badges */}
+      {(isUrgent || isFeatured || isPremium) && (
+        <div style={{
+          position: 'absolute',
+          top: '12px',
+          right: '12px',
+          display: 'flex',
+          gap: '8px'
+        }}>
+          {isUrgent && (
+            <span style={{
+              backgroundColor: '#EF4444',
+              color: 'white',
+              padding: '4px 12px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              fontWeight: '600'
+            }}>
+              URGENT
+            </span>
+          )}
+          {isFeatured && (
+            <span style={{
+              backgroundColor: '#3B82F6',
+              color: 'white',
+              padding: '4px 12px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              fontWeight: '600'
+            }}>
+              {job.job_type === 'sponsored' ? 'SPONSORED' : 'FEATURED'}
+            </span>
+          )}
+          {isPremium && (
+            <span style={{
+              backgroundColor: '#F59E0B',
+              color: 'white',
+              padding: '4px 12px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              fontWeight: '600'
+            }}>
+              PREMIUM
+            </span>
+          )}
         </div>
       )}
-      
-      <h3 style={styles.jobTitle}>{job.title}</h3>
-      
-      <div style={styles.jobMeta}>
-        <span>📍 {job.location}</span>
-        <span>📅 Deadline: {new Date(job.deadline).toLocaleDateString()}</span>
-        <span>💰 Commission: {Math.round(job.commission_rate * 100)}%</span>
-      </div>
-      
-      <p style={styles.jobDescription}>{job.description}</p>
-      
-      <div style={styles.jobFooter}>
+
+      <h3 style={{
+        fontSize: '20px',
+        fontWeight: '600',
+        color: 'white',
+        marginBottom: '12px',
+        paddingRight: (isUrgent || isFeatured || isPremium) ? '100px' : '0'
+      }}>
+        {job.title}
+      </h3>
+
+      <p style={{
+        color: '#94A3B8',
+        fontSize: '14px',
+        lineHeight: '1.6',
+        marginBottom: '16px',
+        display: '-webkit-box',
+        WebkitLineClamp: 3,
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden'
+      }}>
+        {job.description}
+      </p>
+
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '16px'
+      }}>
         <div>
-          <div style={styles.budget}>${job.budget}</div>
-          <div style={styles.bidCount}>{bidCount} bids</div>
+          <div style={{ color: '#10B981', fontSize: '24px', fontWeight: '700' }}>
+            ${job.budget}
+          </div>
+          <div style={{ color: '#6B7280', fontSize: '12px' }}>
+            Budget
+          </div>
         </div>
         
-        <button 
-          style={{
-            ...styles.bidButton,
-            backgroundColor: isOwnJob ? '#6B7280' : '#3B82F6',
-            cursor: isOwnJob ? 'not-allowed' : 'pointer'
-          }}
-          onClick={onBid}
-          disabled={isOwnJob}
-        >
-          {isOwnJob ? 'Your Job' : 'Submit Proposal'}
-        </button>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ color: '#60A5FA', fontSize: '20px', fontWeight: '600' }}>
+            {proposalCount}
+          </div>
+          <div style={{ color: '#6B7280', fontSize: '12px' }}>
+            Proposals
+          </div>
+        </div>
+      </div>
+
+      <div style={{
+        display: 'flex',
+        gap: '12px',
+        flexWrap: 'wrap',
+        marginBottom: '16px'
+      }}>
+        <span style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          color: '#94A3B8',
+          fontSize: '13px'
+        }}>
+          📍 {job.location || 'Remote'}
+        </span>
+        <span style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          color: '#94A3B8',
+          fontSize: '13px'
+        }}>
+          ⏱️ {job.duration || 'Flexible'}
+        </span>
+        <span style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          color: '#94A3B8',
+          fontSize: '13px'
+        }}>
+          🏷️ {job.category?.replace('_', ' ') || 'General'}
+        </span>
+      </div>
+
+      {job.hazard_pay && (
+        <div style={{
+          backgroundColor: '#FEE2E2',
+          color: '#DC2626',
+          padding: '8px 12px',
+          borderRadius: '6px',
+          fontSize: '13px',
+          fontWeight: '600',
+          marginBottom: '16px'
+        }}>
+          ⚠️ Hazard Pay Available
+        </div>
+      )}
+
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <span style={{
+          color: '#6B7280',
+          fontSize: '12px'
+        }}>
+          Posted {new Date(job.created_at).toLocaleDateString()}
+        </span>
+        
+        {userType === 'pilot' && !isOwnJob && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onBid) onBid();
+            }}
+            style={{
+              backgroundColor: '#3B82F6',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: '6px',
+              border: 'none',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            Submit Proposal
+          </button>
+        )}
+        
+        {isOwnJob && (
+          <span style={{
+            color: '#6B7280',
+            fontSize: '12px',
+            fontStyle: 'italic'
+          }}>
+            Your Job
+          </span>
+        )}
       </div>
     </div>
   );
-};
+}
 
 // Bid Form Modal Component
 const BidFormModal = ({ jobId, pilotId, onClose, onSuccess }) => {
@@ -373,67 +500,40 @@ const BidFormModal = ({ jobId, pilotId, onClose, onSuccess }) => {
     }
   };
 
-  const modalStyles = {
-    overlay: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000
-    },
-    modal: {
-      backgroundColor: 'white',
-      borderRadius: '12px',
-      padding: '32px',
-      maxWidth: '600px',
-      width: '90%',
-      maxHeight: '90vh',
-      overflow: 'auto'
-    },
-    input: {
-      width: '100%',
-      padding: '12px',
-      border: '1px solid #D1D5DB',
-      borderRadius: '6px',
-      marginBottom: '16px',
-      fontSize: '14px'
-    },
-    textarea: {
-      width: '100%',
-      padding: '12px',
-      border: '1px solid #D1D5DB',
-      borderRadius: '6px',
-      marginBottom: '16px',
-      fontSize: '14px',
-      minHeight: '120px',
-      resize: 'vertical'
-    },
-    buttonContainer: {
-      display: 'flex',
-      gap: '12px',
-      justifyContent: 'flex-end'
-    },
-    button: (primary) => ({
-      padding: '12px 24px',
-      border: 'none',
-      borderRadius: '6px',
-      cursor: 'pointer',
-      fontSize: '14px',
-      fontWeight: '500',
-      backgroundColor: primary ? '#3B82F6' : '#6B7280',
-      color: 'white'
-    })
-  };
-
   return (
-    <div style={modalStyles.overlay} onClick={onClose}>
-      <div style={modalStyles.modal} onClick={e => e.stopPropagation()}>
-        <h3 style={{marginBottom: '24px', fontSize: '20px', fontWeight: '600'}}>
+    <div 
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+      }}
+      onClick={onClose}
+    >
+      <div 
+        style={{
+          backgroundColor: '#1E293B',
+          borderRadius: '12px',
+          padding: '32px',
+          maxWidth: '600px',
+          width: '90%',
+          maxHeight: '90vh',
+          overflow: 'auto'
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        <h3 style={{ 
+          color: 'white', 
+          marginBottom: '24px', 
+          fontSize: '24px', 
+          fontWeight: '600' 
+        }}>
           Submit Your Proposal
         </h3>
 
@@ -451,18 +551,39 @@ const BidFormModal = ({ jobId, pilotId, onClose, onSuccess }) => {
         )}
 
         <form onSubmit={handleSubmit}>
-          <label style={{display: 'block', marginBottom: '8px', fontWeight: '500'}}>
+          <label style={{ 
+            display: 'block', 
+            marginBottom: '8px', 
+            fontWeight: '500', 
+            color: 'white' 
+          }}>
             Your Proposal *
           </label>
           <textarea
-            placeholder="Describe your approach, experience, and why you're the best fit for this project..."
+            placeholder="Describe your approach, experience, and why you're the best fit..."
             value={formData.proposal}
             onChange={(e) => setFormData(prev => ({...prev, proposal: e.target.value}))}
-            style={modalStyles.textarea}
+            style={{
+              width: '100%',
+              padding: '12px',
+              border: '1px solid #374151',
+              borderRadius: '6px',
+              marginBottom: '16px',
+              fontSize: '14px',
+              minHeight: '120px',
+              resize: 'vertical',
+              backgroundColor: '#374151',
+              color: 'white'
+            }}
             required
           />
 
-          <label style={{display: 'block', marginBottom: '8px', fontWeight: '500'}}>
+          <label style={{ 
+            display: 'block', 
+            marginBottom: '8px', 
+            fontWeight: '500', 
+            color: 'white' 
+          }}>
             Your Bid Amount ($) *
           </label>
           <input
@@ -472,37 +593,38 @@ const BidFormModal = ({ jobId, pilotId, onClose, onSuccess }) => {
             step="0.01"
             value={formData.bid_amount}
             onChange={(e) => setFormData(prev => ({...prev, bid_amount: e.target.value}))}
-            style={modalStyles.input}
+            style={{
+              width: '100%',
+              padding: '12px',
+              border: '1px solid #374151',
+              borderRadius: '6px',
+              marginBottom: '16px',
+              fontSize: '14px',
+              backgroundColor: '#374151',
+              color: 'white'
+            }}
             required
           />
 
-          <label style={{display: 'block', marginBottom: '8px', fontWeight: '500'}}>
-            Estimated Completion (Days)
-          </label>
-          <input
-            type="number"
-            placeholder="e.g. 5"
-            min="1"
-            value={formData.estimated_completion_days}
-            onChange={(e) => setFormData(prev => ({...prev, estimated_completion_days: e.target.value}))}
-            style={modalStyles.input}
-          />
-
-          <label style={{display: 'block', marginBottom: '8px', fontWeight: '500'}}>
-            Portfolio Links (Optional)
-          </label>
-          <textarea
-            placeholder="https://example.com/portfolio1&#10;https://example.com/portfolio2"
-            value={formData.portfolio_links}
-            onChange={(e) => setFormData(prev => ({...prev, portfolio_links: e.target.value}))}
-            style={{...modalStyles.textarea, minHeight: '80px'}}
-          />
-
-          <div style={modalStyles.buttonContainer}>
+          <div style={{ 
+            display: 'flex', 
+            gap: '12px', 
+            justifyContent: 'flex-end',
+            marginTop: '24px'
+          }}>
             <button
               type="button"
               onClick={onClose}
-              style={modalStyles.button(false)}
+              style={{
+                padding: '12px 24px',
+                border: '1px solid #6B7280',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                backgroundColor: 'transparent',
+                color: '#6B7280'
+              }}
             >
               Cancel
             </button>
@@ -510,7 +632,14 @@ const BidFormModal = ({ jobId, pilotId, onClose, onSuccess }) => {
               type="submit"
               disabled={loading}
               style={{
-                ...modalStyles.button(true),
+                padding: '12px 24px',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                backgroundColor: '#3B82F6',
+                color: 'white',
                 opacity: loading ? 0.7 : 1
               }}
             >
@@ -522,5 +651,3 @@ const BidFormModal = ({ jobId, pilotId, onClose, onSuccess }) => {
     </div>
   );
 };
-
-export default JobBoard;

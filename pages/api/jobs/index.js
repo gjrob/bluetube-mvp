@@ -1,11 +1,9 @@
-import { createClient } from '@supabase/supabase-js'
+// /pages/api/jobs/index.js
+import { createServerClient } from '../../../lib/supabase-server'
+import { supabaseAdmin } from '../../../lib/supabase-admin'
 import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL, 
-  process.env.SUPABASE_SERVICE_KEY
-)
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -21,6 +19,9 @@ export default async function handler(req, res) {
 
 // GET /api/jobs - List all available jobs
 async function handleGetJobs(req, res) {
+  // Use regular client for public reads
+  const supabase = createServerClient({ req, res })
+  
   try {
     const { 
       status = 'open', 
@@ -113,9 +114,16 @@ async function handleGetJobs(req, res) {
 
 // POST /api/jobs - Create new job (with posting fee)
 async function handleCreateJob(req, res) {
+  const supabase = createServerClient({ req, res })
+  
   try {
+    // First check if user is authenticated
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return res.status(401).json({ error: 'Authentication required' })
+    }
+
     const {
-      client_pilot_id,
       title,
       description,
       budget,
@@ -125,34 +133,19 @@ async function handleCreateJob(req, res) {
       job_type = 'custom' // 'custom' or 'sponsored'
     } = req.body
 
+    // Use the authenticated user's ID as client_pilot_id
+    const client_pilot_id = user.id
+
     // Validation
-    if (!client_pilot_id || !title || !description || !budget) {
+    if (!title || !description || !budget) {
       return res.status(400).json({ 
-        error: 'Missing required fields: client_pilot_id, title, description, budget' 
+        error: 'Missing required fields: title, description, budget' 
       })
     }
 
     if (budget < 50) {
       return res.status(400).json({ 
         error: 'Minimum job budget is $50' 
-      })
-    }
-
-    // Verify pilot exists
-    const { data: pilot, error: pilotError } = await supabase
-      .from('pilot_certifications')
-      .select('pilot_id, listing_tier, listing_active')
-      .eq('pilot_id', client_pilot_id)
-      .single()
-
-    if (pilotError || !pilot) {
-      return res.status(404).json({ error: 'Client pilot not found' })
-    }
-
-    // Check if pilot has active listing
-    if (!pilot.listing_active && pilot.listing_tier === 'free') {
-      return res.status(403).json({ 
-        error: 'Active subscription required to post jobs. Please upgrade your plan.' 
       })
     }
 
@@ -193,6 +186,26 @@ async function handleCreateJob(req, res) {
       .single()
 
     if (jobError) throw jobError
+
+    // Create transaction record for tracking
+   /*
+    const { error: transactionError } = await supabase
+      .from('transactions')
+      .insert({
+        user_id: client_pilot_id,
+        type: 'job_posting_fee',
+        amount: -(postingFee / 100), // Negative for charge
+        description: `Posting fee for job: ${title}`,
+        job_id: newJob.id,
+        status: 'pending',
+        stripe_payment_intent_id: paymentIntent.id
+      })
+
+    if (transactionError) {
+      console.error('Transaction record error:', transactionError)
+    }
+    */
+
 
     res.json({
       job: newJob,

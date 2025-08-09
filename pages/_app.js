@@ -1,23 +1,15 @@
 // pages/_app.js - WORKING VERSION
 import { useEffect } from 'react'
+import { AuthProvider } from '../hooks/useAuth'
 import '../styles/globals.css'
 import { Analytics } from '@vercel/analytics/react';
 
 function MyApp({ Component, pageProps }) {
-  useEffect(() => {
-    // Fix hydration issues
-    const jssStyles = document.querySelector('#jss-server-side')
-    if (jssStyles) {
-      jssStyles.parentElement.removeChild(jssStyles)
-    }
-  }, [])
-
   return (
-    <>
+    <AuthProvider>
       <Component {...pageProps} />
-      <Analytics />
-    </>
-  );
+    </AuthProvider>
+  )
 }
 
 export default MyApp

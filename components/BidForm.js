@@ -1,6 +1,167 @@
 // components/JobBoard.js
 import { useState, useEffect } from 'react';
 
+const BidForm = ({ jobId, onSubmit, onCancel }) => {
+  const [proposal, setProposal] = useState('');
+  const [amount, setAmount] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!proposal.trim() || !amount || parseFloat(amount) <= 0) {
+      alert('Please fill in all fields with valid values');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await onSubmit(jobId, proposal, parseFloat(amount));
+    } catch (error) {
+      console.error('Error submitting bid:', error);
+      alert('Error submitting bid. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formStyle = {
+    marginTop: '20px',
+    padding: '20px',
+    backgroundColor: '#1E293B',
+    borderRadius: '12px',
+    border: '1px solid #374151',
+    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '12px 16px',
+    border: '1px solid #374151',
+    borderRadius: '8px',
+    fontSize: '14px',
+    marginBottom: '16px',
+    backgroundColor: '#374151',
+    color: 'white',
+    outline: 'none'
+  };
+
+  const textareaStyle = {
+    ...inputStyle,
+    minHeight: '120px',
+    resize: 'vertical',
+    fontFamily: 'inherit'
+  };
+
+  const buttonContainerStyle = {
+    display: 'flex',
+    gap: '12px',
+    marginTop: '20px',
+    justifyContent: 'flex-end'
+  };
+
+  const submitButtonStyle = {
+    backgroundColor: loading ? '#6B7280' : '#10B981',
+    color: 'white',
+    border: 'none',
+    padding: '12px 24px',
+    borderRadius: '8px',
+    cursor: loading ? 'not-allowed' : 'pointer',
+    fontSize: '14px',
+    fontWeight: '600',
+    transition: 'all 0.2s ease',
+    opacity: loading ? 0.7 : 1
+  };
+
+  const cancelButtonStyle = {
+    backgroundColor: 'transparent',
+    color: '#94A3B8',
+    border: '1px solid #4B5563',
+    padding: '12px 24px',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: '600',
+    transition: 'all 0.2s ease'
+  };
+
+  return (
+    <div style={formStyle}>
+      <h4 style={{
+        margin: '0 0 20px 0', 
+        fontSize: '20px', 
+        fontWeight: '600',
+        color: 'white'
+      }}>
+        Submit Your Proposal
+      </h4>
+      
+      <div style={{ marginBottom: '16px' }}>
+        <label style={{ 
+          display: 'block', 
+          marginBottom: '8px', 
+          color: '#E5E7EB', 
+          fontSize: '14px',
+          fontWeight: '500'
+        }}>
+          Proposal Details *
+        </label>
+        <textarea
+          placeholder="Describe your approach, experience, and why you're the best fit for this project..."
+          value={proposal}
+          onChange={(e) => setProposal(e.target.value)}
+          style={textareaStyle}
+          required
+        />
+      </div>
+      
+      <div style={{ marginBottom: '16px' }}>
+        <label style={{ 
+          display: 'block', 
+          marginBottom: '8px', 
+          color: '#E5E7EB', 
+          fontSize: '14px',
+          fontWeight: '500'
+        }}>
+          Your Bid Amount ($) *
+        </label>
+        <input
+          type="number"
+          placeholder="e.g. 500"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          style={inputStyle}
+          min="25"
+          step="0.01"
+          required
+        />
+        <p style={{ 
+          fontSize: '12px', 
+          color: '#9CA3AF', 
+          margin: '4px 0 0 0' 
+        }}>
+          Minimum bid: $25
+        </p>
+      </div>
+      
+      <div style={buttonContainerStyle}>
+        <button 
+          onClick={onCancel} 
+          style={cancelButtonStyle}
+          disabled={loading}
+        >
+          Cancel
+        </button>
+        <button 
+          onClick={handleSubmit}
+          style={submitButtonStyle}
+          disabled={loading}
+        >
+          {loading ? 'Submitting...' : 'Submit Proposal'}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const JobBoard = () => {
   const [jobs, setJobs] = useState([]);
   const [showBidForm, setShowBidForm] = useState(null);
@@ -60,147 +221,47 @@ const JobBoard = () => {
       .then(setJobs);
   }, []);
 
-  const submitBid = async (jobId, proposal, amount) => {
-    await fetch(`/api/jobs/${jobId}/bids`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ proposal, bidAmount: amount })
-    });
-    setShowBidForm(null);
+  const handleBidClick = (jobId) => {
+    setShowBidForm(jobId);
+  };
+
+  const handleBidSubmit = async (jobId, proposal, amount) => {
+    // handle bid submission logic
   };
 
   return (
     <div style={containerStyle}>
-      <h1 style={{fontSize: '28px', fontWeight: 'bold', marginBottom: '24px'}}>
-        Available Jobs
-      </h1>
-      
       {jobs.map(job => (
         <div key={job.id} style={jobCardStyle}>
           <h3 style={titleStyle}>{job.title}</h3>
-          <p style={metaStyle}>{job.location}</p>
-          <p style={{margin: '12px 0', lineHeight: '1.5'}}>{job.description}</p>
-          
-          <div style={{margin: '16px 0'}}>
-            <span style={{...tagStyle, backgroundColor: '#dcfce7', color: '#166534'}}>
-              Budget: ${job.budget}
-            </span>
-            <span style={{...tagStyle, backgroundColor: '#dbeafe', color: '#1e40af'}}>
-              Deadline: {new Date(job.deadline).toLocaleDateString()}
-            </span>
-            {job.job_type === 'sponsored' && (
-              <span style={{...tagStyle, backgroundColor: '#fef3c7', color: '#92400e'}}>
-                SPONSORED
-              </span>
-            )}
+          <p style={metaStyle}>Posted by {job.clientName} on {new Date(job.createdAt).toLocaleDateString()}</p>
+          <div>
+            {job.tags.map(tag => (
+              <span key={tag} style={tagStyle}>{tag}</span>
+            ))}
           </div>
-          
+          <p style={{ ...metaStyle, marginTop: '8px' }}>
+            Budget: ${job.budgetLow} - ${job.budgetHigh} · Duration: {job.duration} · 
+            <span style={{ color: job.status === 'open' ? '#10B981' : '#EF4444', marginLeft: '4px' }}>
+              {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+            </span>
+          </p>
           <button 
-            onClick={() => setShowBidForm(job.id)}
+            onClick={() => handleBidClick(job.id)} 
             style={buttonStyle}
           >
-            Submit Proposal
+            {showBidForm === job.id ? 'Cancel' : 'Place a Bid'}
           </button>
-          
+
           {showBidForm === job.id && (
             <BidForm 
               jobId={job.id} 
-              onSubmit={submitBid}
-              onCancel={() => setShowBidForm(null)}
+              onSubmit={handleBidSubmit} 
+              onCancel={() => setShowBidForm(null)} 
             />
           )}
         </div>
       ))}
-    </div>
-  );
-};
-
-// components/BidForm.js
-const BidForm = ({ jobId, onSubmit, onCancel }) => {
-  const [proposal, setProposal] = useState('');
-  const [amount, setAmount] = useState('');
-
-  const formStyle = {
-    marginTop: '20px',
-    padding: '20px',
-    backgroundColor: '#f9fafb',
-    borderRadius: '6px',
-    border: '1px solid #e5e7eb'
-  };
-
-  const inputStyle = {
-    width: '100%',
-    padding: '8px 12px',
-    border: '1px solid #d1d5db',
-    borderRadius: '4px',
-    fontSize: '14px',
-    marginBottom: '12px'
-  };
-
-  const textareaStyle = {
-    ...inputStyle,
-    minHeight: '100px',
-    resize: 'vertical'
-  };
-
-  const buttonContainerStyle = {
-    display: 'flex',
-    gap: '12px',
-    marginTop: '16px'
-  };
-
-  const submitButtonStyle = {
-    backgroundColor: '#059669',
-    color: 'white',
-    border: 'none',
-    padding: '8px 16px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '14px'
-  };
-
-  const cancelButtonStyle = {
-    backgroundColor: '#6b7280',
-    color: 'white',
-    border: 'none',
-    padding: '8px 16px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '14px'
-  };
-
-  return (
-    <div style={formStyle}>
-      <h4 style={{margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600'}}>
-        Submit Your Proposal
-      </h4>
-      
-      <textarea
-        placeholder="Describe your approach and experience..."
-        value={proposal}
-        onChange={(e) => setProposal(e.target.value)}
-        style={textareaStyle}
-      />
-      
-      <input
-        type="number"
-        placeholder="Your bid amount ($)"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        style={inputStyle}
-      />
-      
-      <div style={buttonContainerStyle}>
-        <button 
-          onClick={() => onSubmit(jobId, proposal, parseFloat(amount))}
-          style={submitButtonStyle}
-        >
-          Submit Bid
-        </button>
-        <button onClick={onCancel} style={cancelButtonStyle}>
-          Cancel
-        </button>
-      </div>
     </div>
   );
 };

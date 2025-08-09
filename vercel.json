@@ -1,0 +1,6 @@
+{
+  "crons": [{
+    "path": "/api/cron/process-transfers",
+    "schedule": "0 * * * *"
+  }]
+}

@@ -1,78 +1,71 @@
 import React, { useState } from 'react';
 import { X, Eye, EyeOff, Loader2, Zap, DollarSign, Users } from 'lucide-react';
 
-const SignupModal = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [mode, setMode] = useState('signup'); // 'signup' or 'login'
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: ''
-  });
-  const [errors, setErrors] = useState({});
+// ===== Update your SignupModal.js =====
+// In your signup form submission:
 
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (mode === 'signup') {
-      if (!formData.username) newErrors.username = 'Username required';
-      else if (formData.username.length < 3) newErrors.username = 'Username must be 3+ characters';
-      
-      if (!formData.email) newErrors.email = 'Email required';
-      else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Invalid email';
-    }
-    
-    if (!formData.password) newErrors.password = 'Password required';
-    else if (formData.password.length < 6) newErrors.password = 'Password must be 6+ characters';
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-const handleSubmit = async () => {
-  if (!validateForm()) return;
-  setLoading(true);
+const handleSignup = async (e) => {
+  e.preventDefault()
+  setLoading(true)
   
   try {
-    // For now, just save to localStorage
-    localStorage.setItem('user', JSON.stringify({
-      username: formData.username,
-      email: formData.email
-    }));
+    const response = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        password,
+        userType: selectedType, // 'pilot' or 'client'
+        fullName,
+        companyName // for clients
+      })
+    })
     
-    // Redirect to dashboard
-    window.location.href = '/dashboard';
+    const data = await response.json()
+    
+    if (!response.ok) throw new Error(data.error)
+    
+    // Success! Show confirmation message
+    alert(data.message)
+    router.push('/dashboard')
+    
   } catch (error) {
-    console.error('Signup failed:', error);
+    console.error('Signup error:', error)
+    alert(error.message)
+  } finally {
+    setLoading(false)
   }
+}
+
+// ===== Update your Login component =====
+const handleLogin = async (e) => {
+  e.preventDefault()
   
-  setLoading(false);
-};
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    })
     
-    // Simulate API call - Replace with your actual API
-    setTimeout(() => {
-      console.log(`${mode} data:`, formData);
-      setLoading(false);
-      // Redirect to dashboard on success
-      window.location.href = '/dashboard';
-    }, 1500);
-  };
-
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    // Clear error for this field
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' });
+    const data = await response.json()
+    
+    if (!response.ok) throw new Error(data.error)
+    
+    // Store user type for navigation
+    localStorage.setItem('userType', data.userType)
+    
+    // Redirect based on user type
+    if (data.userType === 'pilot') {
+      router.push('/dashboard') // pilot dashboard
+    } else {
+      router.push('/jobs/post') // client can post jobs
     }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSubmit();
-    }
-  };
+    
+  } catch (error) {
+    alert(error.message)
+  }
+}
 
   return (
     <>
