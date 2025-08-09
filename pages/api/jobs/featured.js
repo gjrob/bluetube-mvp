@@ -1,36 +1,34 @@
-// pages/api/featured.js or pages/api/jobs/featured.js
-import { createServerClient } from '../../lib/supabase-server'
+// pages/api/jobs/featured.js
+import { supabase } from '../../../lib/supabase'  // Fixed import
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' })
+  if (req.method === 'GET') {
+    try {
+      // Fetch featured/sponsored jobs
+      const { data: jobs, error } = await supabase
+        .from('jobs')
+        .select(`
+          *,
+          client_profiles (
+            company_name,
+            email,
+            verification_status
+          )
+        `)
+        .eq('is_featured', true)
+        .eq('status', 'open')
+        .order('created_at', { ascending: false })
+        .limit(10)
+
+      if (error) throw error
+
+      return res.status(200).json({ jobs: jobs || [] })
+
+    } catch (error) {
+      console.error('Featured jobs error:', error)
+      return res.status(500).json({ error: error.message })
+    }
   }
 
-  const supabase = createServerClient({ req, res })
-
-  try {
-    // Get featured/sponsored jobs
-    const { data: featuredJobs, error } = await supabase
-      .from('jobs')
-      .select(`
-        *,
-        client_profiles (
-          company_name,
-          verification_status
-        ),
-        job_bids(count)
-      `)
-      .eq('status', 'open')
-      .in('job_type', ['sponsored', 'featured', 'premium', 'urgent'])
-      .order('created_at', { ascending: false })
-      .limit(10)
-
-    if (error) throw error
-
-    return res.status(200).json({ featuredJobs })
-
-  } catch (error) {
-    console.error('Get featured jobs error:', error)
-    return res.status(400).json({ error: error.message })
-  }
+  return res.status(405).json({ error: 'Method not allowed' })
 }

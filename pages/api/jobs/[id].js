@@ -1,10 +1,10 @@
-import { createServerClient } from '../../../utils/supabase-server'
-import { useState } from 'react'
-import JobCompletionModal from '../../components/JobCompletionModal'
+// pages/api/jobs/[id].js
+// API ROUTE - NO REACT COMPONENTS ALLOWED!
+import { supabase } from '../../../lib/supabase'
+
 export default async function handler(req, res) {
   const { id } = req.query
-  const supabase = createServerClient({ req, res })
-  const [showCompletionModal, setShowCompletionModal] = useState(false)
+
   if (req.method === 'GET') {
     try {
       const { data: job, error } = await supabase
