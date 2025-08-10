@@ -1,50 +1,53 @@
+// components/SuperChat.js - FIXED VERSION OF YOUR CODE
 import React, { useState } from 'react';
 
-export default function SuperChat({ streamId = 'live', pilotId = 'pilot-123' }) {
+export default function SuperChat({ 
+  streamId = 'live', 
+  pilotId = 'pilot-123',
+  pilotName = 'BlueTubeTV Pilot',  // Added missing prop
+  userId = null  // Added missing prop
+}) {
   const [amount, setAmount] = useState(25);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
 
   const quickAmounts = [5, 25, 50, 100, 500];
+ const pilotName = 'BlueTubeTV Pilot';
+ const userId = 'user-' + Date.now();
+  
+  const sendSuperChat = async () => {
+    setLoading(true);
+    setStatus('Redirecting to payment...');
+    
+    try {
+      const response = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'superchat',
+          amount: amount,
+          message: message || 'Supporting the stream!',
+          pilotName: pilotName,
+          pilotId: pilotId,
+          userId: userId || 'user-' + Date.now()  // Fixed: userId is now defined
+        })
+      });
 
-const sendSuperChat = async () => {
-  setLoading(true);
-  setStatus('');
-  try {
-    const response = await fetch('/api/super-chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount: amount || 5,
-        message: message || '',
-        streamId,
-        pilotId,
-        userId: 'user-' + Date.now()
-      })
-    });
+      const data = await response.json();
 
-    const data = await response.json();
-
-    if (data.success) {
-      setStatus('✅ SuperChat created! Check Stripe Dashboard');
-      // In production, you'd handle Stripe payment here
-
-      // Reset form
-      setTimeout(() => {
-        setMessage('');
-        setStatus('');
-      }, 3000);
-    } else {
-      setStatus(`❌ Error: ${data.error || 'Failed'}`);
+      if (data.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else {
+        setStatus(`❌ Error: ${data.error || 'Failed to create checkout'}`);
+        setLoading(false);
+      }
+    } catch (error) {
+      setStatus(`❌ Error: ${error.message}`);
+      setLoading(false);
     }
-  } catch (error) {
-    setStatus(`❌ Error: ${error.message}`);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <div style={{
@@ -117,9 +120,9 @@ const sendSuperChat = async () => {
         </div>
       </div>
 
-      {/* Send Button */}
+      {/* Send Button - IT'S ALREADY WIRED! */}
       <button
-        onClick={sendSuperChat}
+        onClick={sendSuperChat}  // ✅ This is already connected!
         disabled={loading}
         style={{
           width: '100%',
@@ -133,7 +136,7 @@ const sendSuperChat = async () => {
           cursor: loading ? 'not-allowed' : 'pointer'
         }}
       >
-        Send ${amount} SuperChat
+        {loading ? 'Processing...' : `Send $${amount} SuperChat`}
       </button>
 
       {/* Status */}
@@ -161,4 +164,3 @@ const sendSuperChat = async () => {
     </div>
   );
 }
-

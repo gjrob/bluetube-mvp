@@ -1,10 +1,10 @@
-// pages/api/watch/[streamKey].js
+// pages/api/watch/[id].js
 // This is an API endpoint - NO React imports!
 
 export default async function handler(req, res) {
-  const { streamKey } = req.query;
+  const { id } = req.query;
   
-  if (!streamKey) {
+  if (!id) {
     return res.status(400).json({ error: 'Stream key required' });
   }
 
@@ -12,9 +12,9 @@ export default async function handler(req, res) {
     // For now, return mock data
     // In production, you'd check with Cloudflare API
     const streamData = {
-      streamKey: streamKey,
+      id: id,
       isLive: true,
-      title: `Stream ${streamKey}`,
+      title: `Stream ${id}`,
       viewerCount: Math.floor(Math.random() * 100) + 10,
       startedAt: new Date().toISOString()
     };

@@ -33,23 +33,42 @@ export default function Live() {
   const [storageUsed, setStorageUsed] = useState(0);
   const router = useRouter();
 
-  useEffect(() => {
-    checkUser();
-    loadEarnings();
-    loadBookings();
-  }, []);
+useEffect(() => {
+  const initializeData = async () => {
+    try {
+      // Load all at once (parallel)
+      await Promise.all([
+        checkUser(),
+        loadEarnings(),
+        loadBookings()
+      ]);
+    } catch (error) {
+      console.error('Failed to load data:', error);
+    }
+  };
+  initializeData();
+}, []);
 
-  const checkUser = async () => {
+  async function checkUser() {
     const { data: { user } } = await supabase.auth.getUser();
     setUser(user);
-  };
+  }
 
-  const loadEarnings = async () => {
-    // Load pilot earnings from different sources
-    const { data } = await supabase
+const loadEarnings = async () => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    
+    const { data, error } = await supabase
       .from('pilot_earnings')
       .select('*')
+      .eq('user_id', user.id)  // Add user filter
       .single();
+    
+    if (error) {
+      console.log('No earnings yet');
+      return;
+    }
     
     if (data) {
       setEarnings({
@@ -59,7 +78,10 @@ export default function Live() {
         pending: data.pending_earnings || 0
       });
     }
-  };
+  } catch (error) {
+    console.error('Error loading earnings:', error);
+  }
+};
 
   const loadBookings = async () => {
     const { data } = await supabase
@@ -71,28 +93,30 @@ export default function Live() {
     setBookings(data || []);
   };
 
-const generateStreamKey = async () => {
-  setLoading(true);
-  try {
-    const res = await fetch('/api/generate-stream-key', { method: 'POST' });
-    const data = await res.json();
-    setStreamKey(data);
-    
-    // NEW: Generate key and show modal
-    const key = 'live_' + Math.random().toString(36).substring(2, 15) + 
-                Math.random().toString(36).substring(2, 15);
-    setGeneratedStreamKey(key);
-    setShowStreamKeyModal(true); // Show the modal
-  } catch (error) {
-    console.error('Error generating stream key:', error);
-  }
-  setLoading(false);
-};
-const copyToClipboard = (text) => {
-  navigator.clipboard.writeText(text);
-  setCopied(true);
-  setTimeout(() => setCopied(false), 2000);
-};
+  const generateStreamKey = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/stream/key', { method: 'POST' });
+      const data = await res.json();
+      setStreamKey(data);
+      
+      // NEW: Generate key and show modal
+      const key = 'live_' + Math.random().toString(36).substring(2, 15) + 
+                  Math.random().toString(36).substring(2, 15);
+      setGeneratedStreamKey(key);
+      setShowStreamKeyModal(true); // Show the modal
+    } catch (error) {
+      console.error('Error generating stream key:', error);
+    }
+    setLoading(false);
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <>
       <Head>
@@ -105,63 +129,65 @@ const copyToClipboard = (text) => {
         color: 'white'
       }}>
         <Layout>
-          <div style={{ maxWidth: '1600px', margin: '0 auto', padding: '40px 20px' }}>
+          <div className="stream-wrapper">
             {/* Enhanced Header with Earnings */}
-            <div style={{
+            <header style={{
               background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1))',
               borderRadius: '20px',
               padding: '30px',
               marginBottom: '30px',
-              border: '1px solid rgba(139, 92, 246, 0.2)'
+              border: '1px solid rgba(139, 92, 246, 0.2)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h1 style={{
-                    fontSize: '48px',
-                    fontWeight: '900',
-                    background: 'linear-gradient(135deg, #818cf8, #60a5fa)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    marginBottom: '10px'
-                  }}>
-                    Live Broadcasting Hub
-                  </h1>
-                  <p style={{ color: '#94a3b8', fontSize: '18px' }}>
-                    Stream, Book Events, Manage Storage - All in One Place
-                  </p>
-                </div>
-                
-                {/* Earnings Widget */}
-                <div style={{
-                  background: 'rgba(16, 185, 129, 0.1)',
-                  border: '2px solid rgba(16, 185, 129, 0.3)',
-                  borderRadius: '16px',
-                  padding: '20px',
-                  minWidth: '300px'
+              <div>
+                <h1 style={{
+                  fontSize: '48px',
+                  fontWeight: 'bold',
+                  color: '#ffffff',
+                  marginBottom: '10px'
                 }}>
-                  <p style={{ color: '#10b981', marginBottom: '10px', fontSize: '14px' }}>
-                    TODAY'S EARNINGS
-                  </p>
-                  <p style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '10px' }}>
-                    ${earnings.today.toFixed(2)}
-                  </p>
-                  <div style={{ display: 'flex', gap: '20px', fontSize: '14px' }}>
-                    <div>
-                      <span style={{ color: '#94a3b8' }}>Week: </span>
-                      <span style={{ color: '#10b981' }}>${earnings.week}</span>
-                    </div>
-                    <div>
-                      <span style={{ color: '#94a3b8' }}>Month: </span>
-                      <span style={{ color: '#10b981' }}>${earnings.month}</span>
-                    </div>
-                    <div>
-                      <span style={{ color: '#f59e0b' }}>Pending: </span>
-                      <span style={{ color: '#f59e0b' }}>${earnings.pending}</span>
-                    </div>
+                  Live Broadcasting Hub
+                </h1>
+                <p style={{ 
+                  color: 'rgba(255, 255, 255, 0.8)', 
+                  fontSize: '18px'
+                }}>
+                  Stream, Book Events, Manage Storage - All in One Place
+                </p>
+              </div>
+
+              {/* Earnings Widget */}
+              <div style={{
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '2px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '16px',
+                padding: '20px',
+                minWidth: '300px'
+              }}>
+                <p style={{ color: '#10b981', marginBottom: '10px', fontSize: '14px' }}>
+                  TODAY'S EARNINGS
+                </p>
+                <p style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '10px' }}>
+                  ${earnings.today.toFixed(2)}
+                </p>
+                <div style={{ display: 'flex', gap: '20px', fontSize: '14px' }}>
+                  <div>
+                    <span style={{ color: '#94a3b8' }}>Week: </span>
+                    <span style={{ color: '#10b981' }}>${earnings.week}</span>
+                  </div>
+                  <div>
+                    <span style={{ color: '#94a3b8' }}>Month: </span>
+                    <span style={{ color: '#10b981' }}>${earnings.month}</span>
+                  </div>
+                  <div>
+                    <span style={{ color: '#f59e0b' }}>Pending: </span>
+                    <span style={{ color: '#f59e0b' }}>${earnings.pending}</span>
                   </div>
                 </div>
               </div>
-            </div>
+            </header>
 
             {/* Tab Navigation */}
             <div style={{
@@ -701,10 +727,7 @@ const copyToClipboard = (text) => {
                         padding: '20px',
                         border: '1px solid rgba(59, 130, 246, 0.2)',
                         cursor: 'pointer',
-                        transition: 'all 0.3s',
-                        ':hover': {
-                          border: '1px solid rgba(59, 130, 246, 0.5)'
-                        }
+                        transition: 'all 0.3s'
                       }}>
                         <div style={{ fontSize: '32px', marginBottom: '10px' }}>{method.icon}</div>
                         <h4 style={{ fontSize: '18px', marginBottom: '10px' }}>{method.name}</h4>
@@ -781,30 +804,30 @@ const copyToClipboard = (text) => {
       </div>
 
       <style jsx>{`
-      @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
 
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.3; }
+        }
 
         select option {
           background: #1e293b;
@@ -815,7 +838,8 @@ const copyToClipboard = (text) => {
           color: #64748b;
         }
       `}</style>
-      {/* STREAM KEY MODAL - ADD THIS BEFORE CLOSING </> */}
+
+      {/* STREAM KEY MODAL */}
       {showStreamKeyModal && (
         <div style={{
           position: 'fixed',
@@ -898,8 +922,6 @@ const copyToClipboard = (text) => {
                       cursor: 'pointer',
                       transition: 'transform 0.2s'
                     }}
-                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                   >
                     📋 Copy
                   </button>
@@ -946,8 +968,6 @@ const copyToClipboard = (text) => {
                       cursor: 'pointer',
                       transition: 'transform 0.2s'
                     }}
-                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                   >
                     📋 Copy
                   </button>
@@ -1029,12 +1049,6 @@ const copyToClipboard = (text) => {
                   cursor: 'pointer',
                   transition: 'all 0.3s ease'
                 }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.background = 'rgba(0,255,136,0.1)'
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.background = 'transparent'
-                }}
               >
                 🔄 Regenerate Key
               </button>
@@ -1050,14 +1064,6 @@ const copyToClipboard = (text) => {
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
                   boxShadow: '0 5px 20px rgba(0,255,136,0.3)'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.05)'
-                  e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,255,136,0.4)'
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)'
-                  e.currentTarget.style.boxShadow = '0 5px 20px rgba(0,255,136,0.3)'
                 }}
               >
                 ✓ Start Streaming

@@ -347,6 +347,7 @@ const LandingPage = () => {
   };
 
   return (
+   <div className="earth-view">
     <div style={styles.body}>
       {/* Top Navigation */}
       <nav style={styles.topNav}>
@@ -513,6 +514,7 @@ const LandingPage = () => {
               🚁 Become a Pilot
             </button>
             <button
+              className="live-badge"
               onClick={() => window.location.href = '/live'}
               style={{
                 ...styles.signInButton,
@@ -520,6 +522,7 @@ const LandingPage = () => {
                 fontSize: '18px',
               }}
             >
+              <span className="live-dot"></span>
               🔴 Start Streaming
             </button>
           </div>
@@ -575,6 +578,7 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
+      </div>
     </div>
   );
 };
