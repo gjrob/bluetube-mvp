@@ -1,5 +1,13 @@
 // components/Navigation.js
 import Link from 'next/link';
+const workingLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/jobs', label: 'Jobs' },
+  { href: '/jobs/post', label: 'Post Job' },
+  { href: '/live', label: 'Go Live' },
+  { href: '/dashboard', label: 'Dashboard' },
+  { href: '/pilot-setup', label: 'Become Pilot' }
+]
 
 export default function Navigation() {
   return (

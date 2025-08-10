@@ -4,7 +4,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint",
+    "deploy": "git add . && git commit -m 'Auto-deploy update' && git push",
+    "fix-build": "rm -rf .next node_modules && npm i && npm run build",
+    "test-all": "npm run build && npm run test:api && npm run test:ui"
   },
   "dependencies": {
     "@livepeer/react": "^4.3.6",
@@ -15,17 +19,19 @@
     "@supabase/supabase-js": "^2.54.0",
     "@tensorflow/tfjs": "^4.22.0",
     "@vercel/analytics": "^1.5.0",
-    "axios": "^1.5.0",
+    "axios": "^1.11.0",
     "ethers": "^6.15.0",
     "hls.js": "^1.6.8",
+    "jszip": "^3.10.1",
     "lucide-react": "^0.525.0",
     "micro": "^10.0.1",
     "multer": "^2.0.2",
-    "next": "15.4.4",
+    "next": "^15.4.4",
     "next-connect": "^1.0.0",
+    "node-cron": "^4.2.1",
     "node-media-server": "^4.0.19",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "socket.io-client": "^4.8.1",
     "stripe": "^13.11.0"
   },

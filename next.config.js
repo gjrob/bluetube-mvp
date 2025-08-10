@@ -24,7 +24,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   
-  // Add CSP headers for Stripe
+  // Add CSP headers for Stripe AND Supabase
   async headers() {
     return [
       {
@@ -32,7 +32,16 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com; frame-src 'self' https://js.stripe.com https://hooks.stripe.com; connect-src 'self' https://api.stripe.com"
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://cdn.jsdelivr.net",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: https: blob:",
+              "font-src 'self' data:",
+              "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
+              // THIS IS THE FIX - Added Supabase URLs to connect-src:
+              "connect-src 'self' https://api.stripe.com https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in https://akphnfsulfzhrzdsvhla.supabase.co http://localhost:* ws://localhost:*"
+            ].join('; ')
           }
         ]
       }

@@ -4,8 +4,75 @@ import Stripe from 'stripe'
 import { supabaseAdmin } from '../../../lib/supabase-admin'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+// ============================================
+// pages/api/webhooks/stripe.js - Handle subscription updates
+export async function stripeWebhook(req, res) {
+  const sig = req.headers['stripe-signature']
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
 
-// Disable body parsing, we need raw body for webhook verification
+  let event
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      webhookSecret
+    )
+  } catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`)
+  }
+
+  switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object
+      const { userId, tier } = session.metadata
+
+      // Update user subscription
+      await supabase
+        .from('profiles')
+        .update({
+          subscription_tier: tier,
+          subscription_status: 'active',
+          subscription_started_at: new Date().toISOString()
+        })
+        .eq('id', userId)
+
+      break
+    }
+
+    case 'customer.subscription.updated': {
+      const subscription = event.data.object
+      const { userId, tier } = subscription.metadata
+
+      await supabase
+        .from('profiles')
+        .update({
+          subscription_tier: tier,
+          subscription_status: subscription.status
+        })
+        .eq('stripe_customer_id', subscription.customer)
+
+      break
+    }
+
+    case 'customer.subscription.deleted': {
+      const subscription = event.data.object
+
+      await supabase
+        .from('profiles')
+        .update({
+          subscription_tier: 'free',
+          subscription_status: 'cancelled'
+        })
+        .eq('stripe_customer_id', subscription.customer)
+
+      break
+    }
+  }
+
+  res.status(200).json({ received: true })
+}
+
 export const config = {
   api: {
     bodyParser: false,
