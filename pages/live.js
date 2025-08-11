@@ -33,42 +33,23 @@ export default function Live() {
   const [storageUsed, setStorageUsed] = useState(0);
   const router = useRouter();
 
-useEffect(() => {
-  const initializeData = async () => {
-    try {
-      // Load all at once (parallel)
-      await Promise.all([
-        checkUser(),
-        loadEarnings(),
-        loadBookings()
-      ]);
-    } catch (error) {
-      console.error('Failed to load data:', error);
-    }
-  };
-  initializeData();
-}, []);
+  useEffect(() => {
+    checkUser();
+    loadEarnings();
+    loadBookings();
+  }, []);
 
-  async function checkUser() {
+  const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setUser(user);
-  }
+  };
 
-const loadEarnings = async () => {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    
-    const { data, error } = await supabase
+  const loadEarnings = async () => {
+    // Load pilot earnings from different sources
+    const { data } = await supabase
       .from('pilot_earnings')
       .select('*')
-      .eq('user_id', user.id)  // Add user filter
       .single();
-    
-    if (error) {
-      console.log('No earnings yet');
-      return;
-    }
     
     if (data) {
       setEarnings({
@@ -78,10 +59,7 @@ const loadEarnings = async () => {
         pending: data.pending_earnings || 0
       });
     }
-  } catch (error) {
-    console.error('Error loading earnings:', error);
-  }
-};
+  };
 
   const loadBookings = async () => {
     const { data } = await supabase
@@ -96,7 +74,7 @@ const loadEarnings = async () => {
   const generateStreamKey = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/stream/key', { method: 'POST' });
+      const res = await fetch('/api/generate-stream-key', { method: 'POST' });
       const data = await res.json();
       setStreamKey(data);
       

@@ -5,10 +5,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "deploy": "git add . && git commit -m 'Auto-deploy update' && git push",
-    "fix-build": "rm -rf .next node_modules && npm i && npm run build",
-    "test-all": "npm run build && npm run test:api && npm run test:ui"
+    "clean": "rm -rf .next node_modules/.cache",
+    "clean:full": "rm -rf .next node_modules package-lock.json && npm install",
+    "dev:fresh": "npm run clean && npm run dev"
   },
   "dependencies": {
     "@livepeer/react": "^4.3.6",
@@ -21,6 +20,7 @@
     "@vercel/analytics": "^1.5.0",
     "axios": "^1.11.0",
     "ethers": "^6.15.0",
+    "framer-motion": "^12.23.12",
     "hls.js": "^1.6.8",
     "jszip": "^3.10.1",
     "lucide-react": "^0.525.0",
