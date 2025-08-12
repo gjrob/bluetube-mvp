@@ -1,95 +1,72 @@
-// ===== Create /hooks/useAuth.js =====
-import { createContext, useContext, useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
+// hooks/useAuth.js - ADD THIS AuthProvider
 
-const AuthContext = createContext({})
+import { useState, useEffect, createContext, useContext } from 'react';
+import { useRouter } from 'next/router';
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [profile, setProfile] = useState(null)
-  const [userType, setUserType] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const router = useRouter()
+// Create context
+const AuthContext = createContext({});
+
+// AuthProvider component (ADD THIS)
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    checkSession()
-  }, [])
-
-  const checkSession = async () => {
-    try {
-      const response = await fetch('/api/auth/session')
-      const data = await response.json()
-      
-      if (data.user) {
-        setUser(data.user)
-        setProfile(data.profile)
-        setUserType(data.userType)
+    // Check for user in localStorage or session
+    const checkAuth = () => {
+      try {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          setUser(JSON.parse(userData));
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Session check error:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+    };
+    
+    checkAuth();
+  }, []);
 
-  const signIn = async (email, password) => {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    })
-    
-    const data = await response.json()
-    
-    if (!response.ok) throw new Error(data.error)
-    
-    setUser(data.user)
-    setProfile(data.profile)
-    setUserType(data.userType)
-    
-    return data
-  }
+  const login = async (email, password) => {
+    const mockUser = { 
+      id: 1, 
+      email, 
+      username: email.split('@')[0] 
+    };
+    localStorage.setItem('user', JSON.stringify(mockUser));
+    setUser(mockUser);
+    return mockUser;
+  };
 
-  const signUp = async (userData) => {
-    const response = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData)
-    })
-    
-    const data = await response.json()
-    
-    if (!response.ok) throw new Error(data.error)
-    
-    return data
-  }
-
-  const signOut = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' })
-    setUser(null)
-    setProfile(null)
-    setUserType(null)
-    router.push('/')
-  }
+  const logout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+    router.push('/login');
+  };
 
   const value = {
     user,
-    profile,
-    userType,
     loading,
-    signIn,
-    signUp,
-    signOut,
-    checkSession
-  }
+    login,
+    logout,
+    isAuthenticated: !!user
+  };
 
   return (
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
-  )
-}
+  );
+};
 
+// useAuth hook
 export const useAuth = () => {
-  return useContext(AuthContext)
-}
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};

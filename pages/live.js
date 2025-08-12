@@ -1,4 +1,7 @@
 // pages/live.js - ENHANCED VERSION WITH ALL REVENUE STREAMS
+import { useRealStats } from '../hooks/useRealData'
+import LivepeerStream from '../components/LivepeerStream'
+import StreamInstructions from '../components/StreamInstructions'
 import QuickSetupCard from '../components/QuickSetupCard';
 import LiveChat from '../components/LiveChat'; 
 import Layout from '../components/Layout';
@@ -16,9 +19,11 @@ const FlightCompliance = dynamic(() => import('../components/FlightCompliance'),
 export default function Live() {
   const [streamKey, setStreamKey] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [streamData, setStreamData] = useState(null);
   const [showFlightCompliance, setShowFlightCompliance] = useState(false);
   const [showNFTMinting, setShowNFTMinting] = useState(false);
-  const [activeTab, setActiveTab] = useState('stream'); // stream, services, storage
+  const [activeTab, setActiveTab] = useState('stream');
   const [user, setUser] = useState(null);
   const [earnings, setEarnings] = useState({
     today: 0,
@@ -45,7 +50,6 @@ export default function Live() {
   };
 
   const loadEarnings = async () => {
-    // Load pilot earnings from different sources
     const { data } = await supabase
       .from('pilot_earnings')
       .select('*')
@@ -71,6 +75,42 @@ export default function Live() {
     setBookings(data || []);
   };
 
+  const handleStartBroadcast = async () => {
+    setModalLoading(true);
+    
+    try {
+      const response = await fetch('/api/stream/generate-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          userId: localStorage.getItem('userId') || 'test-user' 
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate stream key');
+      }
+      
+      const data = await response.json();
+      setStreamData(data);
+      
+      alert(`
+        ✅ Stream Key Generated!
+        
+        RTMP URL: ${data.rtmpUrl || 'rtmp://rtmp.livepeer.com/live'}
+        Stream Key: ${data.streamKey}
+        
+        Use these in OBS or your streaming software.
+      `);
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to generate stream key. Please try again.');
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
   const generateStreamKey = async () => {
     setLoading(true);
     try {
@@ -78,11 +118,10 @@ export default function Live() {
       const data = await res.json();
       setStreamKey(data);
       
-      // NEW: Generate key and show modal
       const key = 'live_' + Math.random().toString(36).substring(2, 15) + 
                   Math.random().toString(36).substring(2, 15);
       setGeneratedStreamKey(key);
-      setShowStreamKeyModal(true); // Show the modal
+      setShowStreamKeyModal(true);
     } catch (error) {
       console.error('Error generating stream key:', error);
     }
@@ -135,7 +174,45 @@ export default function Live() {
                   Stream, Book Events, Manage Storage - All in One Place
                 </p>
               </div>
-
+                <div style={{ padding: '20px' }}>
+      <button 
+        onClick={async () => {
+          try {
+            const response = await fetch('/api/stream/generate-key', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId: 'test' })
+            });
+            const text = await response.text();
+            console.log('Raw response:', text);
+            console.log('Status:', response.status);
+            
+            // Try to parse as JSON
+            try {
+              const json = JSON.parse(text);
+              alert(`Success! Stream Key: ${json.streamKey}`);
+            } catch {
+              alert(`Error: Response is not JSON - ${text}`);
+            }
+          } catch (err) {
+            console.error('Fetch error:', err);
+            alert(`Fetch error: ${err.message}`);
+          }
+        }}
+        style={{
+          padding: '15px 30px',
+          background: '#10b981',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          fontSize: '16px',
+          cursor: 'pointer',
+          marginTop: '20px'
+        }}
+      >
+        Test Generate Stream Key
+      </button>
+    </div>
               {/* Earnings Widget */}
               <div style={{
                 background: 'rgba(16, 185, 129, 0.1)',
@@ -230,7 +307,7 @@ export default function Live() {
               </button>
             </div>
 
-            {/* STREAM TAB - Your existing content enhanced */}
+            {/* STREAM TAB */}
             {activeTab === 'stream' && (
               <div style={{
                 display: 'grid',
@@ -373,7 +450,7 @@ export default function Live() {
                     </div>
                   </div>
                 </div>
-
+                        
                 {/* RIGHT COLUMN */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {/* Revenue Tracker */}
@@ -430,13 +507,12 @@ export default function Live() {
               </div>
             )}
 
-            {/* SERVICES TAB - Event Bookings */}
+            {/* SERVICES TAB */}
             {activeTab === 'services' && (
               <div style={{
                 display: 'grid',
                 gap: '30px'
               }}>
-                {/* Booking Stats */}
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(4, 1fr)',
@@ -467,147 +543,15 @@ export default function Live() {
                     </div>
                   ))}
                 </div>
-
-                {/* Available Services */}
-                <div>
-                  <h2 style={{ fontSize: '28px', marginBottom: '20px' }}>Your Live Streaming Services</h2>
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                    gap: '20px'
-                  }}>
-                    {[
-                      {
-                        title: 'Event Coverage',
-                        price: '$299/hour',
-                        description: 'Weddings, concerts, sports',
-                        bookings: 47,
-                        rating: 4.9,
-                        color: '#3b82f6'
-                      },
-                      {
-                        title: 'Real Estate Tours',
-                        price: '$199/property',
-                        description: 'Live virtual property tours',
-                        bookings: 28,
-                        rating: 5.0,
-                        color: '#8b5cf6'
-                      },
-                      {
-                        title: 'Construction Progress',
-                        price: '$999/month',
-                        description: 'Weekly progress updates',
-                        bookings: 12,
-                        rating: 4.8,
-                        color: '#10b981'
-                      }
-                    ].map((service, i) => (
-                      <div key={i} style={{
-                        background: 'rgba(30, 41, 59, 0.5)',
-                        backdropFilter: 'blur(20px)',
-                        border: `1px solid ${service.color}40`,
-                        borderRadius: '20px',
-                        padding: '25px',
-                        position: 'relative',
-                        overflow: 'hidden'
-                      }}>
-                        <div style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          height: '4px',
-                          background: `linear-gradient(90deg, ${service.color}, ${service.color}80)`
-                        }} />
-                        
-                        <h3 style={{ fontSize: '20px', marginBottom: '10px' }}>{service.title}</h3>
-                        <p style={{ fontSize: '28px', fontWeight: 'bold', color: service.color, marginBottom: '10px' }}>
-                          {service.price}
-                        </p>
-                        <p style={{ color: '#94a3b8', marginBottom: '20px' }}>{service.description}</p>
-                        
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                          <div>
-                            <p style={{ color: '#94a3b8', fontSize: '14px' }}>Total Bookings</p>
-                            <p style={{ fontSize: '18px', fontWeight: 'bold' }}>{service.bookings}</p>
-                          </div>
-                          <div>
-                            <p style={{ color: '#94a3b8', fontSize: '14px' }}>Rating</p>
-                            <p style={{ fontSize: '18px', fontWeight: 'bold' }}>⭐ {service.rating}</p>
-                          </div>
-                        </div>
-
-                        <button style={{
-                          width: '100%',
-                          padding: '12px',
-                          background: `linear-gradient(135deg, ${service.color}, ${service.color}80)`,
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '10px',
-                          fontWeight: '600',
-                          cursor: 'pointer'
-                        }}>
-                          Manage Service
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Upcoming Bookings */}
-                <div style={{
-                  background: 'rgba(30, 41, 59, 0.5)',
-                  backdropFilter: 'blur(20px)',
-                  borderRadius: '20px',
-                  padding: '25px'
-                }}>
-                  <h3 style={{ fontSize: '24px', marginBottom: '20px' }}>📅 Upcoming Bookings</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                    {bookings.slice(0, 5).map((booking, i) => (
-                      <div key={i} style={{
-                        background: 'rgba(15, 23, 42, 0.5)',
-                        borderRadius: '12px',
-                        padding: '15px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}>
-                        <div>
-                          <p style={{ fontSize: '16px', fontWeight: '600' }}>{booking.title}</p>
-                          <p style={{ color: '#94a3b8', fontSize: '14px' }}>
-                            {new Date(booking.event_date).toLocaleDateString()} at {booking.location}
-                          </p>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#10b981' }}>
-                            ${booking.pilot_earnings}
-                          </p>
-                          <button style={{
-                            padding: '6px 12px',
-                            background: 'rgba(59, 130, 246, 0.2)',
-                            color: '#60a5fa',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                            borderRadius: '6px',
-                            fontSize: '12px',
-                            cursor: 'pointer'
-                          }}>
-                            View Details
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
             )}
 
-            {/* STORAGE TAB - Cloud Storage & Delivery */}
+            {/* STORAGE TAB */}
             {activeTab === 'storage' && (
               <div style={{
                 display: 'grid',
                 gap: '30px'
               }}>
-                {/* Storage Overview */}
                 <div style={{
                   background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.1))',
                   border: '2px solid rgba(16, 185, 129, 0.3)',
@@ -934,21 +878,21 @@ export default function Live() {
                       fontWeight: 'bold'
                     }}
                   />
-                  <button
-                    onClick={() => copyToClipboard(generatedStreamKey)}
-                    style={{
-                      padding: '12px 24px',
-                      background: 'linear-gradient(45deg, #00ff88, #00d4ff)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      color: '#000',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s'
-                    }}
-                  >
-                    📋 Copy
-                  </button>
+<button
+  onClick={() => copyToClipboard(generatedStreamKey)}
+  style={{
+    padding: '12px 24px',
+    background: 'linear-gradient(45deg, #00ff88, #00d4ff)',
+    border: 'none',
+    borderRadius: '8px',
+    color: '#000',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    transition: 'transform 0.2s'
+  }}
+>
+  📋 Copy
+</button>
                 </div>
               </div>
             </div>
@@ -1030,23 +974,48 @@ export default function Live() {
               >
                 🔄 Regenerate Key
               </button>
-              <button
-                onClick={() => setShowStreamKeyModal(false)}
+              <button 
+                onClick={handleStartBroadcast}
+                disabled={modalLoading}
                 style={{
                   padding: '14px 40px',
-                  background: 'linear-gradient(45deg, #00ff88, #00d4ff)',
+                  background: modalLoading 
+                    ? 'rgba(75, 85, 99, 0.5)' 
+                    : 'linear-gradient(45deg, #00ff88, #00d4ff)',
                   border: 'none',
                   borderRadius: '30px',
-                  color: '#000',
+                  color: modalLoading ? '#94a3b8' : '#000',
                   fontWeight: 'bold',
-                  cursor: 'pointer',
+                  cursor: modalLoading ? 'not-allowed' : 'pointer',
                   transition: 'all 0.3s ease',
-                  boxShadow: '0 5px 20px rgba(0,255,136,0.3)'
+                  boxShadow: modalLoading ? 'none' : '0 5px 20px rgba(0,255,136,0.3)',
+                  opacity: modalLoading ? 0.7 : 1
                 }}
               >
-                ✓ Start Streaming
+                🔴 {modalLoading ? 'Generating...' : 'Start Broadcasting'}
               </button>
             </div>
+
+            {/* Close modal button */}
+            <button
+              onClick={() => setShowStreamKeyModal(false)}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+                color: 'white',
+                cursor: 'pointer',
+                fontSize: '18px'
+              }}
+            >
+              ×
+            </button>
+
           </div>
         </div>
       )}
