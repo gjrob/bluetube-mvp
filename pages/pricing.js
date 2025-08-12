@@ -3,6 +3,38 @@ import Head from 'next/head';
 import React, { useState } from 'react';
 import { Check, X, Zap, Star, Crown } from 'lucide-react';
 
+const handleCheckout = async (planName) => {
+  try {
+    // Map plan names to actual price IDs
+    const priceIds = {
+      'Professional': process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
+      'Enterprise': process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_PRICE_ID
+    };
+    
+    const priceId = priceIds[planName];
+    
+    if (!priceId) {
+      alert('Stripe price ID not found. Check environment variables.');
+      return;
+    }
+    
+    const response = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        priceId,
+        mode: 'subscription',
+      }),
+    });
+    
+    const { url } = await response.json();
+    window.location.href = url;
+  } catch (error) {
+    console.error('Checkout error:', error);
+    alert('Checkout failed. Please try again.');
+  }
+};
+
 export default function Pricing() {
   const [billingCycle, setBillingCycle] = useState('monthly');
 
@@ -237,7 +269,7 @@ export default function Pricing() {
         { text: 'Dedicated account manager', included: true },
         { text: 'Custom integrations', included: true },
       ],
-      cta: 'Contact Sales',
+      cta: 'Go Enterprise',
       ctaStyle: 'secondary',
     },
   ];
@@ -332,10 +364,19 @@ export default function Pricing() {
                     ))}
                   </ul>
                   
-                  <button
+                  <button 
                     style={{
                       ...styles.button,
                       ...(plan.ctaStyle === 'primary' ? styles.primaryButton : styles.secondaryButton)
+                    }}
+                    onClick={() => {
+                      if (plan.name === 'Hobbyist') {
+                        window.location.href = '/signup';
+                      } else if (plan.name === 'Professional') {
+                        handleCheckout('Professional');
+                      } else if (plan.name === 'Enterprise') {
+                        handleCheckout('Enterprise');
+                      }
                     }}
                   >
                     {plan.cta}
