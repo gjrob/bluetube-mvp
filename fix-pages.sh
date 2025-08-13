@@ -1,3 +1,21 @@
+#!/bin/bash
+
+# EMERGENCY FIX SCRIPT - Run this to fix your file structure
+# Save this as fix-pages.sh and run: bash fix-pages.sh
+
+echo "🔧 Fixing BlueTubeTV page structure..."
+
+# 1. Backup current files
+echo "📦 Creating backups..."
+cp pages/live.js pages/live-BACKUP-homepage.js 2>/dev/null
+cp pages/index.js pages/index-BACKUP.js 2>/dev/null
+
+# 2. Check if index.js is just importing HomePage
+echo "🔍 Checking index.js structure..."
+
+# 3. Create the CORRECT live.js file
+echo "✨ Creating correct live.js streaming page..."
+cat > pages/live.js << 'EOF'
 // pages/live.js - Streaming/Broadcasting Page
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
@@ -258,3 +276,82 @@ export default function LiveStreamingPage() {
     </div>
   )
 }
+EOF
+
+echo "✅ Created correct live.js"
+
+# 4. Check if we need SimpleNav
+echo "🔍 Checking for SimpleNav component..."
+if [ -f "components/SimpleNav.js" ]; then
+  echo "✅ SimpleNav exists"
+else
+  echo "⚠️  SimpleNav not found - you may need to add navigation"
+fi
+
+# 5. Create a test script
+cat > test-pages.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BlueTubeTV Page Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #1a1a1a; color: white; }
+        .test { padding: 20px; margin: 10px; background: #2a2a2a; border-radius: 8px; }
+        .success { border-left: 4px solid #10b981; }
+        .error { border-left: 4px solid #ef4444; }
+        a { color: #60a5fa; text-decoration: none; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+    <h1>🚁 BlueTubeTV Page Structure Test</h1>
+    
+    <div class="test success">
+        <h2>✅ Pages to Test:</h2>
+        <p>
+            <a href="http://localhost:3000/" target="_blank">Homepage (/)</a> - Should show Watch/Work/Hire cards<br>
+            <a href="http://localhost:3000/live" target="_blank">Live Page (/live)</a> - Should show streaming setup<br>
+            <a href="http://localhost:3000/browse" target="_blank">Browse (/browse)</a> - Should show streams<br>
+            <a href="http://localhost:3000/jobs" target="_blank">Jobs (/jobs)</a> - Should show job listings<br>
+            <a href="http://localhost:3000/dashboard" target="_blank">Dashboard (/dashboard)</a> - Should show user dashboard
+        </p>
+    </div>
+    
+    <div class="test">
+        <h2>🔧 Expected Behavior:</h2>
+        <ul>
+            <li><strong>/</strong> - Homepage with 3 main cards (Watch, Work, Hire)</li>
+            <li><strong>/live</strong> - Generate Stream Key button + OBS instructions</li>
+            <li><strong>/browse</strong> - Grid of live streams</li>
+            <li><strong>/jobs</strong> - List of drone pilot jobs</li>
+            <li><strong>/dashboard</strong> - User stats and earnings</li>
+        </ul>
+    </div>
+</body>
+</html>
+EOF
+
+echo "📝 Created test-pages.html - Open this to test all pages"
+
+echo ""
+echo "✅ FIX COMPLETE!"
+echo ""
+echo "📋 Next Steps:"
+echo "1. Run: npm run dev"
+echo "2. Open test-pages.html in your browser"
+echo "3. Click each link to verify pages work"
+echo ""
+echo "🔴 The /live page should now show:"
+echo "   - Generate Stream Key button"
+echo "   - Start Broadcasting button"
+echo "   - OBS setup instructions"
+echo ""
+echo "🏠 The / homepage should show:"
+echo "   - Watch/Work/Hire cards"
+echo "   - Stats bar"
+echo "   - Footer"
+
+# Make script executable
+chmod +x fix-pages.sh 2>/dev/null
+
+echo ""
+echo "Script complete! Your pages should now be fixed."

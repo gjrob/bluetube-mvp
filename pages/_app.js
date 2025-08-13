@@ -1,6 +1,9 @@
+import GoLiveButton from '../components/GoLiveButton';
+import SimpleNav from '../components/SimpleNav';
 import { useEffect } from 'react'
 import Head from 'next/head'
 import '../styles/globals.css'
+import { analytics } from '../lib/analytics-enhanced'
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
@@ -9,7 +12,6 @@ function MyApp({ Component, pageProps }) {
       console.log('BlueTubeTV initialized');
     }
   }, []);
-
   return (
     <div style={{
       minHeight: '100vh',

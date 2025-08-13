@@ -428,20 +428,20 @@ export default function PilotSetup() {
           <p style={{ fontSize: '20px', color: '#94a3b8', marginBottom: '30px' }}>
             Join 2,847 pilots already flying with BlueTubeTV
           </p>
-          <button
-            onClick={() => setActiveStep(0)}
-            style={{
-              ...styles.button,
-              fontSize: '20px',
-              padding: '20px 40px',
-              margin: '0 auto',
-              background: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
-              boxShadow: '0 10px 40px rgba(239, 68, 68, 0.4)',
-            }}
-          >
-            Start Registration Now
-            <ChevronRight size={24} />
-          </button>
+      <button 
+  onClick={() => window.location.href = '/live'}
+  style={{
+    padding: '20px 40px',
+    background: '#ff0000',
+    color: 'white',
+    fontSize: '20px',
+    border: 'none',
+    borderRadius: '10px',
+    cursor: 'pointer'
+  }}
+>
+  🔴 Go Live & Start Earning
+</button>
           <p style={{ marginTop: '20px', color: '#64748b', fontSize: '14px' }}>
             No fees to join • Start earning immediately • Cancel anytime
           </p>

@@ -5,7 +5,7 @@ const Analytics = () => {
       <div style={styles.statsGrid}>
         <div className="glass-card" style={styles.stat}>
           <h3 style={styles.statLabel}>Total Views</h3>
-          <p style={styles.statValue}>12.5K</p>
+          <p style={styles.statValue}>0</p>
         </div>
         <div className="glass-card" style={styles.stat}>
           <h3 style={styles.statLabel}>Watch Time</h3>
