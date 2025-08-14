@@ -1,14 +1,9 @@
-// pages/login.js - Fixed version with proper analytics integration
+// pages/login.js - Complete working version with OAuth
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabaseClient';
 import { analytics } from '../lib/analytics-enhanced'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-)
 
 export default function LoginPage() {
   const router = useRouter()
@@ -19,41 +14,53 @@ export default function LoginPage() {
   const [redirectPath, setRedirectPath] = useState('/dashboard')
   const [showPassword, setShowPassword] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState(0)
+  const [checkingAuth, setCheckingAuth] = useState(true)
 
   useEffect(() => {
-    // Initialize analytics
-    analytics.init()
-    
     // Check for redirect parameter
     if (router.query.redirect) {
       setRedirectPath(router.query.redirect)
     }
     
-    // Check if already authenticated
-    checkAuth()
-    
-    // Check for social login callback
-    const params = new URLSearchParams(window.location.search)
-    const provider = params.get('provider')
-    if (provider) {
-      handleSocialLoginCallback(provider)
-    }
+    // Handle OAuth callback
+    handleAuthCallback()
   }, [router.query])
 
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (session) {
-      router.push(redirectPath)
-    }
-  }
-
-  const handleSocialLoginCallback = async (provider) => {
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (user) {
-      // Track successful social login
-      analytics.trackLoginSuccess(provider, user.id, user.email)
-      router.push(redirectPath)
+  const handleAuthCallback = async () => {
+    try {
+      // Check if we're returning from an OAuth redirect
+      const hashParams = new URLSearchParams(window.location.hash.substring(1))
+      const accessToken = hashParams.get('access_token')
+      
+      if (accessToken) {
+        // We have a token from OAuth redirect
+        const { data: { user }, error } = await supabase.auth.getUser(accessToken)
+        
+        if (user && !error) {
+          console.log('OAuth login successful:', user.email)
+          
+          // Store the session
+          await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: hashParams.get('refresh_token')
+          })
+          
+          // Redirect to dashboard
+          window.location.href = redirectPath
+          return
+        }
+      }
+      
+      // Check if already authenticated
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        console.log('Already authenticated, redirecting...')
+        router.push(redirectPath)
+      }
+    } catch (error) {
+      console.error('Auth callback error:', error)
+    } finally {
+      setCheckingAuth(false)
     }
   }
 
@@ -78,9 +85,6 @@ export default function LoginPage() {
       setLoading(false)
       return
     }
-
-    // Track login attempt
-    analytics.trackLoginAttempt('email')
     
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -90,15 +94,14 @@ export default function LoginPage() {
 
       if (error) throw error
 
-      // Track successful login
-      analytics.trackLoginSuccess('email', data.user.id, data.user.email)
+      console.log('Email login successful:', data.user.email)
+      
+      // Redirect to dashboard
       router.push(redirectPath)
       
     } catch (error) {
-      // Track failed login
-      analytics.trackLoginFailure('email', error.message)
+      console.error('Email login error:', error)
       setError(error.message)
-    } finally {
       setLoading(false)
     }
   }
@@ -107,21 +110,25 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     
-    // Track Google login attempt
-    analytics.trackLoginAttempt('google')
-    
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}${redirectPath}?provider=google`
+          redirectTo: `${window.location.origin}/login`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       })
       
       if (error) throw error
       
+      // The browser will redirect to Google
+      console.log('Redirecting to Google...')
+      
     } catch (error) {
-      analytics.trackLoginFailure('google', error.message)
+      console.error('Google login error:', error)
       setError('Google sign-in failed. Please try again.')
       setLoading(false)
     }
@@ -131,22 +138,22 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     
-    // Track Facebook login attempt
-    analytics.trackLoginAttempt('facebook')
-    
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: {
-          redirectTo: `${window.location.origin}${redirectPath}?provider=facebook`,
-          scopes: 'email'
+          redirectTo: `${window.location.origin}/login`,
+          scopes: 'email public_profile'
         }
       })
       
       if (error) throw error
       
+      // The browser will redirect to Facebook
+      console.log('Redirecting to Facebook...')
+      
     } catch (error) {
-      analytics.trackLoginFailure('facebook', error.message)
+      console.error('Facebook login error:', error)
       setError('Facebook sign-in failed. Please try again.')
       setLoading(false)
     }
@@ -156,21 +163,22 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     
-    // Track Twitter login attempt
-    analytics.trackLoginAttempt('twitter')
-    
     try {
+      // Note: Twitter OAuth 2.0 might need different configuration
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'twitter',
         options: {
-          redirectTo: `${window.location.origin}${redirectPath}?provider=twitter`
+          redirectTo: `${window.location.origin}/login`
         }
       })
       
       if (error) throw error
       
+      // The browser will redirect to Twitter
+      console.log('Redirecting to Twitter...')
+      
     } catch (error) {
-      analytics.trackLoginFailure('twitter', error.message)
+      console.error('Twitter login error:', error)
       setError('Twitter sign-in failed. Please try again.')
       setLoading(false)
     }
@@ -191,6 +199,41 @@ export default function LoginPage() {
     return 'Very Strong'
   }
 
+  // Show loading spinner while checking auth
+  if (checkingAuth) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #0891b2 0%, #0e7490 50%, #155e75 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{
+          textAlign: 'center',
+          color: 'white'
+        }}>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            border: '3px solid rgba(255,255,255,0.3)',
+            borderTop: '3px solid white',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 20px'
+          }}></div>
+          <p>Loading...</p>
+        </div>
+        <style jsx>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    )
+  }
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -202,7 +245,7 @@ export default function LoginPage() {
       position: 'relative',
       overflow: 'hidden'
     }}>
-      {/* Animated Background Elements - Ocean Waves */}
+      {/* Animated Background Elements */}
       <div style={{
         position: 'absolute',
         top: '-100px',
@@ -240,7 +283,6 @@ export default function LoginPage() {
             animation: 'fadeInDown 0.6s ease-out'
           }}
         >
-          {/* Logo Icon - Ocean Theme */}
           <div style={{
             width: '100px',
             height: '100px',
@@ -298,21 +340,6 @@ export default function LoginPage() {
             Welcome Back
           </h2>
 
-          {redirectPath !== '/dashboard' && (
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.1))',
-              border: '1px solid rgba(6, 182, 212, 0.3)',
-              borderRadius: '12px',
-              padding: '12px',
-              marginBottom: '20px',
-              color: '#0891b2',
-              fontSize: '14px',
-              textAlign: 'center'
-            }}>
-              🔒 Sign in to access {redirectPath}
-            </div>
-          )}
-
           {error && (
             <div style={{
               background: '#fee',
@@ -355,7 +382,8 @@ export default function LoginPage() {
                 justifyContent: 'center',
                 gap: '12px',
                 transition: 'all 0.3s ease',
-                color: '#333'
+                color: '#333',
+                opacity: loading ? 0.7 : 1
               }}
               onMouseOver={(e) => {
                 if (!loading) {
@@ -368,14 +396,13 @@ export default function LoginPage() {
                 e.currentTarget.style.boxShadow = 'none'
               }}
             >
-              {/* Google Logo SVG */}
               <svg width="20" height="20" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              Continue with Google
+              {loading ? 'Connecting...' : 'Continue with Google'}
             </button>
 
             <div style={{
@@ -400,7 +427,8 @@ export default function LoginPage() {
                   justifyContent: 'center',
                   gap: '8px',
                   transition: 'all 0.3s ease',
-                  color: '#333'
+                  color: '#333',
+                  opacity: loading ? 0.7 : 1
                 }}
                 onMouseOver={(e) => {
                   if (!loading) {
@@ -413,7 +441,6 @@ export default function LoginPage() {
                   e.currentTarget.style.boxShadow = 'none'
                 }}
               >
-                {/* Facebook Logo SVG */}
                 <svg width="20" height="20" viewBox="0 0 24 24">
                   <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                 </svg>
@@ -438,7 +465,8 @@ export default function LoginPage() {
                   justifyContent: 'center',
                   gap: '8px',
                   transition: 'all 0.3s ease',
-                  color: '#333'
+                  color: '#333',
+                  opacity: loading ? 0.7 : 1
                 }}
                 onMouseOver={(e) => {
                   if (!loading) {
@@ -451,11 +479,10 @@ export default function LoginPage() {
                   e.currentTarget.style.boxShadow = 'none'
                 }}
               >
-                {/* X (Twitter) Logo SVG */}
                 <svg width="20" height="20" viewBox="0 0 24 24">
                   <path fill="#000000" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
-                X (Twitter)
+                X
               </button>
             </div>
           </div>
@@ -552,7 +579,7 @@ export default function LoginPage() {
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
                   }}
-                  placeholder="Min 10 chars, mixed case, numbers, symbols"
+                  placeholder="Enter your password"
                   onFocus={(e) => {
                     e.target.style.borderColor = '#0891b2'
                     e.target.style.background = 'white'
@@ -581,7 +608,7 @@ export default function LoginPage() {
                 </button>
               </div>
               
-              {/* Password Strength Indicator */}
+              {/* Password Strength Indicator (only show when typing) */}
               {password && (
                 <div style={{ marginTop: '8px' }}>
                   <div style={{
@@ -639,41 +666,52 @@ export default function LoginPage() {
                 />
                 Remember me
               </label>
-              <a
-                href="/forgot-password"
-                style={{
-                  fontSize: '14px',
-                  color: '#0891b2',
-                  textDecoration: 'none',
-                  fontWeight: '500'
-                }}
-              >
+              <Link href="/forgot-password" style={{
+                fontSize: '14px',
+                color: '#0891b2',
+                textDecoration: 'none',
+                fontWeight: '500'
+              }}>
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             <button
               type="submit"
-              disabled={loading || passwordStrength < 4}
+              disabled={loading}
               style={{
                 width: '100%',
                 padding: '14px',
-                background: passwordStrength >= 4
-                  ? 'linear-gradient(135deg, #0891b2 0%, #0e7490 100%)'
-                  : '#cbd5e0',
+                background: loading 
+                  ? '#cbd5e0'
+                  : 'linear-gradient(135deg, #0891b2 0%, #0e7490 100%)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '12px',
                 fontSize: '16px',
                 fontWeight: 'bold',
-                cursor: loading || passwordStrength < 4 ? 'not-allowed' : 'pointer',
+                cursor: loading ? 'not-allowed' : 'pointer',
                 opacity: loading ? 0.7 : 1,
                 transition: 'all 0.3s ease',
-                boxShadow: passwordStrength >= 4
+                boxShadow: !loading 
                   ? '0 4px 15px rgba(8, 145, 178, 0.4)'
-                  : 'none'
+                  : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px'
               }}
             >
+              {loading && (
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  border: '2px solid rgba(255,255,255,0.3)',
+                  borderTop: '2px solid white',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }}></div>
+              )}
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
@@ -776,6 +814,11 @@ export default function LoginPage() {
           66% {
             transform: translateY(30px) rotate(240deg);
           }
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
       `}</style>
     </div>
