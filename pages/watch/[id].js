@@ -132,15 +132,12 @@ export default function WatchStream() {
                 {/* ALL THE REST OF YOUR CODE STAYS EXACTLY THE SAME */}
                 {/* SuperChat - NO CHANGES */}
                 <div style={{ marginBottom: '30px' }}>
-                  <SuperChat 
-                    streamId={id}
-                    currentUser={{
-                      id: "viewer_" + Date.now(),
-                      name: "Anonymous Viewer",
-                      email: "viewer@example.com"
-                    }}
-                    isLive={true}
-                  />
+              <SuperChat 
+  streamId={streamId}
+  creatorAddress={creatorWalletAddress}
+  currentUser={user}
+  isLive={isStreamLive}
+/>
                 </div>
                     <div style={{ marginBottom: '30px' }}>
   <LiveChat 

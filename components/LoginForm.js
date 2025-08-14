@@ -2,7 +2,13 @@
 import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useRouter } from 'next/router'
+import { createClient } from '@supabase/supabase-js';
+import analytics from '../lib/analytics-enhanced';
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+);
 export default function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -17,123 +23,94 @@ export default function LoginForm() {
     setError('')
 
     try {
-      const data = await signIn(email, password)
-      
-      // Redirect based on user type
-      if (data.userType === 'pilot') {
-        router.push('/dashboard')
-      } else {
-        router.push('/jobs/post')
+      // Track login attempt
+      analytics.track('login_attempt', { email: email });
+
+      // Attempt Supabase login
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (authError) {
+        // Demo/bypass login for testing
+        if (email === 'pilot@bluetubetv.live' || email === 'demo@bluetubetv.live') {
+          // Track successful demo login
+          analytics.track('login_success', {
+            user_id: 'demo-user',
+            role: 'pilot',
+            method: 'demo'
+          });
+          
+          // Store demo session
+          localStorage.setItem('user', JSON.stringify({
+            id: 'demo-user',
+            email: email,
+            role: 'pilot',
+            part107_verified: true
+          }));
+          
+          router.push('/dashboard');
+          return;
+        }
+        
+        throw authError;
       }
+
+      // Track successful login
+      analytics.track('login_success', {
+        user_id: data.user.id,
+        role: data.user.user_metadata?.role || 'viewer',
+        method: 'supabase'
+      });
+
+      // Store user session
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      // Redirect to dashboard
+      router.push('/dashboard');
+      
     } catch (err) {
-      setError(err.message)
+      // Track failed login
+      analytics.track('login_failed', {
+        error: err.message,
+        email: email
+      });
+      
+      setError(err.message || 'Login failed. Please try again.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} style={{
-      maxWidth: '400px',
-      margin: '0 auto',
-      padding: '40px',
-      backgroundColor: '#1a1a2e',
-      borderRadius: '12px',
-      boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
-    }}>
-      <h2 style={{
-        fontSize: '28px',
-        marginBottom: '30px',
-        textAlign: 'center',
-        color: '#3B82F6'
-      }}>
-        Welcome Back
-      </h2>
-
-      {error && (
-        <div style={{
-          backgroundColor: '#EF4444',
-          color: 'white',
-          padding: '12px',
-          borderRadius: '6px',
-          marginBottom: '20px',
-          fontSize: '14px'
-        }}>
-          {error}
-        </div>
-      )}
-
-      <div style={{ marginBottom: '20px' }}>
-        <label style={{
-          display: 'block',
-          marginBottom: '8px',
-          color: '#94A3B8',
-          fontSize: '14px'
-        }}>
-          Email
-        </label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={{
-            width: '100%',
-            padding: '12px',
-            borderRadius: '6px',
-            border: '1px solid #374151',
-            backgroundColor: '#0F172A',
-            color: 'white',
-            fontSize: '16px'
-          }}
-        />
-      </div>
-
-      <div style={{ marginBottom: '30px' }}>
-        <label style={{
-          display: 'block',
-          marginBottom: '8px',
-          color: '#94A3B8',
-          fontSize: '14px'
-        }}>
-          Password
-        </label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{
-            width: '100%',
-            padding: '12px',
-            borderRadius: '6px',
-            border: '1px solid #374151',
-            backgroundColor: '#0F172A',
-            color: 'white',
-            fontSize: '16px'
-          }}
-        />
-      </div>
-
-      <button
-        type="submit"
-        disabled={loading}
-        style={{
-          width: '100%',
-          padding: '14px',
-          borderRadius: '6px',
-          backgroundColor: '#3B82F6',
-          color: 'white',
-          fontSize: '16px',
-          fontWeight: '600',
-          border: 'none',
-          cursor: loading ? 'not-allowed' : 'pointer',
-          opacity: loading ? 0.7 : 1,
-          transition: 'all 0.2s'
-        }}
-      >
+    <form onSubmit={handleLogin} className="login-form">
+      {error && <div className="error-message">{error}</div>}
+      
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+      
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+      
+      <button type="submit" disabled={loading}>
         {loading ? 'Signing in...' : 'Sign In'}
       </button>
+      
+      {/* Demo login hint */}
+      <p className="demo-hint">
+        Demo: pilot@bluetubetv.live / any password
+      </p>
     </form>
-  )
+  );
 }
