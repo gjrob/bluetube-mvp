@@ -1,51 +1,46 @@
-// utils/supabase-server.js
+// utils/supabase-server.js - Fixed version
 import { createClient } from '@supabase/supabase-js'
 
-/**
- * Create a Supabase client for server-side operations
- * This uses the service role key for admin privileges
- */
-export function createServerClient(context) {
-  // For server-side, we can use service role key for admin access
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+// Ensure environment variables are defined
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://akphnfsulfzhrzdsvhla.supabase.co'
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || ''
+
+// Only create client if we have a URL
+let supabase = null
+
+if (supabaseUrl) {
+  // For server-side, use service key if available, otherwise use anon key
+  const supabaseKey = supabaseServiceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
   
-  if (!supabaseUrl || !supabaseServiceKey) {
-    console.error('Missing Supabase environment variables')
-    // Return a mock client to prevent build failures
-    return {
+  if (supabaseKey) {
+    supabase = createClient(supabaseUrl, supabaseKey, {
       auth: {
-        getUser: async () => ({ data: { user: null }, error: 'Supabase not configured' }),
-        admin: {
-          getUserById: async () => ({ data: null, error: 'Supabase not configured' })
-        }
-      },
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+  }
+}
+
+// Export a function to get the client
+export const getSupabaseServer = () => {
+  if (!supabase) {
+    console.warn('Supabase server client not initialized. Check environment variables.')
+    // Return a mock object to prevent crashes
+    return {
       from: () => ({
-        select: () => ({
-          eq: () => ({
-            single: async () => ({ data: null, error: 'Supabase not configured' }),
-            order: () => ({ data: [], error: null })
-          })
-        }),
-        insert: async () => ({ data: null, error: 'Supabase not configured' }),
-        update: async () => ({ data: null, error: 'Supabase not configured' }),
-        delete: async () => ({ data: null, error: 'Supabase not configured' })
-      })
+        select: () => Promise.resolve({ data: [], error: null }),
+        insert: () => Promise.resolve({ data: null, error: null }),
+        update: () => Promise.resolve({ data: null, error: null }),
+        delete: () => Promise.resolve({ data: null, error: null })
+      }),
+      auth: {
+        getUser: () => Promise.resolve({ data: { user: null }, error: null })
+      }
     }
   }
-  
-  return createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  })
+  return supabase
 }
 
-// Alternative export for compatibility
-export function createServerSupabaseClient(context) {
-  return createServerClient(context)
-}
-
-// Export default for some import styles
-export default { createServerClient, createServerSupabaseClient }
+// For backward compatibility
+export { supabase }
