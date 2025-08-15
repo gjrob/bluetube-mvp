@@ -8,6 +8,7 @@ import Head from 'next/head';
 import Layout from '../../components/Layout';
 import NFTMinting from '../../components/NFTMinting';
 import dynamic from 'next/dynamic';
+import supabase from '../../../lib/supabase';
 
 
 const FlightCompliance = dynamic(() => import('../../components/FlightCompliance'), { ssr: false });
