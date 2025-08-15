@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';  
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase-safe';
 
 const Layout = ({ children }) => {
   const router = useRouter();

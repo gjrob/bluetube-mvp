@@ -280,7 +280,7 @@ class BlueTubeDiagnostic {
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabase-safe'
 
 export default function Login() {
   const router = useRouter()
@@ -481,7 +481,7 @@ export default async function handler(req, res) {
   generateMarketplace(fixesDir) {
     const marketplaceCode = `// pages/marketplace.js
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabase-safe'
 import Navigation from '../components/Navigation'
 
 export default function Marketplace() {
@@ -841,7 +841,7 @@ export default function StreamInstructions({ streamKey, rtmpUrl }) {
   generateRealTimeDataHooks(fixesDir) {
     const hooksCode = `// hooks/useRealTimeData.js
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabase-safe'
 
 // Hook for real-time stream data
 export function useStreamData(streamId) {

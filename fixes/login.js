@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabase-safe'
 
 export default function Login() {
   const router = useRouter()

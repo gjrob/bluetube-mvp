@@ -2,7 +2,7 @@
 // Replace all mock data with real Supabase queries
 
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabase-safe'
 
 export function useRealStats(userId) {
   const [stats, setStats] = useState({

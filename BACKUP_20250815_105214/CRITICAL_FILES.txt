@@ -1,0 +1,5 @@
+pages/api/create-checkout-session.js
+pages/api/tip.js
+pages/api/super-chat.js
+pages/api/earnings.js
+pages/api/webhooks/stripe.js

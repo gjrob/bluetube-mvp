@@ -1,6 +1,6 @@
 // hooks/useRealTimeData.js
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabase-safe'
 
 // Hook for real-time stream data
 export function useStreamData(streamId) {

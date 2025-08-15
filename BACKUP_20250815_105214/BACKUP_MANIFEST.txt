@@ -1,0 +1,32 @@
+BlueTubeTV Backup Manifest
+Created: Fri Aug 15 10:52:14 EDT 2025
+================================
+
+CRITICAL PAYMENT FILES BACKED UP:
+✅ Stripe Integration
+✅ Tip System  
+✅ SuperChat System
+✅ Earnings APIs
+✅ Transaction History
+✅ Revenue Dashboard
+
+WORKING FEATURES PRESERVED:
+- Authentication System
+- Stream APIs
+- Job Marketplace
+- Upload System
+- Analytics
+- Admin Panel
+
+TO RESTORE:
+1. To restore everything:
+   cp -r BACKUP_20250815_105214/* .
+
+2. To restore just payments:
+   cp -r BACKUP_20250815_105214/payment-systems/* pages/api/
+
+3. To restore specific file:
+   cp BACKUP_20250815_105214/[path-to-file] [destination]
+
+QUICK ROLLBACK COMMAND:
+./restore-backup.sh BACKUP_20250815_105214
