@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase-safe'
+import { supabase } from '../lib/supabase'
 import SmartNavigation from './SmartNavigation'
 import { navigationFixes } from './NavigationFix' 
 

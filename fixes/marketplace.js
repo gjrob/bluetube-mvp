@@ -1,6 +1,6 @@
 // pages/marketplace.js
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase-safe'
+import { supabase } from '../lib/supabase'
 import Navigation from '../components/Navigation'
 
 export default function Marketplace() {

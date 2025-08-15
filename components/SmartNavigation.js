@@ -6,7 +6,7 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase-safe'
+import { supabase } from '../lib/supabase'
 
 export default function SmartNavigation({ user, loading }) {
   const router = useRouter()

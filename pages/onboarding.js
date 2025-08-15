@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { supabase } from '../lib/supabase-safe';
+import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Onboarding() {

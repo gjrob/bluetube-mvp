@@ -1,6 +1,6 @@
 // components/LiveChat.js - COMPLETE IMPLEMENTATION
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase-safe';
+import { supabase } from '../lib/supabase';
 
 // CRITICAL MODERATION - Zero Tolerance
 const criticalTerms = [
