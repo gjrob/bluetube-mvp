@@ -23,7 +23,15 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  
+   experimental: {
+    outputFileTracingExcludes: {
+      '*': [
+        'node_modules/@swc/core-linux-x64-gnu',
+        'node_modules/@swc/core-linux-x64-musl',
+        'node_modules/@esbuild/linux-x64',
+      ],
+    },
+  },
   // Add CSP headers for Stripe AND Supabase
   async headers() {
     return [
