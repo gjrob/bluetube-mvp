@@ -1,7 +1,8 @@
-// pages/dashboard.js - Simple BlueTubeTV Dashboard
+// pages/dashboard.js - Beautiful BlueTubeTV Dashboard
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabaseClient'
+import styles from '../styles/Dashboard.module.css'
 
 export default function Dashboard() {
   const router = useRouter()
@@ -37,11 +38,9 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-950 flex items-center justify-center">
-        <div className="text-white text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Loading Dashboard...</p>
-        </div>
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}></div>
+        <p>Loading Dashboard...</p>
       </div>
     )
   }
@@ -49,109 +48,111 @@ export default function Dashboard() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-950">
+    <div className={styles.container}>
       {/* Header */}
-      <div className="bg-black/20 backdrop-blur-sm border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-bold text-white">BlueTubeTV</h1>
-              <span className="text-gray-400">Dashboard</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-gray-300">{user.email}</span>
-              <button
-                onClick={handleSignOut}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-              >
-                Sign Out
-              </button>
-            </div>
+      <header className={styles.header}>
+        <div className={styles.headerContent}>
+          <div className={styles.logo}>
+            <h1>BlueTubeTV</h1>
+            <span className={styles.tagline}>Dashboard</span>
+          </div>
+          <div className={styles.userSection}>
+            <span className={styles.userEmail}>{user.email}</span>
+            <button onClick={handleSignOut} className={styles.signOutBtn}>
+              Sign Out
+            </button>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className={styles.main}>
         {/* Welcome Section */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-lg p-6 mb-8">
-          <h2 className="text-3xl font-bold text-white mb-2">
-            Welcome to BlueTubeTV! 🚁
-          </h2>
-          <p className="text-gray-300">
-            The professional drone streaming & job marketplace
-          </p>
-        </div>
+        <section className={styles.welcomeSection}>
+          <h2>Welcome to BlueTubeTV! 🚁</h2>
+          <p>The professional drone streaming & job marketplace</p>
+        </section>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white/10 backdrop-blur-lg rounded-lg p-6 text-center">
-            <div className="text-3xl mb-2">🔴</div>
-            <div className="text-2xl font-bold text-white">0</div>
-            <div className="text-gray-400 text-sm">Active Streams</div>
+        {/* Stats Grid */}
+        <div className={styles.statsGrid}>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>🔴</div>
+            <div className={styles.statValue}>0</div>
+            <div className={styles.statLabel}>Active Streams</div>
           </div>
           
-          <div className="bg-white/10 backdrop-blur-lg rounded-lg p-6 text-center">
-            <div className="text-3xl mb-2">👁️</div>
-            <div className="text-2xl font-bold text-white">0</div>
-            <div className="text-gray-400 text-sm">Total Views</div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>👁️</div>
+            <div className={styles.statValue}>0</div>
+            <div className={styles.statLabel}>Total Views</div>
           </div>
           
-          <div className="bg-white/10 backdrop-blur-lg rounded-lg p-6 text-center">
-            <div className="text-3xl mb-2">💰</div>
-            <div className="text-2xl font-bold text-white">$0</div>
-            <div className="text-gray-400 text-sm">Earnings</div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>💰</div>
+            <div className={styles.statValue}>$0</div>
+            <div className={styles.statLabel}>Earnings</div>
           </div>
           
-          <div className="bg-white/10 backdrop-blur-lg rounded-lg p-6 text-center">
-            <div className="text-3xl mb-2">📋</div>
-            <div className="text-2xl font-bold text-white">0</div>
-            <div className="text-gray-400 text-sm">Jobs Posted</div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>📋</div>
+            <div className={styles.statValue}>0</div>
+            <div className={styles.statLabel}>Jobs Posted</div>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-2 mb-6 border-b border-white/10">
-          {['overview', 'stream', 'jobs', 'settings'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 capitalize transition ${
-                activeTab === tab
-                  ? 'text-white border-b-2 border-blue-500'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+        <div className={styles.tabNav}>
+          <button
+            className={`${styles.tab} ${activeTab === 'overview' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('overview')}
+          >
+            Overview
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'stream' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('stream')}
+          >
+            Stream
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'jobs' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('jobs')}
+          >
+            Jobs
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'settings' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('settings')}
+          >
+            Settings
+          </button>
         </div>
 
         {/* Tab Content */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-lg p-6">
+        <div className={styles.tabContent}>
           {activeTab === 'overview' && (
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4">Getting Started</h3>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <span className="text-2xl">1️⃣</span>
+            <div className={styles.contentSection}>
+              <h3>Getting Started</h3>
+              <div className={styles.stepsList}>
+                <div className={styles.step}>
+                  <span className={styles.stepNumber}>1️⃣</span>
                   <div>
-                    <h4 className="text-white font-semibold">Set up your stream</h4>
-                    <p className="text-gray-400">Configure your streaming settings and get your stream key</p>
+                    <h4>Set up your stream</h4>
+                    <p>Configure your streaming settings and get your stream key</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-2xl">2️⃣</span>
+                <div className={styles.step}>
+                  <span className={styles.stepNumber}>2️⃣</span>
                   <div>
-                    <h4 className="text-white font-semibold">Start streaming</h4>
-                    <p className="text-gray-400">Go live and share your drone footage with the world</p>
+                    <h4>Start streaming</h4>
+                    <p>Go live and share your drone footage with the world</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-2xl">3️⃣</span>
+                <div className={styles.step}>
+                  <span className={styles.stepNumber}>3️⃣</span>
                   <div>
-                    <h4 className="text-white font-semibold">Find drone jobs</h4>
-                    <p className="text-gray-400">Browse and apply for drone pilot opportunities</p>
+                    <h4>Find drone jobs</h4>
+                    <p>Browse and apply for drone pilot opportunities</p>
                   </div>
                 </div>
               </div>
@@ -159,80 +160,66 @@ export default function Dashboard() {
           )}
 
           {activeTab === 'stream' && (
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4">Stream Settings</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-300 mb-2">Stream Title</label>
+            <div className={styles.contentSection}>
+              <h3>Stream Settings</h3>
+              <div className={styles.formGroup}>
+                <label>Stream Title</label>
+                <input
+                  type="text"
+                  className={styles.input}
+                  placeholder="Enter your stream title"
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Stream Key</label>
+                <div className={styles.inputGroup}>
                   <input
                     type="text"
-                    className="w-full px-4 py-2 rounded-lg bg-white/20 text-white border border-white/20"
-                    placeholder="Enter your stream title"
+                    className={styles.input}
+                    value="****-****-****-****"
+                    readOnly
                   />
+                  <button className={styles.primaryBtn}>Generate Key</button>
                 </div>
-                <div>
-                  <label className="block text-gray-300 mb-2">Stream Key</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      className="flex-1 px-4 py-2 rounded-lg bg-white/20 text-white border border-white/20"
-                      value="****-****-****-****"
-                      readOnly
-                    />
-                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                      Generate Key
-                    </button>
-                  </div>
-                </div>
-                <button className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold">
-                  Start Streaming
-                </button>
               </div>
+              <button className={styles.successBtn}>Start Streaming</button>
             </div>
           )}
 
           {activeTab === 'jobs' && (
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4">Drone Jobs</h3>
-              <p className="text-gray-400 mb-4">No jobs available yet. Check back soon!</p>
-              <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                Post a Job
-              </button>
+            <div className={styles.contentSection}>
+              <h3>Drone Jobs</h3>
+              <p className={styles.emptyState}>No jobs available yet. Check back soon!</p>
+              <button className={styles.primaryBtn}>Post a Job</button>
             </div>
           )}
 
           {activeTab === 'settings' && (
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4">Account Settings</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-300 mb-2">Email</label>
-                  <input
-                    type="email"
-                    className="w-full px-4 py-2 rounded-lg bg-white/20 text-white border border-white/20"
-                    value={user.email}
-                    readOnly
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-2">User ID</label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2 rounded-lg bg-white/20 text-gray-400 border border-white/20"
-                    value={user.id}
-                    readOnly
-                  />
-                </div>
-                <div className="pt-4">
-                  <button className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-                    Update Profile
-                  </button>
-                </div>
+            <div className={styles.contentSection}>
+              <h3>Account Settings</h3>
+              <div className={styles.formGroup}>
+                <label>Email</label>
+                <input
+                  type="email"
+                  className={styles.input}
+                  value={user.email}
+                  readOnly
+                />
               </div>
+              <div className={styles.formGroup}>
+                <label>User ID</label>
+                <input
+                  type="text"
+                  className={styles.input}
+                  value={user.id}
+                  readOnly
+                />
+              </div>
+              <button className={styles.secondaryBtn}>Update Profile</button>
             </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
   )
 }

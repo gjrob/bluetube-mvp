@@ -1,260 +1,282 @@
-// pages/live.js - Streaming/Broadcasting Page
+// pages/live.js - Using your existing components
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { createClient } from '@supabase/supabase-js'
+import Layout from '../components/Layout'
+import LivepeerStream from '../components/LivepeerStream'
+import LivePeerPlayer from '../components/LivePeerPlayer'
+import BrowserStream from '../components/BrowserStream'
+import StreamStats from '../components/StreamStats'
+import SuperChat from '../components/SuperChat'
+import LiveChat from '../components/LiveChat'
+import GoLiveButton from '../components/GoLiveButton'
+import { useAuth } from '../hooks/useAuth'
+import { supabase } from '../lib/supabaseClient'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-)
-
-export default function LiveStreamingPage() {
+export default function LiveStreams() {
+  const { user } = useAuth()
   const router = useRouter()
-  const [user, setUser] = useState(null)
-  const [streamKey, setStreamKey] = useState('')
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const [activeStreams, setActiveStreams] = useState([])
+  const [selectedStream, setSelectedStream] = useState(null)
+  const [isStreaming, setIsStreaming] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    checkUser()
+    fetchActiveStreams()
+    // Subscribe to real-time updates
+    const subscription = supabase
+      .channel('streams')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'streams' 
+      }, handleStreamUpdate)
+      .subscribe()
+
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [])
 
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      router.push('/login?redirect=/live')
-      return
-    }
-    setUser(user)
-  }
-
-  const generateStreamKey = async () => {
-    setIsGenerating(true)
+  async function fetchActiveStreams() {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const response = await fetch('/api/generate-stream-key', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session?.access_token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-      const data = await response.json()
-      setStreamKey(data.streamKey || '4edc-2wvv-t7ra-cgil')
+      const { data, error } = await supabase
+        .from('streams')
+        .select('*')
+        .eq('status', 'live')
+        .order('viewer_count', { ascending: false })
+
+      if (data) {
+        setActiveStreams(data)
+      }
     } catch (error) {
-      // Fallback key
-      setStreamKey('4edc-2wvv-t7ra-cgil')
-    }
-    setIsGenerating(false)
-  }
-
-  const startBroadcasting = () => {
-    const message = `🎥 Stream Configuration:\n\n` +
-      `Server: rtmp://rtmp.livepeer.com/live\n` +
-      `Stream Key: ${streamKey || 'Generate key first'}\n\n` +
-      `Click OK to download OBS Studio`
-    
-    if (confirm(message)) {
-      window.open('https://obsproject.com/download', '_blank')
+      console.error('Error fetching streams:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+  function handleStreamUpdate(payload) {
+    fetchActiveStreams()
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(180deg, #0a0e27 0%, #1a237e 50%, #0f172a 100%)',
-      color: 'white',
-      padding: '20px'
-    }}>
-      <nav style={{
-        maxWidth: '1400px',
-        margin: '0 auto 40px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <h1 onClick={() => router.push('/')} style={{
-          fontSize: '28px',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          margin: 0
-        }}>
-          🚁 BlueTubeTV
-        </h1>
-        <div style={{ display: 'flex', gap: '20px' }}>
-          <button onClick={() => router.push('/browse')} style={{
-            background: 'transparent',
-            color: 'white',
-            border: '1px solid rgba(255,255,255,0.3)',
-            padding: '10px 20px',
-            borderRadius: '25px',
-            cursor: 'pointer'
-          }}>Browse</button>
-          <button onClick={() => router.push('/dashboard')} style={{
-            background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
-            color: 'white',
-            border: 'none',
-            padding: '10px 24px',
-            borderRadius: '25px',
-            cursor: 'pointer',
-            fontWeight: 'bold'
-          }}>Dashboard</button>
+    <Layout>
+      <div className="live-container">
+        <div className="live-header">
+          <h1>🔴 Live Drone Streams</h1>
+          <p>Watch professional drone pilots in action</p>
+          {user && (
+            <GoLiveButton 
+              onClick={() => router.push('/dashboard?tab=stream')}
+            />
+          )}
         </div>
-      </nav>
 
-      <div style={{
-        maxWidth: '800px',
-        margin: '0 auto',
-        textAlign: 'center'
-      }}>
-        <h1 style={{
-          fontSize: '48px',
-          marginBottom: '20px',
-          background: 'linear-gradient(135deg, #ef4444, #f97316)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
-        }}>🔴 Go Live</h1>
-        
-        <p style={{
-          fontSize: '20px',
-          color: '#94a3b8',
-          marginBottom: '40px'
-        }}>
-          Stream your drone footage to viewers worldwide
-        </p>
-
-        <div style={{
-          background: 'rgba(30, 41, 59, 0.5)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(59, 130, 246, 0.2)',
-          borderRadius: '20px',
-          padding: '40px',
-          marginBottom: '30px'
-        }}>
-          {!streamKey ? (
-            <button onClick={generateStreamKey} disabled={isGenerating} style={{
-              width: '100%',
-              padding: '20px',
-              background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '20px',
-              fontWeight: 'bold',
-              cursor: isGenerating ? 'wait' : 'pointer',
-              marginBottom: '20px'
-            }}>
-              {isGenerating ? '⏳ Generating...' : '🔑 Generate Stream Key'}
-            </button>
-          ) : (
-            <div>
-              <div style={{
-                background: 'rgba(0,0,0,0.3)',
-                padding: '20px',
-                borderRadius: '12px',
-                marginBottom: '20px'
-              }}>
-                <label style={{ display: 'block', marginBottom: '10px', color: '#94a3b8' }}>
-                  RTMP Server:
-                </label>
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-                  <input value="rtmp://rtmp.livepeer.com/live" readOnly style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: 'rgba(0,0,0,0.5)',
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    borderRadius: '8px',
-                    color: 'white',
-                    fontFamily: 'monospace'
-                  }} />
-                  <button onClick={() => copyToClipboard('rtmp://rtmp.livepeer.com/live')} style={{
-                    padding: '12px 20px',
-                    background: '#8b5cf6',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer'
-                  }}>📋</button>
-                </div>
-                
-                <label style={{ display: 'block', marginBottom: '10px', color: '#94a3b8' }}>
-                  Stream Key:
-                </label>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <input value={streamKey} readOnly style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: 'rgba(0,0,0,0.5)',
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    borderRadius: '8px',
-                    color: '#60a5fa',
-                    fontFamily: 'monospace',
-                    fontWeight: 'bold'
-                  }} />
-                  <button onClick={() => copyToClipboard(streamKey)} style={{
-                    padding: '12px 20px',
-                    background: '#8b5cf6',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer'
-                  }}>📋</button>
-                </div>
+        <div className="streams-layout">
+          {/* Main Video Player */}
+          <div className="main-player">
+            {selectedStream ? (
+              <>
+                <LivePeerPlayer 
+                  streamId={selectedStream.stream_key}
+                  poster="/drone-preview.jpg"
+                />
+                <StreamStats 
+                  viewers={selectedStream.viewer_count}
+                  duration={selectedStream.duration}
+                />
+              </>
+            ) : (
+              <div className="no-stream-selected">
+                <p>Select a stream to watch</p>
               </div>
-              {copied && (
-                <div style={{
-                  padding: '12px',
-                  background: '#10b981',
-                  borderRadius: '8px',
-                  marginBottom: '20px'
-                }}>✅ Copied!</div>
+            )}
+          </div>
+
+          {/* Chat & SuperChat */}
+          {selectedStream && (
+            <div className="chat-section">
+              <LiveChat streamId={selectedStream.id} />
+              <SuperChat 
+                streamId={selectedStream.id}
+                pilotId={selectedStream.user_id}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Active Streams Grid */}
+        <div className="streams-grid">
+          <h2>Active Streams</h2>
+          {loading ? (
+            <p>Loading streams...</p>
+          ) : activeStreams.length > 0 ? (
+            <div className="grid">
+              {activeStreams.map(stream => (
+                <div 
+                  key={stream.id}
+                  className="stream-card"
+                  onClick={() => setSelectedStream(stream)}
+                >
+                  <div className="stream-thumbnail">
+                    <span className="live-badge">LIVE</span>
+                    <span className="viewer-count">
+                      👁️ {stream.viewer_count}
+                    </span>
+                  </div>
+                  <div className="stream-info">
+                    <h3>{stream.title || 'Untitled Stream'}</h3>
+                    <p>{stream.pilot_name || 'Anonymous Pilot'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="no-streams">
+              <p>No live streams at the moment</p>
+              {user && (
+                <button 
+                  onClick={() => router.push('/dashboard?tab=stream')}
+                  className="start-streaming-btn"
+                >
+                  Be the first to stream!
+                </button>
               )}
             </div>
           )}
-
-          <button onClick={startBroadcasting} disabled={!streamKey} style={{
-            width: '100%',
-            padding: '20px',
-            background: streamKey ? 'linear-gradient(135deg, #ef4444, #f97316)' : '#555',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: '20px',
-            fontWeight: 'bold',
-            cursor: streamKey ? 'pointer' : 'not-allowed',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px'
-          }}>
-            <span>🔴</span> Start Broadcasting
-          </button>
         </div>
 
-        <div style={{
-          background: 'rgba(30, 41, 59, 0.5)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(59, 130, 246, 0.2)',
-          borderRadius: '20px',
-          padding: '30px',
-          textAlign: 'left'
-        }}>
-          <h3 style={{ marginBottom: '20px' }}>📖 Quick Setup:</h3>
-          <ol style={{ lineHeight: '2', color: '#cbd5e1' }}>
-            <li>Download <a href="https://obsproject.com/download" target="_blank" style={{ color: '#60a5fa' }}>OBS Studio</a></li>
-            <li>Copy server & key above</li>
-            <li>In OBS: Settings → Stream → Custom</li>
-            <li>Paste server & key</li>
-            <li>Click "Start Streaming" in OBS</li>
-          </ol>
-        </div>
+        {/* Browser Streaming Option */}
+        {user && isStreaming && (
+          <BrowserStream 
+            streamKey={user.stream_key}
+            onStop={() => setIsStreaming(false)}
+          />
+        )}
       </div>
-    </div>
+
+      <style jsx>{`
+        .live-container {
+          max-width: 1600px;
+          margin: 0 auto;
+          padding: 2rem;
+        }
+        .live-header {
+          text-align: center;
+          margin-bottom: 3rem;
+        }
+        .live-header h1 {
+          font-size: 3rem;
+          margin-bottom: 1rem;
+        }
+        .streams-layout {
+          display: grid;
+          grid-template-columns: 1fr 400px;
+          gap: 2rem;
+          margin-bottom: 3rem;
+        }
+        .main-player {
+          background: #000;
+          border-radius: 1rem;
+          overflow: hidden;
+          aspect-ratio: 16/9;
+          position: relative;
+        }
+        .no-stream-selected {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          color: #666;
+        }
+        .chat-section {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        .streams-grid {
+          margin-top: 3rem;
+        }
+        .streams-grid h2 {
+          margin-bottom: 1.5rem;
+        }
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 1.5rem;
+        }
+        .stream-card {
+          cursor: pointer;
+          transition: transform 0.3s ease;
+          border-radius: 0.5rem;
+          overflow: hidden;
+          background: white;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stream-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        .stream-thumbnail {
+          aspect-ratio: 16/9;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .live-badge {
+          position: absolute;
+          top: 1rem;
+          left: 1rem;
+          background: red;
+          color: white;
+          padding: 0.25rem 0.5rem;
+          border-radius: 0.25rem;
+          font-size: 0.75rem;
+          font-weight: bold;
+        }
+        .viewer-count {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          background: rgba(0,0,0,0.5);
+          color: white;
+          padding: 0.25rem 0.5rem;
+          border-radius: 0.25rem;
+          font-size: 0.75rem;
+        }
+        .stream-info {
+          padding: 1rem;
+        }
+        .stream-info h3 {
+          margin-bottom: 0.5rem;
+        }
+        .stream-info p {
+          color: #666;
+          font-size: 0.9rem;
+        }
+        .no-streams {
+          text-align: center;
+          padding: 3rem;
+          background: #f5f5f5;
+          border-radius: 1rem;
+        }
+        .start-streaming-btn {
+          margin-top: 1rem;
+          background: linear-gradient(135deg, #10b981, #059669);
+          color: white;
+          border: none;
+          padding: 0.75rem 2rem;
+          border-radius: 0.5rem;
+          cursor: pointer;
+        }
+        @media (max-width: 1024px) {
+          .streams-layout {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
+    </Layout>
   )
 }
