@@ -2,7 +2,7 @@
 import LivePeerPlayer from '../../components/LivePeerPlayer';
 import LiveChat from '../../components/LiveChat';
 import SuperChat from '../../components/SuperChat';
-import supabase from '../lib/supabase'
+import supabase from '../../lib/supabase'
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
