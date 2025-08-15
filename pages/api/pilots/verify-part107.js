@@ -1,127 +1,211 @@
-import { createClient } from '@supabase/supabase-js';
-import jwt from 'jsonwebtoken';
-
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_KEY
-);
+// pages/api/pilots/verify-part107.js
+// FAA Part 107 Pilot Verification System
 
 export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-    const { certificateNumber, firstName, lastName, userId } = req.body;
+  const { certificateNumber, lastName } = req.body;
 
-    try {
-        // Step 1: Validate certificate format
-        const validFormat = /^FA[A-Z]\d{7}$/i.test(certificateNumber);
-        if (!validFormat) {
-            return res.status(400).json({ 
-                error: 'Invalid certificate format',
-                details: 'Part 107 certificates start with FA followed by a letter and 7 digits'
-            });
-        }
+  // FAA Certificate Format: Typically 10 digits
+  const isValidFormat = /^\d{10}$/.test(certificateNumber);
+  
+  if (!isValidFormat) {
+    return res.status(400).json({ 
+      error: 'Invalid certificate format. Must be 10 digits.' 
+    });
+  }
 
-        // Step 2: Check FAA Database (Real implementation would call FAA API)
-        const faaResult = await checkFAADatabase(certificateNumber, lastName);
-        
-        if (!faaResult.valid) {
-            return res.status(400).json({ 
-                error: 'Certificate not valid',
-                reason: faaResult.reason 
-            });
-        }
+  try {
+    // In production, this would call FAA's Airmen Registry API
+    // For now, we'll validate format and mark as pending verification
+    
+    const verificationResult = {
+      certificateNumber,
+      pilotName: lastName,
+      status: 'pending_verification',
+      certType: 'Part 107 - Remote Pilot',
+      verifiedAt: new Date().toISOString(),
+      // Add badge once verified
+      badge: {
+        type: 'FAA_CERTIFIED',
+        level: 'professional',
+        icon: '✈️'
+      }
+    };
 
-        // Step 3: Store verification in database
-        const { data, error } = await supabase
-            .from('pilot_verifications')
-            .upsert({
-                user_id: userId,
-                certificate_number: certificateNumber,
-                pilot_name: `${firstName} ${lastName}`,
-                issue_date: faaResult.issueDate,
-                expiry_date: faaResult.expiryDate,
-                verification_status: 'verified',
-                verification_date: new Date().toISOString(),
-                faa_lookup_data: faaResult
-            });
+    // Save to database
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_KEY
+    );
 
-        if (error) throw error;
+    await supabase
+      .from('pilot_certifications')
+      .insert({
+        user_id: req.body.userId,
+        certificate_number: certificateNumber,
+        pilot_name: lastName,
+        cert_type: 'part107',
+        verified: false, // Will be true after FAA API verification
+        verification_date: new Date().toISOString()
+      });
 
-        // Step 4: Update user profile with verified status
-        await supabase
-            .from('users')
-            .update({ 
-                part107_verified: true,
-                pilot_certificate: certificateNumber
-            })
-            .eq('id', userId);
+    res.status(200).json({
+      success: true,
+      message: 'Certificate submitted for verification',
+      data: verificationResult
+    });
 
-        // Step 5: Generate verification token
-        const token = jwt.sign(
-            { 
-                userId, 
-                certificateNumber,
-                verified: true 
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: '1y' }
-        );
-
-        return res.status(200).json({
-            success: true,
-            message: 'Part 107 certificate verified successfully',
-            token,
-            certificateNumber,
-            expiryDate: faaResult.expiryDate
-        });
-
-    } catch (error) {
-        console.error('Verification error:', error);
-        return res.status(500).json({ 
-            error: 'Verification failed',
-            details: error.message 
-        });
-    }
+  } catch (error) {
+    console.error('Verification error:', error);
+    res.status(500).json({ error: 'Verification failed' });
+  }
 }
 
-// FAA Database Check Function
-async function checkFAADatabase(certificateNumber, lastName) {
-    // In production, this would call the real FAA API
-    // For now, using mock data for testing
+// ============================================
+// Component: PilotVerificationModal.js
+// Add this to your dashboard
+
+import { useState } from 'react';
+
+export function PilotVerificationModal({ isOpen, onClose, onVerified }) {
+  const [certNumber, setCertNumber] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleVerify = async () => {
+    setLoading(true);
     
-    const mockDatabase = {
-        'FA3A1234567': {
-            valid: true,
-            pilotName: 'John Doe',
-            issueDate: '2023-03-15',
-            expiryDate: '2025-03-31',
-            status: 'ACTIVE'
-        },
-        'FA4B9876543': {
-            valid: true,
-            pilotName: 'Jane Smith',
-            issueDate: '2022-01-20',
-            expiryDate: '2024-01-31',
-            status: 'ACTIVE'
-        }
-    };
+    try {
+      const response = await fetch('/api/pilots/verify-part107', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          certificateNumber: certNumber,
+          lastName: lastName,
+          userId: user.id
+        })
+      });
 
-    const record = mockDatabase[certificateNumber];
+      const data = await response.json();
+      
+      if (data.success) {
+        onVerified(data.data);
+        alert('✅ FAA Certificate submitted for verification!');
+        onClose();
+      }
+    } catch (error) {
+      alert('Verification failed. Please try again.');
+    }
     
-    if (!record) {
-        return { valid: false, reason: 'Certificate not found' };
-    }
+    setLoading(false);
+  };
 
-    // Check if expired
-    const expiryDate = new Date(record.expiryDate);
-    if (expiryDate < new Date()) {
-        return { valid: false, reason: 'Certificate expired' };
-    }
+  if (!isOpen) return null;
 
-    return {
-        valid: true,
-        ...record
-    };
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0,0,0,0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000
+    }}>
+      <div style={{
+        background: 'white',
+        padding: '40px',
+        borderRadius: '20px',
+        maxWidth: '500px',
+        width: '90%'
+      }}>
+        <h2 style={{ marginBottom: '20px' }}>✈️ FAA Part 107 Verification</h2>
+        
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+            Certificate Number (10 digits)
+          </label>
+          <input
+            type="text"
+            value={certNumber}
+            onChange={(e) => setCertNumber(e.target.value)}
+            placeholder="4720482319"
+            maxLength="10"
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '8px',
+              border: '2px solid #0080FF',
+              fontSize: '16px'
+            }}
+          />
+        </div>
+
+        <div style={{ marginBottom: '30px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+            Last Name (as on certificate)
+          </label>
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            placeholder="Smith"
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '8px',
+              border: '2px solid #0080FF',
+              fontSize: '16px'
+            }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            onClick={handleVerify}
+            disabled={loading || certNumber.length !== 10}
+            style={{
+              flex: 1,
+              padding: '14px',
+              background: loading ? '#ccc' : 'linear-gradient(45deg, #0080FF 0%, #00B4D8 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              cursor: loading ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {loading ? 'Verifying...' : 'Verify Certificate'}
+          </button>
+          
+          <button
+            onClick={onClose}
+            style={{
+              padding: '14px 30px',
+              background: '#666',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+
+        <p style={{ marginTop: '20px', fontSize: '14px', color: '#666' }}>
+          Your certificate will be verified against the FAA Airmen Registry.
+          Verified pilots get a ✈️ badge and priority job listings!
+        </p>
+      </div>
+    </div>
+  );
 }
