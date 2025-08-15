@@ -19,8 +19,6 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [showKey, setShowKey] = useState(false);
   const [flightCompliance, setFlightCompliance] = useState(false);
-  const currentYear = new Date().getFullYear();
-
   const [aiStatus, setAiStatus] = useState('monitoring');
   const [stats, setStats] = useState({
     activeStreams: 0,
@@ -352,8 +350,7 @@ export default function Dashboard() {
             boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
             border: `3px solid ${stat.color}`,
             transition: 'transform 0.3s',
-            cursor: 'pointer',
-            ':hover': { transform: 'scale(1.05)' }
+            cursor: 'pointer'
           }}>
             <div style={{ fontSize: '36px', marginBottom: '10px' }}>{stat.icon}</div>
             <div style={{ fontSize: '32px', fontWeight: 'bold', color: stat.color, marginBottom: '5px' }}>
@@ -651,34 +648,6 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-
-            {/* Live Preview (when streaming) */}
-            {isStreaming && (
-              <div style={{
-                padding: '20px',
-                background: colors.dark,
-                borderRadius: '15px',
-                marginTop: '20px'
-              }}>
-                <h3 style={{ color: 'white', marginBottom: '15px' }}>🔴 Live Preview</h3>
-                <div style={{
-                  background: 'black',
-                  height: '400px',
-                  borderRadius: '10px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white'
-                }}>
-                  {/* Livepeer Player would go here */}
-                  <div>
-                    <div style={{ fontSize: '48px', marginBottom: '20px' }}>🚁</div>
-                    <p>Stream Active - {streamTitle}</p>
-                    <p>{selectedDrone} • {location}</p>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
@@ -910,213 +879,67 @@ export default function Dashboard() {
         )}
 
         {/* MARKETPLACE TAB */}
-{activeTab === 'marketplace' && (
-  <>
-    <div style={{
-      background: 'white',
-      padding: '40px',
-      borderRadius: '20px',
-      boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
-    }}>
-      <h2 style={{ color: colors.dark, marginBottom: '30px' }}>🛍️ Content Marketplace</h2>
-      
-      <div style={{ marginBottom: '30px' }}>
-        <Link href="/upload" style={{
-          display: 'inline-block',
-          padding: '15px 30px',
-          background: `linear-gradient(45deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
-          color: 'white',
-          textDecoration: 'none',
-          borderRadius: '10px',
-          fontWeight: 'bold',
-          fontSize: '18px'
-        }}>
-          📤 Upload Content
-        </Link>
-      </div>
-      
-      <p style={{ color: '#666' }}>Browse and purchase premium drone footage from pilots worldwide.</p>
-      <p style={{ marginTop: '20px', color: colors.accent, fontWeight: 'bold' }}>
-        Coming Soon: NFT marketplace for exclusive aerial content!
-      </p>
-    </div>
-    {activeTab === 'marketplace' && (
-      <footer style={{
-        background: 'linear-gradient(90deg, #003459 0%, #0077BE 100%)',
-        color: 'white',
-        padding: '60px 40px 40px',
-        marginTop: '60px'
-    }}>
-      <div style={{
-        maxWidth: '1400px',
-        margin: '0 auto',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '40px',
-        marginBottom: '40px'
-      }}>
-        {/* Company Info */}
-        <div>
-          <h3 style={{ fontSize: '24px', marginBottom: '20px' }}>
-            🚁 BlueTubeTV
-          </h3>
-          <p style={{ marginBottom: '15px', opacity: 0.9 }}>
-            The New National Geographic of Drones
-          </p>
-          <p style={{ fontSize: '14px', opacity: 0.8 }}>
-            Professional drone streaming, job marketplace, and content platform.
-          </p>
-          <div style={{ marginTop: '20px' }}>
-            <div style={{
-              display: 'inline-block',
-              padding: '8px 16px',
-              background: '#00C851',
-              borderRadius: '20px',
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}>
-              ✈️ FAA Part 107 Verified Platform
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Links */}
-        <div>
-          <h4 style={{ marginBottom: '20px' }}>Platform</h4>
-          <ul style={{ listStyle: 'none', padding: 0 }}>
-            <li style={{ marginBottom: '10px' }}>
-              <Link href="/live" style={{ color: '#CAF0F8', textDecoration: 'none' }}>
-                🔴 Live Streams
+        {activeTab === 'marketplace' && (
+          <div style={{
+            background: 'white',
+            padding: '40px',
+            borderRadius: '20px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
+          }}>
+            <h2 style={{ color: colors.dark, marginBottom: '30px' }}>🛍️ Content Marketplace</h2>
+            
+            <div style={{ marginBottom: '30px' }}>
+              <Link href="/upload" style={{
+                display: 'inline-block',
+                padding: '15px 30px',
+                background: `linear-gradient(45deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+                color: 'white',
+                textDecoration: 'none',
+                borderRadius: '10px',
+                fontWeight: 'bold',
+                fontSize: '18px'
+              }}>
+                📤 Upload Content
               </Link>
-            </li>
-            <li style={{ marginBottom: '10px' }}>
-              <Link href="/marketplace" style={{ color: '#CAF0F8', textDecoration: 'none' }}>
-                🛍️ Marketplace
-              </Link>
-            </li>
-            <li style={{ marginBottom: '10px' }}>
-              <Link href="/jobs" style={{ color: '#CAF0F8', textDecoration: 'none' }}>
-                💼 Find Jobs
-              </Link>
-            </li>
-            <li style={{ marginBottom: '10px' }}>
-              <Link href="/pilots" style={{ color: '#CAF0F8', textDecoration: 'none' }}>
-                👨‍✈️ Hire Pilots
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        {/* For Pilots */}
-        <div>
-          <h4 style={{ marginBottom: '20px' }}>For Pilots</h4>
-          <ul style={{ listStyle: 'none', padding: 0 }}>
-            <li style={{ marginBottom: '10px' }}>
-              <a href="#" style={{ color: '#CAF0F8', textDecoration: 'none' }}>
-                ✈️ Get FAA Verified
-              </a>
-            </li>
-            <li style={{ marginBottom: '10px' }}>
-              <a href="#" style={{ color: '#CAF0F8', textDecoration: 'none' }}>
-                📹 Streaming Guide
-              </a>
-            </li>
-            <li style={{ marginBottom: '10px' }}>
-              <a href="#" style={{ color: '#CAF0F8', textDecoration: 'none' }}>
-                💰 Pricing Calculator
-              </a>
-            </li>
-            <li style={{ marginBottom: '10px' }}>
-              <a href="#" style={{ color: '#CAF0F8', textDecoration: 'none' }}>
-                🎨 NFT Minting
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        {/* Stats & Trust */}
-        <div>
-          <h4 style={{ marginBottom: '20px' }}>Platform Stats</h4>
-          <div style={{ fontSize: '14px', opacity: 0.9 }}>
-            <div style={{ marginBottom: '10px' }}>
-              <strong style={{ color: '#00B4D8' }}>186+</strong> Active Viewers
             </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong style={{ color: '#00B4D8' }}>11</strong> Jobs Available
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong style={{ color: '#00B4D8' }}>$29/mo</strong> Pro Plan
-            </div>
-            <div style={{ marginBottom: '10px' }}>
-              <strong style={{ color: '#00B4D8' }}>98%</strong> System Uptime
-            </div>
-          </div>
-          
-          {/* Payment Methods */}
-          <div style={{ marginTop: '20px' }}>
-            <p style={{ fontSize: '12px', marginBottom: '10px', opacity: 0.8 }}>
-              Accepted Payments:
+            
+            <p style={{ color: '#666' }}>Browse and purchase premium drone footage from pilots worldwide.</p>
+            <p style={{ marginTop: '20px', color: colors.accent, fontWeight: 'bold' }}>
+              Coming Soon: NFT marketplace for exclusive aerial content!
             </p>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <span style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', fontSize: '12px' }}>
-                💳 Stripe
-              </span>
-              <span style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', fontSize: '12px' }}>
-                💰 Crypto
-              </span>
-              <span style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', fontSize: '12px' }}>
-                🅿️ PayPal
-              </span>
-            </div>
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* Bottom Bar */}
-      <div style={{
-        paddingTop: '30px',
-        borderTop: '1px solid rgba(255,255,255,0.2)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '20px'
-      }}>
-        <div style={{ fontSize: '14px', opacity: 0.8 }}>
-          © {currentYear} BlueTubeTV. All rights reserved. | Wilmington, NC 🌊
-        </div>
-        
-        <div style={{ display: 'flex', gap: '20px' }}>
-          <Link href="/terms" style={{ color: '#CAF0F8', textDecoration: 'none', fontSize: '14px' }}>
-            Terms
-          </Link>
-          <Link href="/privacy" style={{ color: '#CAF0F8', textDecoration: 'none', fontSize: '14px' }}>
-            Privacy
-          </Link>
-          <Link href="/faa-compliance" style={{ color: '#CAF0F8', textDecoration: 'none', fontSize: '14px' }}>
-            FAA Compliance
-          </Link>
-          <a href="mailto:support@bluetubetv.live" style={{ color: '#CAF0F8', textDecoration: 'none', fontSize: '14px' }}>
-            Contact
-          </a>
-        </div>
-      </div>
-
-      {/* Self-Healing AI Status Bar */}
-      <div style={{
-        marginTop: '20px',
-        padding: '10px',
-        background: 'rgba(0,0,0,0.2)',
-        borderRadius: '8px',
-        textAlign: 'center',
-        fontSize: '12px',
-        opacity: 0.7
-      }}>
-        🤖 Self-Healing AI: Active | 🛡️ System Health: 98% | 🔄 Last Check: Just now
-      </div>
-    </footer>
-  </>
-)}
+        {/* SETTINGS TAB */}
+        {activeTab === 'settings' && (
+          <div style={{
+            background: 'white',
+            padding: '40px',
+            borderRadius: '20px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
+          }}>
+            <h2 style={{ color: colors.dark, marginBottom: '30px' }}>⚙️ Settings</h2>
+            
+            <div style={{ marginBottom: '20px' }}>
+              <strong>Email:</strong> {user?.email}
+            </div>
+            <div style={{ marginBottom: '20px' }}>
+              <strong>Account Type:</strong> Free (Upgrade to Pro for $29/month)
+            </div>
+            <Link href="/pricing" style={{
+              display: 'inline-block',
+              padding: '15px 30px',
+              background: `linear-gradient(45deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '10px',
+              fontWeight: 'bold',
+              fontSize: '18px'
+            }}>
+              ⭐ Upgrade to Pro
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,40 +3,40 @@ import Head from 'next/head';
 import React, { useState } from 'react';
 import { Check, X, Zap, Star, Crown } from 'lucide-react';
 
-const handleCheckout = async (planName) => {
-  try {
-    // Map plan names to actual price IDs
-    const priceIds = {
-      'Professional': process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
-      'Enterprise': process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_PRICE_ID
-    };
-    
-    const priceId = priceIds[planName];
-    
-    if (!priceId) {
-      alert('Stripe price ID not found. Check environment variables.');
-      return;
-    }
-    
-    const response = await fetch('/api/create-checkout-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        priceId,
-        mode: 'subscription',
-      }),
-    });
-    
-    const { url } = await response.json();
-    window.location.href = url;
-  } catch (error) {
-    console.error('Checkout error:', error);
-    alert('Checkout failed. Please try again.');
-  }
-};
-
 export default function Pricing() {
   const [billingCycle, setBillingCycle] = useState('monthly');
+
+  const handleCheckout = async (planName) => {
+    try {
+      // Map plan names to actual price IDs
+      const priceIds = {
+        'Professional': process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID,
+        'Enterprise': process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_PRICE_ID
+      };
+      
+      const priceId = priceIds[planName];
+      
+      if (!priceId) {
+        alert('Stripe price ID not found. Check environment variables.');
+        return;
+      }
+      
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          priceId,
+          mode: 'subscription',
+        }),
+      });
+      
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('Checkout failed. Please try again.');
+    }
+  };
 
   const styles = {
     container: {
@@ -211,9 +211,6 @@ export default function Pricing() {
       padding: '40px',
       textAlign: 'center',
     },
-    faqSection: {
-      marginTop: '80px',
-    },
   };
 
   const pilotPlans = [
@@ -221,7 +218,7 @@ export default function Pricing() {
       name: 'Hobbyist',
       icon: <Zap size={30} />,
       iconBg: 'linear-gradient(135deg, #94a3b8, #cbd5e1)',
-      price: billingCycle === 'monthly' ? 'Free' : 'Free',
+      price: 'Free',
       features: [
         { text: 'List in pilot directory', included: true },
         { text: 'Apply to 5 jobs/month', included: true },
@@ -372,10 +369,8 @@ export default function Pricing() {
                     onClick={() => {
                       if (plan.name === 'Hobbyist') {
                         window.location.href = '/signup';
-                      } else if (plan.name === 'Professional') {
-                        handleCheckout('Professional');
-                      } else if (plan.name === 'Enterprise') {
-                        handleCheckout('Enterprise');
+                      } else {
+                        handleCheckout(plan.name);
                       }
                     }}
                   >
