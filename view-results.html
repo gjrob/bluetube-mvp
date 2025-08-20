@@ -1,0 +1,43 @@
+<!-- save as view-results.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Results</title>
+    <style>
+        body { 
+            font-family: monospace; 
+            background: #1a1a1a; 
+            color: #fff; 
+            padding: 20px;
+        }
+        .pass { color: #4ade80; }
+        .fail { color: #f87171; }
+        .warning { color: #fbbf24; }
+        .section { 
+            background: #2d2d2d; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px;
+        }
+        pre { white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>🚁 BlueTubeTV Test Results</h1>
+    <div id="results"></div>
+    
+    <script>
+        // Load and display the log file
+        fetch('./test_results_20250820_120724.log')
+            .then(response => response.text())
+            .then(data => {
+                // Color code the results
+                data = data.replace(/✓/g, '<span class="pass">✓</span>');
+                data = data.replace(/✗/g, '<span class="fail">✗</span>');
+                data = data.replace(/⚠/g, '<span class="warning">⚠</span>');
+                
+                document.getElementById('results').innerHTML = '<pre>' + data + '</pre>';
+            });
+    </script>
+</body>
+</html>

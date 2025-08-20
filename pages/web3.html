@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlueTubeTV - Web3 Streaming Platform</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1e3a5f 50%, #3b82c4 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #60a5fa, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .wallet-section {
+            background: rgba(30, 58, 95, 0.9);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        .wallet-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .info-card {
+            background: rgba(10, 22, 40, 0.6);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(59, 130, 196, 0.3);
+        }
+
+        .info-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            color: #60a5fa;
+            font-size: 1.25rem;
+            font-weight: bold;
+            word-break: break-all;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #3b82c4, #60a5fa);
+            color: white;
+            margin: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 196, 0.6);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.7), rgba(59, 130, 196, 0.3));
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            color: #93c5fd;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .transaction-section {
+            background: rgba(10, 22, 40, 0.8);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            color: #93c5fd;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            background: rgba(30, 58, 95, 0.5);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .status-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .status-message.success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+            color: #86efac;
+            display: block;
+        }
+
+        .status-message.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+            display: block;
+        }
+
+        .status-message.info {
+            background: rgba(59, 130, 196, 0.2);
+            border: 1px solid rgba(59, 130, 196, 0.5);
+            color: #93c5fd;
+            display: block;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #60a5fa;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚁 BlueTubeTV Web3</h1>
+            <p>Decentralized Drone Streaming & NFT Marketplace</p>
+        </div>
+
+        <!-- Wallet Section -->
+        <div class="wallet-section">
+            <h2 style="margin-bottom: 1rem;">💳 Wallet Connection</h2>
+            
+            <div class="wallet-info">
+                <div class="info-card">
+                    <div class="info-label">Network</div>
+                    <div class="info-value" id="networkName">Not Connected</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Wallet Address</div>
+                    <div class="info-value" id="walletAddress">Click Connect</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">ETH Balance</div>
+                    <div class="info-value" id="ethBalance">0.00 ETH</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn" onclick="connectWallet()" id="connectBtn">
+                    Connect MetaMask
+                </button>
+                <button class="btn" onclick="disconnectWallet()" id="disconnectBtn" style="display: none;">
+                    Disconnect
+                </button>
+            </div>
+        </div>
+
+        <!-- Contract Info -->
+        <div class="wallet-section">
+            <h2 style="margin-bottom: 1rem;">📜 Smart Contract</h2>
+            <div class="info-card">
+                <div class="info-label">Contract Address (Sepolia Testnet)</div>
+                <div class="info-value">0xD699d61Ce1554d4f7ef4b853283845F354f8a9Db</div>
+            </div>
+            <div class="info-card" style="margin-top: 1rem;">
+                <div class="info-label">Creator</div>
+                <div class="info-value">0xFAe3D0fD...30A769E6c</div>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎬</div>
+                <div class="feature-title">Stream to Earn</div>
+                <div class="feature-desc">
+                    Get paid in ETH for live drone streams. Viewers can tip directly to your wallet.
+                </div>
+                <button class="btn" onclick="startEarning()" style="width: 100%; margin-top: 1rem;">
+                    Start Earning
+                </button>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <div class="feature-title">Mint Stream NFTs</div>
+                <div class="feature-desc">
+                    Turn your best drone footage into NFTs. Sell exclusive content on-chain.
+                </div>
+                <button class="btn" onclick="mintNFT()" style="width: 100%; margin-top: 1rem;">
+                    Mint NFT
+                </button>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <div class="feature-title">Crypto Tips</div>
+                <div class="feature-desc">
+                    Accept tips in ETH, USDC, and other tokens. Instant settlement, no fees.
+                </div>
+                <button class="btn" onclick="showTipOptions()" style="width: 100%; margin-top: 1rem;">
+                    Send Tip
+                </button>
+            </div>
+        </div>
+
+        <!-- Transaction Section -->
+        <div class="transaction-section">
+            <h2 style="margin-bottom: 1.5rem;">💸 Send Tips to Streamers</h2>
+            
+            <div class="input-group">
+                <label>Streamer Address</label>
+                <input type="text" id="streamerAddress" placeholder="0x..." value="0xFAe3D0fD8Ce589278000A4fDbe30A769E6c4cC1b">
+            </div>
+            
+            <div class="input-group">
+                <label>Tip Amount (ETH)</label>
+                <input type="number" id="tipAmount" placeholder="0.01" step="0.001" value="0.001">
+            </div>
+
+            <button class="btn" onclick="sendTip()" style="width: 100%;">
+                Send Tip 💰
+            </button>
+
+            <div id="statusMessage" class="status-message"></div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="transaction-section">
+            <h2 style="margin-bottom: 1.5rem;">📊 Platform Stats</h2>
+            <div class="wallet-info">
+                <div class="info-card">
+                    <div class="info-label">Total Tips Sent</div>
+                    <div class="info-value" id="totalTips">0.00 ETH</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">NFTs Minted</div>
+                    <div class="info-value" id="nftsMinted">0</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Active Streamers</div>
+                    <div class="info-value" id="activeStreamers">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Contract Configuration
+        const CONTRACT_ADDRESS = "0xD699d61Ce1554d4f7ef4b853283845F354f8a9Db";
+        const SEPOLIA_CHAIN_ID = "0xaa36a7"; // 11155111 in hex
+        
+        let provider = null;
+        let signer = null;
+        let userAddress = null;
+
+        // Initialize
+        window.addEventListener('load', () => {
+            if (typeof window.ethereum !== 'undefined') {
+                console.log('MetaMask detected!');
+                checkConnection();
+            } else {
+                showStatus('Please install MetaMask to use Web3 features', 'error');
+            }
+        });
+
+        // Check if already connected
+        async function checkConnection() {
+            try {
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_accounts' 
+                });
+                
+                if (accounts.length > 0) {
+                    await connectWallet();
+                }
+            } catch (error) {
+                console.error('Error checking connection:', error);
+            }
+        }
+
+        // Connect Wallet
+        async function connectWallet() {
+            try {
+                showStatus('Connecting to MetaMask...', 'info');
+                
+                // Request account access
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                
+                // Switch to Sepolia network
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: SEPOLIA_CHAIN_ID }],
+                    });
+                } catch (switchError) {
+                    // This error code indicates that the chain has not been added to MetaMask
+                    if (switchError.code === 4902) {
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: SEPOLIA_CHAIN_ID,
+                                chainName: 'Sepolia Testnet',
+                                nativeCurrency: {
+                                    name: 'SepoliaETH',
+                                    symbol: 'ETH',
+                                    decimals: 18
+                                },
+                                rpcUrls: ['https://sepolia.infura.io/v3/'],
+                                blockExplorerUrls: ['https://sepolia.etherscan.io/']
+                            }]
+                        });
+                    }
+                }
+                
+                // Set up provider and signer
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+                userAddress = accounts[0];
+                
+                // Update UI
+                document.getElementById('walletAddress').textContent = 
+                    userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
+                document.getElementById('networkName').textContent = 'Sepolia Testnet';
+                
+                // Get balance
+                const balance = await provider.getBalance(userAddress);
+                document.getElementById('ethBalance').textContent = 
+                    ethers.utils.formatEther(balance).slice(0, 6) + ' ETH';
+                
+                // Update buttons
+                document.getElementById('connectBtn').style.display = 'none';
+                document.getElementById('disconnectBtn').style.display = 'inline-block';
+                
+                showStatus('Wallet connected successfully!', 'success');
+                
+                // Update stats
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error connecting wallet:', error);
+                showStatus('Failed to connect wallet', 'error');
+            }
+        }
+
+        // Disconnect Wallet
+        function disconnectWallet() {
+            userAddress = null;
+            provider = null;
+            signer = null;
+            
+            document.getElementById('walletAddress').textContent = 'Click Connect';
+            document.getElementById('networkName').textContent = 'Not Connected';
+            document.getElementById('ethBalance').textContent = '0.00 ETH';
+            
+            document.getElementById('connectBtn').style.display = 'inline-block';
+            document.getElementById('disconnectBtn').style.display = 'none';
+            
+            showStatus('Wallet disconnected', 'info');
+        }
+
+        // Send Tip
+        async function sendTip() {
+            if (!signer) {
+                showStatus('Please connect your wallet first', 'error');
+                return;
+            }
+            
+            try {
+                const streamerAddress = document.getElementById('streamerAddress').value;
+                const tipAmount = document.getElementById('tipAmount').value;
+                
+                if (!ethers.utils.isAddress(streamerAddress)) {
+                    showStatus('Invalid streamer address', 'error');
+                    return;
+                }
+                
+                showStatus('Processing transaction...', 'info');
+                
+                // Send transaction
+                const tx = await signer.sendTransaction({
+                    to: streamerAddress,
+                    value: ethers.utils.parseEther(tipAmount)
+                });
+                
+                showStatus('Transaction sent! Waiting for confirmation...', 'info');
+                
+                // Wait for confirmation
+                await tx.wait();
+                
+                showStatus(`Tip sent successfully! TX: ${tx.hash.slice(0, 10)}...`, 'success');
+                
+                // Update balance
+                const balance = await provider.getBalance(userAddress);
+                document.getElementById('ethBalance').textContent = 
+                    ethers.utils.formatEther(balance).slice(0, 6) + ' ETH';
+                
+                // Update stats
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error sending tip:', error);
+                showStatus('Transaction failed: ' + error.message, 'error');
+            }
+        }
+
+        // Mint NFT (placeholder)
+        async function mintNFT() {
+            if (!signer) {
+                showStatus('Please connect your wallet first', 'error');
+                return;
+            }
+            
+            showStatus('NFT minting coming soon! Your drone footage will be tokenized.', 'info');
+            
+            // In production, this would interact with your NFT contract
+            // Example:
+            // const contract = new ethers.Contract(NFT_CONTRACT_ADDRESS, NFT_ABI, signer);
+            // const tx = await contract.mint(metadata);
+        }
+
+        // Start Earning
+        function startEarning() {
+            if (!userAddress) {
+                showStatus('Connect wallet to start earning from streams', 'error');
+                return;
+            }
+            
+            showStatus(`Your earning address: ${userAddress}`, 'success');
+            // Redirect to streaming page
+            setTimeout(() => {
+                window.location.href = '/pages/stream.html';
+            }, 2000);
+        }
+
+        // Show Tip Options
+        function showTipOptions() {
+            document.getElementById('tipAmount').focus();
+            showStatus('Enter amount and streamer address to send tip', 'info');
+        }
+
+        // Update Stats (simulated for demo)
+        function updateStats() {
+            // In production, these would be fetched from your smart contract
+            const totalTips = (Math.random() * 10).toFixed(2);
+            const nftsMinted = Math.floor(Math.random() * 100);
+            const activeStreamers = Math.floor(Math.random() * 50);
+            
+            document.getElementById('totalTips').textContent = totalTips + ' ETH';
+            document.getElementById('nftsMinted').textContent = nftsMinted;
+            document.getElementById('activeStreamers').textContent = activeStreamers;
+        }
+
+        // Show Status Message
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = 'status-message ' + type;
+            
+            if (type !== 'info') {
+                setTimeout(() => {
+                    statusEl.className = 'status-message';
+                }, 5000);
+            }
+        }
+
+        // Listen for account changes
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length === 0) {
+                    disconnectWallet();
+                } else {
+                    connectWallet();
+                }
+            });
+            
+            window.ethereum.on('chainChanged', () => {
+                window.location.reload();
+            });
+        }
+    </script>
+</body>
+</html>

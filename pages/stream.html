@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlueTubeTV - Live Streaming</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1e3a5f 50%, #3b82c4 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(10, 22, 40, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(59, 130, 196, 0.3);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #3b82c4, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #60a5fa;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Stream Section */
+        .stream-section {
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.9), rgba(59, 130, 196, 0.5));
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        .stream-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .stream-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #60a5fa, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Video Container */
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto 2rem;
+            background: #0a1628;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid rgba(59, 130, 196, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        #localVideo {
+            width: 100%;
+            height: auto;
+            display: block;
+            min-height: 500px;
+            background: linear-gradient(135deg, #0a1628, #1e3a5f);
+        }
+
+        .stream-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .live-badge {
+            background: #ef4444;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+            display: none;
+        }
+
+        .live-badge.active {
+            display: block;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .viewer-count {
+            background: rgba(10, 22, 40, 0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82c4, #60a5fa);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 196, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 196, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(30, 58, 95, 0.8);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 196, 0.5);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(59, 130, 196, 0.3);
+        }
+
+        /* Payment Section */
+        .payment-section {
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.7), rgba(59, 130, 196, 0.3));
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .payment-header h2 {
+            color: #93c5fd;
+            margin-bottom: 0.5rem;
+        }
+
+        .tip-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #60a5fa;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .payment-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .payment-btn {
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(59, 130, 196, 0.2), rgba(96, 165, 250, 0.2));
+            border: 1px solid rgba(96, 165, 250, 0.5);
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .payment-btn:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 196, 0.4), rgba(96, 165, 250, 0.4));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 196, 0.3);
+        }
+
+        /* Stream Info */
+        .stream-info {
+            background: rgba(10, 22, 40, 0.6);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 196, 0.3);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .info-item {
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.5), rgba(59, 130, 196, 0.2));
+            border-radius: 10px;
+            border: 1px solid rgba(96, 165, 250, 0.2);
+        }
+
+        .info-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            color: #93c5fd;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        /* Status Message */
+        #status {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(10, 22, 40, 0.8);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 196, 0.3);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .stream-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Drone Icon */
+        .drone-icon {
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">
+            <span class="drone-icon">🚁</span>
+            BlueTubeTV
+        </div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/browse">Browse</a>
+            <a href="/jobs">Jobs</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Stream Section -->
+        <div class="stream-section">
+            <div class="stream-header">
+                <h1>🔴 Go Live on BlueTubeTV</h1>
+                <p>Professional Drone Streaming Platform</p>
+            </div>
+
+            <!-- Status -->
+            <div id="status">Ready to stream • Click "Start Stream" to begin</div>
+
+            <!-- Video Container -->
+            <div class="video-container">
+                <video id="localVideo" autoplay muted></video>
+                <div class="stream-overlay">
+                    <div class="live-badge" id="liveBadge">🔴 LIVE</div>
+                    <div class="viewer-count">
+                        <span id="viewerCount">0</span> viewers
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button class="btn btn-primary" onclick="startStream()">
+                    🎬 Start Stream
+                </button>
+                <button class="btn btn-secondary" onclick="stopStream()">
+                    ⏹️ Stop Stream
+                </button>
+                <button class="btn btn-secondary" onclick="toggleAudio()">
+                    🎙️ Toggle Audio
+                </button>
+            </div>
+
+            <!-- Stream Info -->
+            <div class="stream-info">
+                <h3 style="color: #93c5fd; margin-bottom: 1rem;">Stream Analytics</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Stream Duration</div>
+                        <div class="info-value" id="duration">00:00:00</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Stream Quality</div>
+                        <div class="info-value">1080p HD</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Bitrate</div>
+                        <div class="info-value">4500 kbps</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Frame Rate</div>
+                        <div class="info-value">30 fps</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Section -->
+        <div class="payment-section">
+            <div class="payment-header">
+                <h2>💰 Support This Stream</h2>
+                <p>Show your appreciation with a tip!</p>
+            </div>
+
+            <div class="tip-display" id="tipDisplay">$0.00</div>
+
+            <div class="payment-buttons">
+                <a href="https://paypal.me/garlanjrobinson" target="_blank" class="payment-btn">
+                    💳 PayPal
+                </a>
+                <a href="https://cash.app/$Bluetubetv910" target="_blank" class="payment-btn">
+                    💵 CashApp
+                </a>
+                <a href="https://buymeacoffee.com/garlanjrobinson" target="_blank" class="payment-btn">
+                    ☕ Buy Me a Coffee
+                </a>
+                <a href="#" onclick="sendCrypto()" class="payment-btn">
+                    🪙 Send Crypto
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let localStream = null;
+        let startTime = null;
+        let timerInterval = null;
+        let audioEnabled = true;
+
+        async function startStream() {
+            try {
+                // Get user media
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        facingMode: 'user'
+                    },
+                    audio: true
+                });
+
+                // Display video
+                const video = document.getElementById('localVideo');
+                video.srcObject = localStream;
+
+                // Update UI
+                document.getElementById('status').innerHTML = '🔴 LIVE - Stream Active';
+                document.getElementById('status').style.background = 'rgba(239, 68, 68, 0.2)';
+                document.getElementById('status').style.border = '1px solid rgba(239, 68, 68, 0.5)';
+                document.getElementById('liveBadge').classList.add('active');
+
+                // Start timer
+                startTime = Date.now();
+                timerInterval = setInterval(updateTimer, 1000);
+
+                // Simulate viewer count
+                let viewers = 1;
+                setInterval(() => {
+                    viewers = Math.max(1, viewers + Math.floor(Math.random() * 3) - 1);
+                    document.getElementById('viewerCount').textContent = viewers;
+                }, 5000);
+
+                // Simulate tips
+                setTimeout(() => {
+                    simulateTip();
+                }, 10000);
+
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Please allow camera and microphone access to stream.');
+            }
+        }
+
+        function stopStream() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                document.getElementById('localVideo').srcObject = null;
+                document.getElementById('status').innerHTML = 'Stream ended • Click "Start Stream" to go live again';
+                document.getElementById('status').style.background = 'rgba(10, 22, 40, 0.8)';
+                document.getElementById('status').style.border = '1px solid rgba(59, 130, 196, 0.3)';
+                document.getElementById('liveBadge').classList.remove('active');
+                
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+            }
+        }
+
+        function toggleAudio() {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioEnabled = !audioEnabled;
+                    audioTrack.enabled = audioEnabled;
+                    alert(audioEnabled ? 'Microphone ON' : 'Microphone MUTED');
+                }
+            }
+        }
+
+        function updateTimer() {
+            if (startTime) {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const hours = Math.floor(elapsed / 3600);
+                const minutes = Math.floor((elapsed % 3600) / 60);
+                const seconds = elapsed % 60;
+                
+                document.getElementById('duration').textContent = 
+                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+        }
+
+        function simulateTip() {
+            const amounts = [5, 10, 20, 50, 100];
+            const amount = amounts[Math.floor(Math.random() * amounts.length)];
+            const currentTotal = parseFloat(document.getElementById('tipDisplay').textContent.replace('$', ''));
+            const newTotal = currentTotal + amount;
+            
+            document.getElementById('tipDisplay').textContent = `$${newTotal.toFixed(2)}`;
+            
+            // Animate the tip display
+            document.getElementById('tipDisplay').style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                document.getElementById('tipDisplay').style.transform = 'scale(1)';
+            }, 300);
+            
+            // Schedule next tip
+            setTimeout(() => {
+                if (document.getElementById('liveBadge').classList.contains('active')) {
+                    simulateTip();
+                }
+            }, Math.random() * 30000 + 10000);
+        }
+
+        function sendCrypto() {
+            alert('Crypto address: 0x742d35Cc6634C0532925a3b844Bc8e7e31bF0eF8');
+        }
+
+        // Generate stream key
+        function generateStreamKey() {
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let key = '';
+            for (let i = 0; i < 32; i++) {
+                key += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return key;
+        }
+
+        // Show stream key on load
+        window.onload = function() {
+            console.log('Stream Key:', generateStreamKey());
+        };
+    </script>
+</body>
+</html>

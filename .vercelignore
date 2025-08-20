@@ -1,0 +1,53 @@
+# Ignore build outputs
+.next
+out
+
+# Ignore dependencies
+node_modules
+
+# Ignore version control
+.git
+.gitignore
+
+# Ignore environment files
+.env*.local
+.env.local
+.env.development
+.env.test
+
+# Ignore logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# Ignore test files
+__tests__
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+cypress
+coverage
+.nyc_output
+
+# Ignore documentation
+README.md
+docs
+*.md
+
+# Ignore other non-essential files
+.eslintrc*
+.prettierrc*
+jest.config.*
+tsconfig.tsbuildinfo
