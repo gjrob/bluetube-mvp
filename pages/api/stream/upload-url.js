@@ -1,13 +1,26 @@
 // pages/api/stream/upload-url.js
- import { envServer } from '../../../../lib/env-server';
+import { envServer } from 'lib/env-server.js'; // or '../../../lib/env-server.js'
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
+
+  // Optional safety: fail fast if token missing
+  if (!envServer.CLOUDFLARE_STREAM_API_TOKEN) {
+    return res.status(500).json({ error: 'Missing CLOUDFLARE_STREAM_API_TOKEN' });
+  }
+
   const url = `https://api.cloudflare.com/client/v4/accounts/${envServer.CLOUDFLARE_ACCOUNT_ID}/stream/direct_upload`;
   const r = await fetch(url, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${envServer.CLOUDFLARE_STREAM_API_TOKEN}`, 'Content-Type': 'application/json' },
+    headers: {
+      Authorization: `Bearer ${envServer.CLOUDFLARE_STREAM_API_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({ maxDurationSeconds: 10800, timeoutSeconds: 600 }),
   });
+
   const j = await r.json();
-  return j.success ? res.json({ uploadURL: j.result.uploadURL, uid: j.result.uid }) : res.status(500).json(j);
+  return j.success
+    ? res.json({ uploadURL: j.result.uploadURL, uid: j.result.uid })
+    : res.status(500).json(j);
 }
