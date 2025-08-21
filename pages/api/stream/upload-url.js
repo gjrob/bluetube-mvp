@@ -1,6 +1,5 @@
 // pages/api/stream/upload-url.js
-import { envServer } from '../../lib/env-server';
-
+ import { envServer } from '../../../../lib/env-server';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   const url = `https://api.cloudflare.com/client/v4/accounts/${envServer.CLOUDFLARE_ACCOUNT_ID}/stream/direct_upload`;
