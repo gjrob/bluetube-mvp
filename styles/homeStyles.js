@@ -3,7 +3,7 @@
 export const homeStyles = {
   body: {
     margin: 0,
-    background: 'linear-gradient(180deg, #0a0e27 0%, #1a237e 50%, #0f172a 100%)',
+    background: 'linear-gradient(180deg, #0b1550 0%, #1e4fb1 55%, #0f1b3a 100%)',
     color: 'white',
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     minHeight: '100vh',
@@ -72,12 +72,71 @@ export const homeStyles = {
     cursor: 'pointer',
     transition: 'all 0.3s ease',
   },
-
+headline: {
+  fontSize: '56px',
+  fontWeight: 'bold',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '10px',
+  marginBottom: '15px',
+},
   // Layout containers
   container: {
+    minHeight: '100vh',
+    background: 'linear-gradient(180deg, #0b1550 0%, #1e4fb1 100%)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    textAlign: 'center',
+    padding: '40px 20px',
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: '60px 20px',
+  },
+  cubeCircle: {
+  width: '160px',
+  height: '160px',
+  borderRadius: '50%',
+  backgroundColor: 'rgba(8,20,53,0.35)',
+  boxShadow: 'inset 0 0 60px rgba(56,189,248,.15), 0 10px 40px rgba(56,189,248,.18)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: '30px',
+  overflow: 'hidden',          // ensures “no escape”
+},
+  headline: {
+    fontSize: '48px',
+    fontWeight: 'bold',
+    marginBottom: '15px',
+  },
+  subHeadline: {
+    fontSize: '18px',
+    opacity: 0.8,
+    marginBottom: '25px',
+  },
+  buttonRow: {
+    display: 'flex',
+    gap: '20px',
+    justifyContent: 'center',
+  },
+  button: {
+    padding: '12px 24px',
+    borderRadius: '8px',
+    fontSize: '16px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    border: 'none',
+  },
+  demoButton: {
+    backgroundColor: '#0ea5e9', // sky blue
+    color: 'white',
+  },
+  trialButton: {
+    background: 'linear-gradient(to right, #f97316, #ec4899)', // orange→pink
+    color: 'white',
   },
   header: {
     textAlign: 'center',
