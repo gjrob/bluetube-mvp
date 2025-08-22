@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 
-// Routes that require auth (extend as needed)
+// routes that require auth
 const PROTECTED = [
   '/dashboard',
   '/upload',
@@ -14,44 +14,55 @@ const PROTECTED = [
   '/jobs/post-job',
 ];
 
-export async function middleware(req) {
-  const { pathname, origin } = req.nextUrl;
+// canonical host: use www in prod
+function forceWww(req) {
+  if (process.env.NODE_ENV !== 'production') return null;
+  const url = req.nextUrl.clone();
+  if (url.hostname === 'bluetubetv.live') {
+    url.hostname = 'www.bluetubetv.live';
+    return NextResponse.redirect(url, 308);
+  }
+  return null;
+}
 
-  // Only guard protected routes
+export async function middleware(req) {
+  // 0) force canonical host (www) first
+  const canonical = forceWww(req);
+  if (canonical) return canonical;
+
+  const { pathname } = req.nextUrl;
+  // ignore if not protected
   const isProtected = PROTECTED.some((p) => pathname.startsWith(p));
   if (!isProtected) return NextResponse.next();
 
-  // 1) DEMO bypass (fast path; no Supabase call)
-  const demo = req.cookies.get('DEMO_MODE')?.value === '1';
+  // 1) DEMO bypass (cookie name 'demo', value '1' from /api/demo-login)
+  const demo = req.cookies.get('demo')?.value === '1';
   if (demo) return NextResponse.next();
 
-  // 2) Supabase session check
-  const res = NextResponse.next(); // must pass the same response to the client
+  // 2) Supabase session check (edge-safe)
+  const res = NextResponse.next();
   try {
     const supabase = createMiddlewareClient({ req, res });
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
+    const { data: { session } } = await supabase.auth.getSession();
     if (session) return res;
 
-    // 3) Not authed → redirect to login (preserve intended path)
-    const url = new URL('/login', origin);
+    // 3) not authed → redirect to login and preserve intended path
+    const url = req.nextUrl.clone();
+    url.pathname = '/login';
     url.searchParams.set('redirect', pathname);
     return NextResponse.redirect(url);
-  } catch (e) {
-    // On any error, fall back to redirect (safer than silently allowing)
-    const url = new URL('/login', origin);
+  } catch {
+    // on any error, be safe: send to login
+    const url = req.nextUrl.clone();
+    url.pathname = '/login';
     url.searchParams.set('redirect', pathname);
     return NextResponse.redirect(url);
   }
 }
 
-// Let Next.js ignore static assets & APIs automatically
+// let next.js skip assets and api routes
 export const config = {
   matcher: [
-    // everything except:
-    // - /api/*, /_next/static/*, /_next/image/*, /favicon.ico, /public/*
-    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.json).*)',
   ],
 };
