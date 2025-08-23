@@ -2,8 +2,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import dynamic from 'next/dynamic'
-
-const ReactPlayer = dynamic(() => import('react-player/lazy'), { ssr: false })
+import ReactPlayer from 'react-player'
 
 export default function LiveStreamPage() {
   const router = useRouter()
