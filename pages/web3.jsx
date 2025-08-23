@@ -24,6 +24,7 @@ const SUPERCHAT_CONTRACT =
 
 function Web3Page() {
   // UI state
+  const [wallet, setWallet] = useState(null);
   const [haveMM, setHaveMM] = useState(false);
   const [addr, setAddr] = useState("");
   const [network, setNetwork] = useState("Not Connected");
@@ -43,9 +44,11 @@ function Web3Page() {
   const ensureChain = useCallback(async () => {
     if (!ethersReady()) return;
     try {
+      // ensure Sepolia (11155111)
+      const sepolia = '0xaa36a7';
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
-        params: [{ chainId: CHAIN_HEX }],
+        params: [{ chainId: sepolia }],
       });
     } catch (e) {
       if (e?.code === 4902) {
@@ -54,7 +57,7 @@ function Web3Page() {
           method: "wallet_addEthereumChain",
           params: [
             {
-              chainId: CHAIN_HEX,
+              chainId: '0xaa36a7',
               chainName: `${NETWORK_NAME} Testnet`,
               nativeCurrency: { name: `${NETWORK_NAME}ETH`, symbol: "ETH", decimals: 18 },
               rpcUrls: [process.env.NEXT_PUBLIC_RPC_URL || "https://rpc.sepolia.org"],
@@ -63,7 +66,7 @@ function Web3Page() {
           ],
         });
       } else {
-        throw e;
+        console.warn(e);
       }
     }
   }, []);
@@ -86,6 +89,7 @@ function Web3Page() {
       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
       const address = accounts?.[0] || "";
       setAddr(address);
+      setWallet(address);
       setNetwork(`${NETWORK_NAME} Testnet`);
       await refreshBalance(address);
       show("Wallet connected!", "success");
@@ -97,6 +101,7 @@ function Web3Page() {
 
   const disconnect = () => {
     setAddr("");
+    setWallet(null);
     setNetwork("Not Connected");
     setBalanceEth("0.00");
     show("Wallet disconnected", "info");
@@ -155,7 +160,7 @@ function Web3Page() {
         <title>Web3 | BlueTubeTV</title>
       </Head>
 
-      {/* Ethers v5 via CDN so we don’t add deps */}
+      {/* Ethers v5 via CDN so we don't add deps */}
       <Script
         src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"
         strategy="afterInteractive"
@@ -234,7 +239,7 @@ function Web3Page() {
               title="Crypto Tips"
               desc="Accept tips in ETH and stablecoins. Instant settlement."
               action="Send Tip"
-              onClick={() => document.getElementById("tipAmount").focus()}
+              onClick={() => document.getElementById("tipAmount")?.focus()}
             />
           </div>
 
@@ -259,7 +264,15 @@ function Web3Page() {
                 step="0.001"
                 id="tipAmount"
               />
-              <button className="btn" onClick={sendTip}>Send Tip 💰</button>
+              <button 
+                className="btn"
+                disabled={!wallet} 
+                title={!wallet ? 'Connect wallet first' : ''} 
+                onClick={sendTip}
+                style={{ width: "100%" }}
+              >
+                {wallet ? `Connected: ${wallet.slice(0,6)}…${wallet.slice(-4)}` : 'Connect Wallet'} - Send Tip 💰
+              </button>
             </div>
             {!!status.text && (
               <div
@@ -298,6 +311,7 @@ function Web3Page() {
           transition: transform 0.2s, box-shadow 0.2s;
         }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(59,130,196,.5); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
       `}</style>
     </>
   );

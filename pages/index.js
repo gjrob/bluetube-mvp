@@ -3,6 +3,7 @@ import { navigationFixes } from '../components/NavigationFix';
 import { useActivePilots, useLiveViewers } from '../hooks/useRealData';
 import { homeStyles as styles } from '../styles/homeStyles';
 import CubeInCircle from '../components/CubeInCircle';
+import StartStreamButton from '../components/StartStreamButton';
 
 const HomePage = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -148,38 +149,38 @@ const HomePage = () => {
         </div>
 
         <div style={styles.container}>
-          {/* HERO (inline cube between “BlueTube” and “TV”) */}
+          {/* HERO (inline cube between "BlueTube" and "TV") */}
           <section style={{ marginBottom: '80px', textAlign: 'center' }}>
-           <h1 style={styles.headline}>
-  <span style={{ color: '#fff' }}>BlueTube</span>
+            <h1 style={styles.headline}>
+              <span style={{ color: '#fff' }}>BlueTube</span>
 
-  {/* inline cube between "BlueTube" and "TV" */}
-  <span
-    style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      margin: '0 12px',        // a bit more breathing room
-      lineHeight: 0,           // isolates the cube from text line-height
-      verticalAlign: 'middle',
-      transform: 'translateY(2px)', // subtle baseline tweak, prevents overlap
-    }}
-  >
-    <CubeInCircle
-      circleSize={100}   // was 44 — slightly bigger
-      cubeSize={48}     // keep ~12–14px smaller than circle
-      edge="rgba(56,189,248,.95)"
-      face="#0b122d"
-      tiltX={-38}
-      tiltZ={-38}
-      spinSec={9}
-    />
-  </span>
+              {/* inline cube between "BlueTube" and "TV" */}
+              <span
+                className="inline-cube"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 12px',
+                  lineHeight: 0,
+                  verticalAlign: 'middle',
+                  transform: 'translateY(2px)',
+                }}
+              >
+                <CubeInCircle
+                  circleSize={100}
+                  cubeSize={48}
+                  edge="rgba(56,189,248,.95)"
+                  face="#0b122d"
+                  tiltX={-38}
+                  tiltZ={-38}
+                  spinSec={9}
+                />
+              </span>
 
-  <span style={{ color: '#38bdf8', marginRight: 6 }}>TV</span>
-  <span style={{ color: '#38bdf8' }}>Empire</span>
-</h1>
-
+              <span style={{ color: '#38bdf8', marginRight: 6 }}>TV</span>
+              <span style={{ color: '#38bdf8' }}>Empire</span>
+            </h1>
 
             <p style={styles.subHeadline}>
               From blockchain idea to streaming empire in 6 months
@@ -262,14 +263,23 @@ const HomePage = () => {
               <button onClick={() => (window.location.href = '/pilot-setup')} style={styles.buttonPrimary}>
                 🚁 Become a Pilot
               </button>
-              <button
-                id="start-streaming-btn"
-                className="live-badge"
-                onClick={() => (window.location.href = '/signup?role=pilot')}
-                style={{ ...styles.signInButton, padding: '20px 40px', fontSize: 18 }}
-              >
-                <span className="live-dot"></span> 🔴 Start Streaming
-              </button>
+              
+              <div style={{ display: 'flex', gap: 16 }}>
+                <StartStreamButton />
+                <button
+                  onClick={() => (window.location.href = '/tip')}
+                  style={{ 
+                    padding: '12px 24px', 
+                    borderRadius: 10, 
+                    border: 'none', 
+                    background: 'linear-gradient(135deg, #f59e0b, #f97316)', 
+                    color: '#fff', 
+                    fontWeight: 700 
+                  }}
+                >
+                  💰 Send Tip
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -316,7 +326,7 @@ const HomePage = () => {
         </footer>
       </div>
 
-      {/* badge dot animation */}
+      {/* CSS for badge dot animation */}
       <style jsx>{`
         .live-badge .live-dot {
           display: inline-block;
@@ -328,15 +338,19 @@ const HomePage = () => {
           box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
           animation: pulse 1.6s infinite;
         }
+        
         @media (max-width: 640px) {
-  .inline-cube { transform: translateY(1px) scale(0.85); }
-}
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-  70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-}
-    `}</style>
+          .inline-cube { 
+            transform: translateY(1px) scale(0.85); 
+          }
+        }
+        
+        @keyframes pulse {
+          0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+          70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+      `}</style>
     </div>
   );
 };

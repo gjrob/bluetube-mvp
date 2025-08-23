@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import StartStreamButton from '@components/StartStreamButton';
 
 const BG = 'linear-gradient(180deg,#0a1628 0%,#1e3a5f 60%,#0b2746 100%)'; // BlueTube theme
 

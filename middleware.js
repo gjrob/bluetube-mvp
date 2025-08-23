@@ -44,7 +44,17 @@ export async function middleware(req) {
   try {
     const supabase = createMiddlewareClient({ req, res });
     const { data: { session } } = await supabase.auth.getSession();
-    if (session) return res;
+  if (session) {
+  const verified = !!session.user?.email_confirmed_at;
+  if (!verified) {
+    const url = req.nextUrl.clone();
+    url.pathname = '/login';
+    url.searchParams.set('redirect', req.nextUrl.pathname);
+    url.searchParams.set('msg', 'verify');
+    return NextResponse.redirect(url);
+  }
+  return res;
+}
 
     // 3) not authed → redirect to login and preserve intended path
     const url = req.nextUrl.clone();

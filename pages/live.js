@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import StartStreamButton from '../components/StartStreamButton';
 
 // client-only supabase to avoid SSR issues
 const createClientComponentClient = () =>
@@ -24,37 +25,51 @@ export default function Live() {
     const fetchLive = async () => {
       setLoading(true);
       setErr('');
-      // Be explicit about columns that actually exist; include optionals if present
-      const { data, error } = await supabase
-        .from('streams')
-        .select(`
-          id,
-          is_live,
-          viewer_count,
-          started_at,
-          created_at,
-          playback_url,
-          rtmp_url,
-          platform,
-          title,
-          name,
-          users:users(username,id)
-        `)
-        .eq('is_live', true);
+      
+      try {
+        // Be explicit about columns that actually exist; include optionals if present
+const { data, error } = await supabase.from('streams').select('*').eq('is_live', true);
 
-      if (error) {
-        setErr(error.message);
+if (!error && data.length) {
+  const ids = [...new Set(data.map(s => s.pilot_id))];
+  const { data: users } = await supabase.from('users')
+    .select('id, username, avatar_url')
+    .in('id', ids);
+
+  const byId = Object.fromEntries((users || []).map(u => [u.id, u]));
+  const withUser = streams.map(s => ({ ...s, user: byId[s.pilot_id] || null }));
+  // render withUser
+}
+
+        if (error) {
+          // Log error to self-heal API
+          await fetch('/api/selfheal/log', {
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              kind: 'fetch_live_error',
+              message: error.message,
+              href: window.location.href
+            })
+          });
+          
+          setErr(error.message);
+          setRows([]);
+        } else {
+          // Prefer DB order if you have started_at; else sort locally by created_at desc
+          const sorted = [...(data || [])].sort((a, b) => {
+            const aT = a?.started_at || a?.created_at || 0;
+            const bT = b?.started_at || b?.created_at || 0;
+            return new Date(bT) - new Date(aT);
+          });
+          setRows(sorted);
+        }
+      } catch (fetchError) {
+        setErr(fetchError.message || 'Failed to fetch live streams');
         setRows([]);
-      } else {
-        // Prefer DB order if you have started_at; else sort locally by created_at desc
-        const sorted = [...(data || [])].sort((a, b) => {
-          const aT = a?.started_at || a?.created_at || 0;
-          const bT = b?.started_at || b?.created_at || 0;
-          return new Date(bT) - new Date(aT);
-        });
-        setRows(sorted);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchLive();
@@ -84,6 +99,7 @@ export default function Live() {
           <Link href="/dashboard" style={styles.navLink}>Dashboard</Link>
           <Link href="/marketplace" style={styles.navLink}>Marketplace</Link>
           <Link href="/jobs" style={styles.navLink}>Jobs</Link>
+          <StartStreamButton />
         </div>
       </nav>
 
@@ -94,7 +110,7 @@ export default function Live() {
           <div style={styles.error}>
             {err}
             <div style={{marginTop:8, fontSize:13, opacity:.8}}>
-              Tip: this page doesn’t require a <code>title</code> column. It will
+              Tip: this page doesn't require a <code>title</code> column. It will
               gracefully use <code>name</code> or the ID if title is missing.
             </div>
           </div>
@@ -163,7 +179,7 @@ const styles = {
     fontSize: 22,
     fontWeight: 800,
   },
-  navRight: { display: 'flex', gap: 18 },
+  navRight: { display: 'flex', gap: 18, alignItems: 'center' },
   navLink: { color: '#c7d2fe', textDecoration: 'none' },
   container: { maxWidth: 1200, margin: '0 auto', padding: 24 },
   h1: { margin: '8px 0 24px', fontWeight: 800 },

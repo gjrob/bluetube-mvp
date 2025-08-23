@@ -7,8 +7,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { email } = req.body || {}; // optional when user not logged in
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || '';
   try {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -16,8 +15,8 @@ export default async function handler(req, res) {
       // collect email in Checkout if you don't have login:
       customer_email: email || undefined,
       // Always set local success/cancel when testing locally:
-      success_url: `${appUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/pricing?canceled=1`,
+      success_url: appUrl ? `${appUrl}/success?session_id={CHECKOUT_SESSION_ID}` : `/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: appUrl ? `${appUrl}/pricing` : `/pricing`,
       automatic_tax: { enabled: true },
     });
 

@@ -2,7 +2,7 @@
 import Head from "next/head";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
-
+import VerifiedGate from '@components/VerifiedGate';
 function StreamPage() {
   const videoRef = useRef(null);
   const [stream, setStream] = useState(null);
