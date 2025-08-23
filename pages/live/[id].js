@@ -2,6 +2,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import dynamic from 'next/dynamic'
+import ReactPlayer from 'react-player'
 
 const ReactPlayer = dynamic(() => import('react-player/lazy'), { ssr: false })
 
