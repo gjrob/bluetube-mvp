@@ -24,6 +24,8 @@ const SUPERCHAT_CONTRACT =
 
 function Web3Page() {
   // UI state
+  const [isConnected, setIsConnected] = useState(false);
+  const [account, setAccount] = useState(null);
   const [wallet, setWallet] = useState(null);
   const [haveMM, setHaveMM] = useState(false);
   const [addr, setAddr] = useState("");
@@ -70,7 +72,6 @@ function Web3Page() {
       }
     }
   }, []);
-
   const refreshBalance = useCallback(async (address) => {
     if (!ethersReady() || !address) return;
     const provider = new window.ethers.providers.Web3Provider(window.ethereum);
@@ -134,7 +135,6 @@ function Web3Page() {
     show(`Your earning address: ${addr}`, "success");
     setTimeout(() => (window.location.href = "/stream"), 800);
   };
-
   const mintNFT = () => {
     show("NFT minting coming soon (will connect to your NFT contract).", "info");
   };
@@ -264,15 +264,19 @@ function Web3Page() {
                 step="0.001"
                 id="tipAmount"
               />
-              <button 
-                className="btn"
-                disabled={!wallet} 
-                title={!wallet ? 'Connect wallet first' : ''} 
-                onClick={sendTip}
-                style={{ width: "100%" }}
-              >
-                {wallet ? `Connected: ${wallet.slice(0,6)}…${wallet.slice(-4)}` : 'Connect Wallet'} - Send Tip 💰
-              </button>
+              <button className="btn" onClick={sendTip} style={{ width: "100%" }}>Send Tip</button>
+<button 
+  className="btn"
+  onClick={addr ? sendTip : connect}
+  style={{ width: "100%" }}
+>
+  {addr
+    ? `Send Tip 💰 (${addr.slice(0, 6)}…${addr.slice(-4)})`
+    : haveMM
+    ? 'Connect Wallet to Tip'
+    : 'Install MetaMask'
+  }
+</button>
             </div>
             {!!status.text && (
               <div
