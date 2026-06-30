@@ -1,12 +1,11 @@
 // pages/marketplace.js
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '../lib/supabaseClient';
 
 export default function Marketplace() {
   const [videos, setVideos] = useState([]);
   const [filter, setFilter] = useState('all');
-  const supabase = createClientComponentClient();
 
   useEffect(() => {
     fetchVideos();

@@ -3,21 +3,12 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import StartStreamButton from '../components/StartStreamButton';
-
-// client-only supabase to avoid SSR issues
-const createClientComponentClient = () =>
-  import('@supabase/auth-helpers-nextjs').then(m => m.createClientComponentClient());
+import { supabase } from '../lib/supabaseClient';
 
 export default function Live() {
-  const [supabase, setSupabase] = useState(null);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
-
-  // init client on mount
-  useEffect(() => {
-    createClientComponentClient().then(setSupabase);
-  }, []);
 
   useEffect(() => {
     if (!supabase) return;

@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '../lib/supabaseClient';
 
 export default function PostJob() {
   const [isClient, setIsClient] = useState(false);
@@ -19,7 +19,6 @@ export default function PostJob() {
   
   // Only use router on client side
   const router = typeof window !== 'undefined' ? useRouter() : null;
-  const supabase = createClientComponentClient();
 
   useEffect(() => {
     setIsClient(true);

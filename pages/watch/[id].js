@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '../../lib/supabaseClient';
 
 import Layout from '../../components/Layout';
 
@@ -19,7 +19,6 @@ export default function WatchStream() {
   const router = useRouter();
   const { id } = router.query;
 
-  const supabase = useMemo(() => createClientComponentClient(), []);
   const [loading, setLoading] = useState(true);
   const [stream, setStream]   = useState(null);
   const [error, setError]     = useState(null);
