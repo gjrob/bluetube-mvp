@@ -2,13 +2,8 @@
 import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useRouter } from 'next/router'
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabaseClient'
 import analytics from '../lib/analytics-enhanced';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
 export default function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

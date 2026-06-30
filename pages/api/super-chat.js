@@ -2,14 +2,17 @@
 // COPY THIS ENTIRE FILE - IT ONLY RETURNS JSON, NO HTML!
 
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
+// Server-side money route: writes the RLS-protected transactions table, so it
+// must use the service-role client (anon is blocked by RLS).
+import supabaseAdmin from '../../lib/supabase-admin';
 
 // Initialize services (with fallbacks for testing)
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy');
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
-  process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-key'
-);
+
+// UUID guard — pilot_id / client_pilot_id are now uuid FKs to auth.users(id)
+const isUuid = (s) =>
+  typeof s === 'string' &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s);
 
 // Tier helper
 function getTier(amount) {
@@ -38,9 +41,9 @@ export default async function handler(req, res) {
     const { 
       amount = 25, 
       message = '', 
-      streamId = 'test-stream', 
-      userId = 'test-user',
-      pilotId = 'test-pilot'
+      streamId = 'test-stream',
+      userId = null,
+      pilotId = null
     } = req.body;
 
     // Validate amount
@@ -75,11 +78,16 @@ export default async function handler(req, res) {
       }
     }
 
-    // Try to save to database
+    // Try to save to database — only when we have real user/pilot UUIDs
+    // (pilot_id / client_pilot_id are uuid FKs -> auth.users(id)).
     let transactionId = null;
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://dummy.supabase.co') {
+    const canPersist = isUuid(userId) && isUuid(pilotId);
+    if (!canPersist) {
+      console.warn('super-chat: skipping DB save — userId/pilotId not valid UUIDs');
+    }
+    if (canPersist && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://dummy.supabase.co') {
       try {
-        const { data: transaction } = await supabase
+        const { data: transaction } = await supabaseAdmin
           .from('transactions')
           .insert({
             transaction_type: 'superchat',

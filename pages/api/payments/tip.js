@@ -1,5 +1,7 @@
 // pages/api/payments/tip.js
-import { supabase } from '../../../lib/supabase';
+// Server-side money route: writes to the RLS-protected profiles table, so it
+// must use the service-role client (anon is blocked by RLS).
+import supabaseAdmin from '../../../lib/supabase-admin';
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -68,7 +70,7 @@ async function sendTip(req, res) {
       payment_notes: message
     };
 
-    const { data: savedPayment, error: saveError } = await supabase
+    const { data: savedPayment, error: saveError } = await supabaseAdmin
       .from('pilot_payments')
       .insert(paymentData)
       .select()
@@ -126,7 +128,7 @@ async function getPaymentHistory(req, res) {
     }
 
     // Build query for payments where user is sender or recipient
-    let query = supabase
+    let query = supabaseAdmin
       .from('pilot_payments')
       .select('*')
       .or(`sender_user_id.eq.${userId},recipient_pilot_id.eq.${userId}`);
@@ -281,40 +283,25 @@ async function processCryptoPayment(amount, txHash) {
 }
 
 // UPDATE PILOT EARNINGS
+// profiles is the identity spine (id = auth.users.id). The deprecated
+// drone_pilots / user_profiles satellites were retired in the 2026-06-25 consolidation.
 async function updatePilotEarnings(pilotId, amount) {
   try {
-    // Update pilot profile with new earnings
-    const { data: pilot } = await supabase
-      .from('drone_pilots')
-      .select('completed_flights')
-      .eq('supabase_user_id', pilotId)
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('total_earnings, total_tips_received')
+      .eq('id', pilotId)
       .single();
 
-    if (pilot) {
-      await supabase
-        .from('drone_pilots')
-        .update({ 
-          completed_flights: (pilot.completed_flights || 0) + 1 
+    if (profile) {
+      await supabaseAdmin
+        .from('profiles')
+        .update({
+          total_earnings: (profile.total_earnings || 0) + amount,
+          total_tips_received: (profile.total_tips_received || 0) + amount
         })
-        .eq('supabase_user_id', pilotId);
+        .eq('id', pilotId);
     }
-
-    // Update user profile total earnings
-    const { data: userProfile } = await supabase
-      .from('user_profiles')
-      .select('total_earnings')
-      .eq('supabase_user_id', pilotId)
-      .single();
-
-    if (userProfile) {
-      await supabase
-        .from('user_profiles')
-        .update({ 
-          total_earnings: (userProfile.total_earnings || 0) + amount 
-        })
-        .eq('supabase_user_id', pilotId);
-    }
-
   } catch (error) {
     console.warn('Failed to update pilot earnings:', error);
   }
